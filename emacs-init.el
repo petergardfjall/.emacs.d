@@ -167,7 +167,11 @@
   (defun py-buffer-setup ()
     (message "python buffer setup hook ...")
     (linum-mode t)
+
     (add-to-list 'company-backends 'company-jedi)
+    ;; set up jedi to use python3
+    (setq jedi:environment-virtualenv
+	  (list "virtualenv" "--python" "/usr/bin/python3"))
     ;; use minibuffer instead of pop-up to display method signature
     (setq jedi:tooltip-method nil)
     ;; Set up recommended key bindings (optional)
