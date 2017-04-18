@@ -32,7 +32,8 @@
     yaml-mode
     ;; Python editing
     python         ;; Python mode
-    company-jedi           ;; Python auto-completion and method signature help
+    company-jedi   ;; Python auto-completion and method signature help
+    sphinx-doc     ;; Templated docstring when pressing C-c M-d in function head
     ;; Go editing
     go-mode        ;; Golang mode
     company-go     ;; auto-complete
@@ -162,12 +163,15 @@
 (defun python-setup-hook ()
   (message "python-setup-hook ...")
   (require 'python)
-
+  (require 'sphinx-doc)
+  
   ;; mode hooks are evaluated once per buffer
   (defun py-buffer-setup ()
     (message "python buffer setup hook ...")
     (linum-mode t)
-
+    ;; C-c M-d with cursor in method signature to generate docstring template
+    (sphinx-doc-mode t)
+    
     (add-to-list 'company-backends 'company-jedi)
     ;; set up jedi to use python3
     (setq jedi:environment-virtualenv
