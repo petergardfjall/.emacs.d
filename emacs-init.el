@@ -94,6 +94,7 @@
 (add-hook 'after-init-hook 'go-setup-hook)
 (add-hook 'after-init-hook 'js-setup-hook)
 (add-hook 'after-init-hook 'yaml-setup-hook)
+(add-hook 'after-init-hook 'markdown-setup-hook)
 (add-hook 'after-init-hook 'terraform-setup-hook)
 
 (defun theme-setup-hook ()
@@ -143,7 +144,7 @@
   ;; refresh neotree: show entire project, set position to current buffer
   (global-set-key [f9] 'neotree-show-project-aware)
 
-  
+
   (require 'company)
   (global-company-mode)
   (require 'company-quickhelp)
@@ -153,7 +154,7 @@
   (setq company-echo-delay 0)     ; remove annoying blinking
   (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
 
-  
+
   ;; On-the-fly syntax checking (support for different languages)
   ;;(require 'flycheck)
   ;;(global-flycheck-mode)
@@ -164,14 +165,14 @@
   (message "python-setup-hook ...")
   (require 'python)
   (require 'sphinx-doc)
-  
+
   ;; mode hooks are evaluated once per buffer
   (defun py-buffer-setup ()
     (message "python buffer setup hook ...")
     (linum-mode t)
     ;; C-c M-d with cursor in method signature to generate docstring template
     (sphinx-doc-mode t)
-    
+
     (add-to-list 'company-backends 'company-jedi)
     ;; set up jedi to use python3
     (setq jedi:environment-virtualenv
@@ -209,7 +210,7 @@
     ;; type information in minibuffer
     (require 'go-eldoc)
     (go-eldoc-setup)
-    
+
 
     (add-hook 'before-save-hook 'gofmt-before-save)
     (local-set-key (kbd "C-c C-d")  'godoc-at-point)
@@ -240,9 +241,19 @@
     (linum-mode t))
   (add-hook 'yaml-mode-hook 'yaml-buffer-setup))
 
+
+(defun markdown-setup-hook ()
+  (message "markdown-setup-hook ...")
+  (defun markdown-buffer-setup ()
+    (message "markdown buffer setup hook ...")
+    ;; automatically break lines exceeding 80 characters
+    (set-fill-column 80)
+    (auto-fill-mode))
+  (add-hook 'markdown-mode-hook 'markdown-buffer-setup))
+
 (defun terraform-setup-hook ()
   (message "terraform-setup-hook ...")
-  (custom-set-variables '(terraform-indent-level 4))  
+  (custom-set-variables '(terraform-indent-level 4))
   (defun terraform-buffer-setup ()
     (message "terraform buffer setup hook ...")
     ;; show line numbers
