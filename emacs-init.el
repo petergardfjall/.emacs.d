@@ -253,7 +253,7 @@
 
 (defun terraform-setup-hook ()
   (message "terraform-setup-hook ...")
-  (custom-set-variables '(terraform-indent-level 4))
+  (custom-set-variables '(terraform-indent-level 2))
   (defun terraform-buffer-setup ()
     (message "terraform buffer setup hook ...")
     ;; show line numbers
