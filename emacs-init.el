@@ -40,6 +40,10 @@
     go-eldoc       ;; shows type info for var/func/curr arg position.
     ;; TODO: install YAsnippet for template support (see https://dominik.honnef.co/posts/2013/03/emacs-go-1/)
     terraform-mode
+    ;; Rust editing
+    rust-mode
+    racer          ;; code completion and source navigation for Rust
+    flycheck-rust  ;; on-the-fly syntax checking
     )
   "A list of packages that are to be installed at launch (unless present).")
 
@@ -96,6 +100,7 @@
 (add-hook 'after-init-hook 'yaml-setup-hook)
 (add-hook 'after-init-hook 'markdown-setup-hook)
 (add-hook 'after-init-hook 'terraform-setup-hook)
+(add-hook 'after-init-hook 'rust-setup-hook)
 
 (defun theme-setup-hook ()
   (message "theme-setup-hook ...")
@@ -259,6 +264,34 @@
     ;; show line numbers
     (linum-mode t))
   (add-hook 'terraform-mode-hook 'terraform-buffer-setup))
+
+(defun rust-setup-hook ()
+  ;; http://julienblanchard.com/2016/fancy-rust-development-with-emacs/
+  (message "rust-setup-hook ...")
+  (require 'rust-mode)
+
+  ;; mode hooks are evaluated once per buffer
+  (defun rust-buffer-setup ()
+    (message "rust buffer setup hook ...")
+    (linum-mode t)
+    (global-flycheck-mode)
+
+    ;; note: must install racer (code completion) with 'cargo install racer'
+    (setq racer-cmd "~/.cargo/bin/racer")
+    (setq racer-rust-src-path (substitute-in-file-name "${RUST_SRC}"))
+
+    (local-set-key (kbd "<M-down>") 'racer-find-definition)
+    (local-set-key (kbd "<M-up>")   'pop-tag-mark)
+    )
+  (add-hook 'rust-mode-hook 'rust-buffer-setup)
+  ;; activate racer code-completion when rust-mode starts
+  (add-hook 'rust-mode-hook #'racer-mode)
+  ;; activate eldoc-mode (show fn arg list in echo area) when racer-mode starts
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  ;; activate company-mode (completion mode) when racer-mode starts
+  (add-hook 'racer-mode-hook #'company-mode)
+  ;; syntax checking when fly-mode starts
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 ;
 ; load any local modules from module directory in lexicographical order
