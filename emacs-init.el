@@ -14,6 +14,10 @@
 (add-to-list 'package-archives
 	     '("org" . "http://orgmode.org/elpa/") t)
 
+;; Prevent emacs from writing customized settings to .emacs
+;; By setting it as a temporary file, we effectively disable it.
+;; Any changes become session-local.
+(setq custom-file (make-temp-file "emacs-custom"))
 
 ;; Common Lisp for Emacs
 (require 'cl-lib)
@@ -326,7 +330,7 @@
     ;;     export GTAGSDBPATH=/var/dbpath
     ;;     global inet_csk_accept
     ;;     emacs net/ipv4/inet_connection_sock.c
-    ;; After this, ggtags in emacs should be able to find definitions, etc.    
+    ;; After this, ggtags in emacs should be able to find definitions, etc.
     ;; See: https://www.gnu.org/software/global/manual/global.html#Applied-usage
     (ggtags-mode 1)
     ;; find definition works as follows:
