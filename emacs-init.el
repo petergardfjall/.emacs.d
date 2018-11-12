@@ -35,6 +35,8 @@
     markdown-mode
     ;; Yaml editing
     yaml-mode
+    ;; TOML editing
+    toml-mode
     ;; emacs Language Server Protocol client
     lsp-mode       ;; client library for the Language Server Protocol
     lsp-ui
