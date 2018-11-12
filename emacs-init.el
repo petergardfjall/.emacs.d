@@ -117,6 +117,10 @@
   (require 'material-theme)
   (load-theme 'material t)
 
+  ;; set initial frame width (in characters)
+  (if (display-graphic-p)
+      (setq initial-frame-alist '((width . 140) )))
+
   (require 'powerline)
   (powerline-default-theme)
 
@@ -378,6 +382,5 @@
 (dolist (module sortedmodules)
   (load-file module)
 )
-
 
 (message "%s" "emacs.init done.")
