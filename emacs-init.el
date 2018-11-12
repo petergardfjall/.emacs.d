@@ -35,15 +35,17 @@
     markdown-mode
     ;; Yaml editing
     yaml-mode
+    ;; emacs Language Server Protocol client
+    lsp-mode       ;; client library for the Language Server Protocol
+    lsp-ui
+    company-lsp
     ;; Python editing
-    python         ;; Python mode
-    company-jedi   ;; Python auto-completion and method signature help
+    lsp-python     ;; python support for lsp-mode
     sphinx-doc     ;; Templated docstring when pressing C-c M-d in function head
     ;; Go editing
-    go-mode        ;; Golang mode
-    company-go     ;; auto-complete
-    go-eldoc       ;; shows type info for var/func/curr arg position.
-    ;; TODO: install YAsnippet for template support (see https://dominik.honnef.co/posts/2013/03/emacs-go-1/)
+    go-mode
+    lsp-go         ;; go support for lsp-mode
+    ;; Terraform editing
     terraform-mode
     ;; Rust editing
     rust-mode
@@ -163,7 +165,7 @@
   (require 'company-quickhelp)
   (company-quickhelp-mode 1)
   (setq company-tooltip-limit 20) ; bigger popup window
-  (setq company-idle-delay .2)    ; decrease delay before autocompletion popup shows
+  (setq company-idle-delay .1)    ; decrease delay before autocompletion popup shows
   (setq company-echo-delay 0)     ; remove annoying blinking
   (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
 
@@ -173,37 +175,66 @@
   ;;(global-flycheck-mode)
   )
 
+;;
+;; Set up emacs Language Server Protocol client UI and keyboard shortcuts.
+;;
+(defun lsp-ui-setup ()
+  (require 'lsp-ui)
+  (require 'company-lsp)
+
+  ;; show informations of the symbols on the current line?
+  (setq lsp-ui-sideline-enable nil)
+  ;; show object documentation at point in a child frame?
+  (progn
+    (setq lsp-ui-doc-enable t)
+    ;; set background color for ui-doc popup
+    (custom-set-faces '(lsp-ui-doc-background ((t (:background "#003366"))))))
+  ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
+  (progn
+    (setq lsp-ui-peek-enable t)
+    ;; show peek view even if there is only one candidate
+    (setq lsp-ui-peek-always-show t))
+
+  ;; add lsp as company completion engine backend to get completion-at-point
+  (push 'company-lsp company-backends)
+
+  ;; keybindings for Language Server Protocol features
+  (local-set-key (kbd "<M-down>") 'xref-find-definitions)
+  (local-set-key (kbd "C-c d")    'lsp-ui-peek-find-definitions)
+  (local-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
+  (local-set-key (kbd "<M-?>")    'xref-find-references)
+  (local-set-key (kbd "C-c r")    'lsp-ui-peek-find-references)
+  (local-set-key (kbd "C-c C-r")  'lsp-rename)
+
+  ;; when entering lsp-mode, enable lsp-ui-mode
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  )
+
 
 (defun python-setup-hook ()
   (message "python-setup-hook ...")
-  (require 'python)
-  (require 'sphinx-doc)
 
   ;; mode hooks are evaluated once per buffer
   (defun py-buffer-setup ()
     (message "python buffer setup hook ...")
     (linum-mode t)
+
+    (require 'lsp-mode)
+    ;; NOTE: relies on python-language-server[all] being installed
+    (unless (executable-find "pyls")
+      (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
+    (require 'lsp-python)
+    (lsp-ui-setup)
+    ;;(lsp-define-stdio-client lsp-python "python"
+    ;;			     #'projectile-project-root
+    ;;			     '("pyls"))
+    (lsp-python-enable)
+
     ;; C-c M-d with cursor in method signature to generate docstring template
     (sphinx-doc-mode t)
-
-    (add-to-list 'company-backends 'company-jedi)
-    ;; set up jedi to use python3
-    (setq jedi:environment-virtualenv
-	  (list "virtualenv" "--python" "/usr/bin/python3"))
-    (setq jedi:environment-root "~/.emacs.d/.python-environments/default")
-    ;; use minibuffer instead of pop-up to display method signature
-    (setq jedi:tooltip-method nil)
-    ;; Set up recommended key bindings (optional)
-    (setq jedi:setup-keys t)
-    ;; Start auto-completion when entering a '.' (optional)
-    (setq jedi:complete-on-dot t)
-    ;; enable auto-completion and method signature help
-    (jedi:setup)
-    (local-set-key (kbd "C-c C-d")  'jedi:show-doc)
-    (local-set-key (kbd "<M-down>") 'jedi:goto-definition)
-    (local-set-key (kbd "<M-up>")   'jedi:goto-definition-pop-marker)
     )
-  (add-hook 'python-mode-hook 'py-buffer-setup))
+  (add-hook 'python-mode-hook 'py-buffer-setup)
+)
 
 
 (defun go-setup-hook ()
@@ -216,25 +247,18 @@
     (message "go buffer setup hook ...")
     (linum-mode t)
 
-    ;; auto-completion
-    (require 'company)
-    (require 'company-go)
-    (add-to-list 'company-backends 'company-go)
-    ;(setq company-go-show-annotation t)
-    ;; type information in minibuffer
-    (require 'go-eldoc)
-    (go-eldoc-setup)
-
+    ;; NOTE: relies on go-langserver being on the PATH
+    (unless (executable-find "go-langserver")
+      (user-error "go-langserver is not on path. Run:\n  go get -u github.com/sourcegraph/go-langserver\n"))
+    (require 'lsp-go)
+    (lsp-ui-setup)
+    (lsp-go-enable)
 
     (add-hook 'before-save-hook 'gofmt-before-save)
-    (local-set-key (kbd "C-c C-d")  'godoc-at-point)
-    (local-set-key (kbd "<M-down>") 'godef-jump)
-    (local-set-key (kbd "<M-up>")   'pop-tag-mark)
-    (local-set-key (kbd "C-c C-r")  'go-remove-unused-imports)
-    (local-set-key (kbd "C-c C-g")  'go-goto-imports)
-    (local-set-key (kbd "C-c C-f")  'gofmt)
     )
-  (add-hook 'go-mode-hook 'go-buffer-setup))
+
+  (add-hook 'go-mode-hook 'go-buffer-setup)
+  )
 
 
 (defun js-setup-hook ()
