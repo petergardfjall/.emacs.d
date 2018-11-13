@@ -47,6 +47,8 @@
     ;; Go editing
     go-mode
     lsp-go         ;; go support for lsp-mode
+    ;; Java editing
+    lsp-java
     ;; Terraform editing
     terraform-mode
     ;; Rust editing
@@ -113,6 +115,7 @@
 (add-hook 'after-init-hook 'terraform-setup-hook)
 (add-hook 'after-init-hook 'rust-setup-hook)
 (add-hook 'after-init-hook 'c-setup-hook)
+(add-hook 'after-init-hook 'java-setup-hook)
 
 (defun theme-setup-hook ()
   (message "theme-setup-hook ...")
@@ -373,6 +376,22 @@
     (local-set-key (kbd "<M-up>")   'pop-tag-mark)
     )
   (add-hook 'c-mode-hook 'c-buffer-setup))
+
+(defun java-setup-hook ()
+  (message "java-setup-hook ...")
+  (require 'lsp-java)
+  ;; mode hooks are evaluated once per buffer
+  (defun java-buffer-setup ()
+    (message "java buffer setup hook ...")
+    (linum-mode t)
+
+    ;; disable completion cache
+    (setq company-lsp-cache-candidates nil)
+    (lsp-ui-setup)
+    (lsp-java-enable)
+    )
+  (add-hook 'java-mode-hook 'java-buffer-setup))
+
 
 ;
 ; load any local modules from module directory in lexicographical order
