@@ -53,8 +53,7 @@
     terraform-mode
     ;; Rust editing
     rust-mode
-    racer          ;; code completion and source navigation for Rust
-    flycheck-rust  ;; on-the-fly syntax checking
+    lsp-rust
     ;; C editing
     company-c-headers ;; code-completion for C/C++ includes
     )
@@ -312,29 +311,20 @@
   ;; http://julienblanchard.com/2016/fancy-rust-development-with-emacs/
   (message "rust-setup-hook ...")
   (require 'rust-mode)
+  (require 'lsp-rust)
 
   ;; mode hooks are evaluated once per buffer
   (defun rust-buffer-setup ()
     (message "rust buffer setup hook ...")
     (linum-mode t)
-    (global-flycheck-mode)
 
-    ;; note: must install racer (code completion) with 'cargo install racer'
-    (setq racer-cmd "~/.cargo/bin/racer")
-    (setq racer-rust-src-path (substitute-in-file-name "${RUST_SRC}"))
+    (setq rust-format-on-save t)
+    (setq lsp-rust-rls-command '("rustup" "run" "stable" "rls"))
+    (lsp-ui-setup)
+    (lsp-rust-enable))
 
-    (local-set-key (kbd "<M-down>") 'racer-find-definition)
-    (local-set-key (kbd "<M-up>")   'pop-tag-mark)
-    )
   (add-hook 'rust-mode-hook 'rust-buffer-setup)
-  ;; activate racer code-completion when rust-mode starts
-  (add-hook 'rust-mode-hook #'racer-mode)
-  ;; activate eldoc-mode (show fn arg list in echo area) when racer-mode starts
-  (add-hook 'racer-mode-hook #'eldoc-mode)
-  ;; activate company-mode (completion mode) when racer-mode starts
-  (add-hook 'racer-mode-hook #'company-mode)
-  ;; syntax checking when fly-mode starts
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  )
 
 
 (defun c-setup-hook ()
