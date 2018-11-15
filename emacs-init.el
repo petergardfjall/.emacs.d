@@ -55,7 +55,7 @@
     rust-mode
     lsp-rust
     ;; C editing
-    company-c-headers ;; code-completion for C/C++ includes
+    ccls     ;; LSP server for C/C++
     )
   "A list of packages that are to be installed at launch (unless present).")
 
@@ -329,43 +329,28 @@
 
 (defun c-setup-hook ()
   (message "c-setup-hook ...")
-  (require 'ggtags)
+  (require 'ccls)
 
   ;; mode hooks are evaluated once per buffer
   (defun c-buffer-setup ()
     (message "c buffer setup hook ...")
     (linum-mode t)
 
-    ;; company auto-completion settings
-    (add-to-list 'company-backends 'company-clang)
-    (add-to-list 'company-backends 'company-c-headers)
-    ;; make autocomplete candidates appear immediately
-    (setq company-idle-delay 0)
+    (setq ccls-executable "/opt/bin/ccls")
+    (lsp-ui-setup)
+    (lsp-ccls-enable)
 
-    ;; Enable ggtags package (and code navigation via gtags).
-    ;; First generate GTAGS database:
-    ;;     cd /proj/path; gtags
-    ;; Or, for out-of-tree/read-only directories:
-    ;;     mkdir /var/dbpath
-    ;;     cd /usr/src/linux-source-4.15.0/linux-source-4.15.0
-    ;;     gtags /var/dbpath
-    ;;     export GTAGSROOT=/usr/src/linux-source-4.15.0/linux-source-4.15.0
-    ;;     export GTAGSDBPATH=/var/dbpath
-    ;;     global inet_csk_accept
-    ;;     emacs net/ipv4/inet_connection_sock.c
-    ;; After this, ggtags in emacs should be able to find definitions, etc.
-    ;; See: https://www.gnu.org/software/global/manual/global.html#Applied-usage
-    (ggtags-mode 1)
-    ;; find definition works as follows:
-    ;; - if tag at point is a definition, ggtags jumps to a reference.
-    ;;   If there is more than one reference, it displays a list of references.
-    ;;   (use M-n/M-p to move to next/previous entry).
-    ;; - if the tag at point is a reference, ggtags jumps to tag definition.
-    ;; - if the tag at point is an include header, it jumps to that header.
-    (local-set-key (kbd "<M-down>") 'ggtags-find-tag-dwim)
-    (local-set-key (kbd "<M-up>")   'pop-tag-mark)
+    ;; For proper operation, a .ccls or compile_commands.json file is needed in
+    ;; the project root.
+    ;; For CMake projects, a compile_commands.json is created via:
+    ;;   mkdir build
+    ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
+    ;;   ln -s build/compile_commands.json
     )
-  (add-hook 'c-mode-hook 'c-buffer-setup))
+
+  (add-hook 'c-mode-hook 'c-buffer-setup)
+  (add-hook 'c++-mode-hook 'c-buffer-setup)
+  )
 
 (defun java-setup-hook ()
   (message "java-setup-hook ...")
