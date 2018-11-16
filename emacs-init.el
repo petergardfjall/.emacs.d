@@ -123,7 +123,7 @@
 
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
-      (setq initial-frame-alist '((width . 140) )))
+      (setq initial-frame-alist '((width . 80) )))
 
   (require 'powerline)
   (powerline-default-theme)
