@@ -292,6 +292,8 @@
   (message "markdown-setup-hook ...")
   (defun markdown-buffer-setup ()
     (message "markdown buffer setup hook ...")
+    ;; no tabs for indentation
+    (setq indent-tabs-mode nil)
     ;; automatically break lines exceeding 80 characters
     (set-fill-column 80)
     (auto-fill-mode))
