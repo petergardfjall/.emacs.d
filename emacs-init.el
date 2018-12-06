@@ -226,6 +226,8 @@
   (defun py-buffer-setup ()
     (message "python buffer setup hook ...")
     (linum-mode t)
+    ;; no tabs for indentation
+    (setq indent-tabs-mode nil)
 
     (require 'lsp-mode)
     ;; NOTE: relies on python-language-server[all] being installed
