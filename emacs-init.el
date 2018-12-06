@@ -275,6 +275,8 @@
     (message "js buffer setup hook ...")
     ;; use 4 space indentation
     (setq indent-tabs-mode nil js-indent-level 4)
+    ;; no tabs for indentation
+    (setq indent-tabs-mode nil)
     (linum-mode t))
   (add-hook 'js-mode-hook 'js-buffer-setup))
 
@@ -283,6 +285,8 @@
   (message "yaml-setup-hook ...")
   (defun yaml-buffer-setup ()
     (message "yaml buffer setup hook ...")
+    ;; no tabs for indentation
+    (setq indent-tabs-mode nil)
     ;; show line numbers
     (linum-mode t))
   (add-hook 'yaml-mode-hook 'yaml-buffer-setup))
