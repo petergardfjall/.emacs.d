@@ -264,6 +264,8 @@
     (lsp-ui-setup)
     (lsp-go-enable)
 
+    ;; note: may need to install gofmt:
+    ;;   go get -u github.com/golang/go/src/cmd/gofmt
     (add-hook 'before-save-hook 'gofmt-before-save)
     )
 
