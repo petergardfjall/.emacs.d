@@ -264,8 +264,7 @@
     (lsp-ui-setup)
     (lsp-go-enable)
 
-    ;; note: may need to install gofmt:
-    ;;   go get -u github.com/golang/go/src/cmd/gofmt
+    ;; note: requires ${GOROOT}/bin to be on PATH
     (add-hook 'before-save-hook 'gofmt-before-save)
     )
 
