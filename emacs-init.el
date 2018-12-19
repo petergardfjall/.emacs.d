@@ -1,7 +1,6 @@
 ;; Main entry-point for emacs configuration.
 ;; See http://wikemacs.org/wiki/Package.el
 
-
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
 (package-initialize)
@@ -29,7 +28,7 @@
     powerline         ;; Prettier mode line at bottom of screen
     projectile        ;; Make aware of git/VCS projects on F7
     neotree           ;; File navigator on the left via F8
-    flycheck          ;; pluggable on-the-fly syntax checking
+    ;;flycheck          ;; pluggable on-the-fly syntax checking
     ggtags            ;; work with GNU Global source code tagging (via gtags)
     ;; Markdown (.md) editing
     markdown-mode
@@ -37,23 +36,29 @@
     yaml-mode
     ;; TOML editing
     toml-mode
+    ;; a languate template system for emacs. lsp-mode auto-configures
+    ;; yasnippet for use with a given language server.
+    yasnippet
+    yasnippet-snippets ;; a collection of snippets for many languages
+    ;; on-the-fly syntax checking
+    flymake
     ;; emacs Language Server Protocol client
-    lsp-mode       ;; client library for the Language Server Protocol
+    lsp-mode       ;; emacs Language Server Protocol client
     lsp-ui
     company-lsp
     ;; Python editing
-    lsp-python     ;; python support for lsp-mode
+    ;; note: python lsp support available natively in lsp-mode
     sphinx-doc     ;; Templated docstring when pressing C-c M-d in function head
     ;; Go editing
     go-mode
-    lsp-go         ;; go support for lsp-mode
+    ;; note: go lsp support available natively in lsp-mode
     ;; Java editing
     lsp-java
     ;; Terraform editing
     terraform-mode
     ;; Rust editing
     rust-mode
-    lsp-rust
+    ;; note: rust lsp support available natively in lsp-mode
     ;; C editing
     ccls     ;; LSP server for C/C++
     )
@@ -106,6 +111,7 @@
 ;;
 
 (add-hook 'after-init-hook 'theme-setup-hook)
+(add-hook 'after-init-hook 'lsp-setup-hook)
 (add-hook 'after-init-hook 'python-setup-hook)
 (add-hook 'after-init-hook 'go-setup-hook)
 (add-hook 'after-init-hook 'js-setup-hook)
@@ -181,6 +187,33 @@
   ;; On-the-fly syntax checking (support for different languages)
   ;;(require 'flycheck)
   ;;(global-flycheck-mode)
+
+  ;; Write a snippet key and press the key associated with yas-expand (TAB
+  ;; by default) to have the snippet expanded. To see available snippets:
+  ;;   M-x yas-describe-tables
+  (require 'yasnippet)
+  (require 'yasnippet-snippets)
+  ;; use yasnippet as a global minor mode
+  ;; note: it can also be activated per language/major-mode
+  ;;    see https://github.com/joaotavora/yasnippet
+  (yas-global-mode 1)
+
+  ;; comment line(s)
+  (global-set-key (kbd "C-c c") 'comment-line)
+  )
+
+(defun lsp-setup-hook ()
+  (message "lsp-setup-hook ...")
+  (require 'lsp)
+  ;; register built-in language server clients:
+  ;;   see https://github.com/emacs-lsp/lsp-mode#supported-languages
+  (require 'lsp-clients)
+
+  ;; override built-in go LSP client with bingo (use until lspgo is available)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "bingo")
+		    :major-modes '(go-mode)
+		    :server-id 'go-ls))
   )
 
 ;;
@@ -207,12 +240,15 @@
   (push 'company-lsp company-backends)
 
   ;; keybindings for Language Server Protocol features
-  (local-set-key (kbd "<M-down>") 'xref-find-definitions)
-  (local-set-key (kbd "C-c d")    'lsp-ui-peek-find-definitions)
+  (local-set-key (kbd "<M-down>") 'lsp-find-definition)
   (local-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
-  (local-set-key (kbd "<M-?>")    'xref-find-references)
-  (local-set-key (kbd "C-c r")    'lsp-ui-peek-find-references)
+  (local-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
+  (local-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
+  (local-set-key (kbd "C-c h")    'lsp-hover)
+  (local-set-key (kbd "C-c f d")  'xref-find-definitions)
+  (local-set-key (kbd "C-c f r")  'xref-find-references)
   (local-set-key (kbd "C-c C-r")  'lsp-rename)
+  (local-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
 
   ;; when entering lsp-mode, enable lsp-ui-mode
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
@@ -229,16 +265,12 @@
     ;; no tabs for indentation
     (setq indent-tabs-mode nil)
 
-    (require 'lsp-mode)
     ;; NOTE: relies on python-language-server[all] being installed
     (unless (executable-find "pyls")
       (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
-    (require 'lsp-python)
     (lsp-ui-setup)
-    ;;(lsp-define-stdio-client lsp-python "python"
-    ;;			     #'projectile-project-root
-    ;;			     '("pyls"))
-    (lsp-python-enable)
+    ;; start lsp-mode with a previously registered LSP client
+    (lsp)
 
     ;; C-c M-d with cursor in method signature to generate docstring template
     (sphinx-doc-mode t)
@@ -260,11 +292,13 @@
     ;; NOTE: relies on go-langserver being on the PATH
     (unless (executable-find "go-langserver")
       (user-error "go-langserver is not on path. Run:\n  go get -u github.com/sourcegraph/go-langserver\n"))
-    (require 'lsp-go)
     (lsp-ui-setup)
-    (lsp-go-enable)
+    ;; start lsp-mode with a previously registered LSP client
+    (lsp)
 
+    ;; run gofmt (or actually, goimports) on save
     ;; note: requires ${GOROOT}/bin to be on PATH
+    (setq gofmt-command "goimports")
     (add-hook 'before-save-hook 'gofmt-before-save)
     )
 
@@ -327,10 +361,11 @@
     (message "rust buffer setup hook ...")
     (linum-mode t)
 
-    (setq rust-format-on-save t)
-    (setq lsp-rust-rls-command '("rustup" "run" "stable" "rls"))
     (lsp-ui-setup)
-    (lsp-rust-enable))
+    ;; start lsp-mode with a previously registered LSP client
+    (lsp)
+    (setq rust-format-on-save t)
+    )
 
   (add-hook 'rust-mode-hook 'rust-buffer-setup)
   )
