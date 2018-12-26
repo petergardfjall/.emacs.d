@@ -28,7 +28,7 @@
     powerline         ;; Prettier mode line at bottom of screen
     projectile        ;; Make aware of git/VCS projects on F7
     neotree           ;; File navigator on the left via F8
-    ;;flycheck          ;; pluggable on-the-fly syntax checking
+    flycheck          ;; pluggable on-the-fly syntax checking
     ggtags            ;; work with GNU Global source code tagging (via gtags)
     ;; Markdown (.md) editing
     markdown-mode
@@ -40,8 +40,6 @@
     ;; yasnippet for use with a given language server.
     yasnippet
     yasnippet-snippets ;; a collection of snippets for many languages
-    ;; on-the-fly syntax checking
-    flymake
     ;; emacs Language Server Protocol client
     lsp-mode       ;; emacs Language Server Protocol client
     lsp-ui
@@ -185,8 +183,10 @@
 
 
   ;; On-the-fly syntax checking (support for different languages)
-  ;;(require 'flycheck)
-  ;;(global-flycheck-mode)
+  (require 'flycheck)
+  (global-flycheck-mode)
+  ;; list errors in current buffer
+  (global-set-key (kbd "C-c e") 'list-flycheck-errors)
 
   ;; Write a snippet key and press the key associated with yas-expand (TAB
   ;; by default) to have the snippet expanded. To see available snippets:
