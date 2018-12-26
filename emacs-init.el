@@ -129,6 +129,9 @@
   (if (display-graphic-p)
       (setq initial-frame-alist '((width . 80) )))
 
+  ;; no blinking cursor
+  (blink-cursor-mode 0)
+
   (require 'powerline)
   (powerline-default-theme)
 
