@@ -207,14 +207,29 @@
 
 (defun lsp-setup-hook ()
   (message "lsp-setup-hook ...")
-  (require 'lsp)
+
+  ;; Set to t to have eldoc display hover info when present. In case both
+  ;; signature and hover info are present and `lsp-signature-enabled' is t,
+  ;; eldoc will display signature info.
+  (setq lsp-hover-enabled nil)
+  (setq lsp-signature-enabled nil)  
+  ;; Define whether all of the returned by document/onHover will be displayed.
+  ;; If set to nil eldoc will show only the symbol information.
+  (setq lsp-eldoc-render-all t)
+  ;; Seconds to wait for a response from the language server before timing out.
+  (setq lsp-response-timeout 5)
+
+  (require 'lsp-mode)
   ;; register built-in language server clients:
   ;;   see https://github.com/emacs-lsp/lsp-mode#supported-languages
   (require 'lsp-clients)
 
-  ;; override built-in go LSP client with bingo (use until lspgo is available)
+  ;; override default go-langserver in lsp-clients.el
+  ;; (all built-in clients have priority -1 -- highest wins)
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "bingo")
+   (make-lsp-client :new-connection (lsp-stdio-connection '("bingo" "-disable-diagnostics" "-trace" "-logfile" "/tmp/bingo.log"))
+   ;;(make-lsp-client :new-connection (lsp-stdio-connection '("golsp" "-logfile" "/tmp/golsp.log"))
+		    :priority 1
 		    :major-modes '(go-mode)
 		    :server-id 'go-ls))
   )
@@ -230,7 +245,9 @@
   (setq lsp-ui-sideline-enable nil)
   ;; show object documentation at point in a child frame?
   (progn
-    (setq lsp-ui-doc-enable t)
+    ;; disable lsp-ui-doc: that is, don't use a separate frame for rendering
+    ;; docs on hover
+    (setq lsp-ui-doc-enable nil)
     ;; set background color for ui-doc popup
     (custom-set-faces '(lsp-ui-doc-background ((t (:background "#003366"))))))
   ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
@@ -248,8 +265,8 @@
   (local-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
   (local-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
   (local-set-key (kbd "C-c h")    'lsp-hover)
-  (local-set-key (kbd "C-c f d")  'xref-find-definitions)
-  (local-set-key (kbd "C-c f r")  'xref-find-references)
+  (local-set-key (kbd "C-c f d")  'lsp-find-definition)
+  (local-set-key (kbd "C-c f r")  'lsp-find-references)
   (local-set-key (kbd "C-c C-r")  'lsp-rename)
   (local-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
 
@@ -357,7 +374,6 @@
   ;; http://julienblanchard.com/2016/fancy-rust-development-with-emacs/
   (message "rust-setup-hook ...")
   (require 'rust-mode)
-  (require 'lsp-rust)
 
   ;; mode hooks are evaluated once per buffer
   (defun rust-buffer-setup ()
@@ -401,7 +417,6 @@
 
 (defun java-setup-hook ()
   (message "java-setup-hook ...")
-  (require 'lsp-java)
   ;; mode hooks are evaluated once per buffer
   (defun java-buffer-setup ()
     (message "java buffer setup hook ...")
@@ -410,7 +425,8 @@
     ;; disable completion cache
     (setq company-lsp-cache-candidates nil)
     (lsp-ui-setup)
-    (lsp-java-enable)
+    ;; start lsp-mode with a previously registered LSP client
+    (lsp)
     )
   (add-hook 'java-mode-hook 'java-buffer-setup))
 
