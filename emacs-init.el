@@ -245,8 +245,8 @@
   (setq lsp-ui-sideline-enable nil)
   ;; show object documentation at point in a child frame?
   (progn
-    ;; disable lsp-ui-doc: that is, don't use a separate frame for rendering
-    ;; docs on hover
+    ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame for
+    ;; is to be used for rendering docs on hover
     (setq lsp-ui-doc-enable nil)
     ;; set background color for ui-doc popup
     (custom-set-faces '(lsp-ui-doc-background ((t (:background "#003366"))))))
