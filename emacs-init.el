@@ -208,11 +208,12 @@
 (defun lsp-setup-hook ()
   (message "lsp-setup-hook ...")
 
-  ;; Set to t to have eldoc display hover info when present. In case both
-  ;; signature and hover info are present and `lsp-signature-enabled' is t,
-  ;; eldoc will display signature info.
-  (setq lsp-hover-enabled nil)
-  (setq lsp-signature-enabled nil)  
+  ;; Set to t to have eldoc display hover info when present.
+  (setq lsp-eldoc-enable-hover t)
+  ;; Set to t to have eldoc display signature help when present.
+  (setq lsp-eldoc-enable-signature-help t)
+  ;; display signature info when both signature and hover info present
+  (setq lsp-eldoc-prefer-signature-help t)
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all t)
@@ -223,15 +224,6 @@
   ;; register built-in language server clients:
   ;;   see https://github.com/emacs-lsp/lsp-mode#supported-languages
   (require 'lsp-clients)
-
-  ;; override default go-langserver in lsp-clients.el
-  ;; (all built-in clients have priority -1 -- highest wins)
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("bingo" "-disable-diagnostics" "-trace" "-logfile" "/tmp/bingo.log"))
-   ;;(make-lsp-client :new-connection (lsp-stdio-connection '("golsp" "-logfile" "/tmp/golsp.log"))
-		    :priority 1
-		    :major-modes '(go-mode)
-		    :server-id 'go-ls))
   )
 
 ;;
@@ -309,9 +301,9 @@
     (message "go buffer setup hook ...")
     (linum-mode t)
 
-    ;; NOTE: relies on go-langserver being on the PATH
-    (unless (executable-find "go-langserver")
-      (user-error "go-langserver is not on path. Run:\n  go get -u github.com/sourcegraph/go-langserver\n"))
+    ;; NOTE: relies on bingo lsp server being on the PATH
+    (unless (executable-find "bingo")
+      (user-error "bingo LSP server is not on PATH\n"))
     (lsp-ui-setup)
     ;; start lsp-mode with a previously registered LSP client
     (lsp)
