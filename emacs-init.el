@@ -84,6 +84,8 @@
 (set-language-environment "UTF-8")
 (setq inhibit-startup-screen t)
 (setq column-number-mode t)
+;; Sets the fill column (where to break paragraphs on M-q)
+(setq-default fill-column 80)
 ; set the default font to use
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
@@ -347,9 +349,11 @@
     (message "markdown buffer setup hook ...")
     ;; no tabs for indentation
     (setq indent-tabs-mode nil)
+
     ;; automatically break lines exceeding 80 characters
-    (set-fill-column 80)
-    (auto-fill-mode))
+    ;;(set-fill-column 80)
+    ;;(auto-fill-mode)
+    )
   (add-hook 'markdown-mode-hook 'markdown-buffer-setup))
 
 (defun terraform-setup-hook ()
