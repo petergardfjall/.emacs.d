@@ -74,6 +74,8 @@
     ;; note: rust lsp support available natively in lsp-mode
     ;; C editing
     ccls     ;; LSP server for C/C++
+    ;; Dockerfile editing
+    dockerfile-mode
     )
   "A list of packages that are to be installed at launch (unless present).")
 
