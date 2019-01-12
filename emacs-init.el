@@ -126,18 +126,17 @@
 ;; Set up hooks for configuration that is to take place after packages have
 ;; been loaded (loading happens on exit of init.el).
 ;;
-
-(add-hook 'after-init-hook 'theme-setup-hook)
-(add-hook 'after-init-hook 'lsp-setup-hook)
-(add-hook 'after-init-hook 'python-setup-hook)
-(add-hook 'after-init-hook 'go-setup-hook)
-(add-hook 'after-init-hook 'js-setup-hook)
-(add-hook 'after-init-hook 'yaml-setup-hook)
-(add-hook 'after-init-hook 'markdown-setup-hook)
-(add-hook 'after-init-hook 'terraform-setup-hook)
-(add-hook 'after-init-hook 'rust-setup-hook)
-(add-hook 'after-init-hook 'c-setup-hook)
-(add-hook 'after-init-hook 'java-setup-hook)
+(add-hook 'after-init-hook 'theme-setup-hook t)
+(add-hook 'after-init-hook 'lsp-setup-hook t)
+(add-hook 'after-init-hook 'python-setup-hook t)
+(add-hook 'after-init-hook 'go-setup-hook t)
+(add-hook 'after-init-hook 'js-setup-hook t)
+(add-hook 'after-init-hook 'yaml-setup-hook t)
+(add-hook 'after-init-hook 'markdown-setup-hook t)
+(add-hook 'after-init-hook 'terraform-setup-hook t)
+(add-hook 'after-init-hook 'rust-setup-hook t)
+(add-hook 'after-init-hook 'c-setup-hook t)
+(add-hook 'after-init-hook 'java-setup-hook t)
 
 (defun theme-setup-hook ()
   (message "theme-setup-hook ...")
@@ -463,5 +462,5 @@
 
 ;; Output the time at which the loading of all init-hooks completed.
 (add-hook 'after-init-hook
-	  (lambda () (message "Loaded init-hooks after %.3fs." (elapsed-time)))
+	  (lambda () (message "init-hooks done after %.3fs." (elapsed-time)))
 	  t)
