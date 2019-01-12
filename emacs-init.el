@@ -76,6 +76,8 @@
     ccls     ;; LSP server for C/C++
     ;; Dockerfile editing
     dockerfile-mode
+    ;; Varnish editing
+    vcl-mode
     )
   "A list of packages that are to be installed at launch (unless present).")
 
