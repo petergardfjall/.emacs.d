@@ -90,7 +90,7 @@
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
 ;; Allow copy/paste to/from system clipboard
-(setq x-select-enable-clipboard t)
+(setq select-enable-clipboard t)
 ;; Middle mouse button inserts the clipboard (rather than emacs primary)
 (global-set-key (kbd "<mouse-2>") 'x-clipboard-yank)
 ;; Hide vertical scrollbar on right
