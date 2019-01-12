@@ -2,6 +2,15 @@
 
 ;; See http://wikemacs.org/wiki/Package.el
 
+;;; Code:
+
+;; Time the loading of this file.
+(defconst emacs-start-time (current-time))
+;; Function to print the elapsed time since start of loading.
+(defun elapsed-time ()
+  (float-time (time-subtract (current-time) emacs-start-time)))
+
+
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
 (package-initialize)
@@ -444,4 +453,13 @@
   (load-file module)
 )
 
-(message "%s" "emacs.init done.")
+;;; Finalization
+
+
+;; Output the time at which the loading of the init-file itself completed.
+(message "Loaded %s after %.3fs." load-file-name (elapsed-time))
+
+;; Output the time at which the loading of all init-hooks completed.
+(add-hook 'after-init-hook
+	  (lambda () (message "Loaded init-hooks after %.3fs." (elapsed-time)))
+	  t)
