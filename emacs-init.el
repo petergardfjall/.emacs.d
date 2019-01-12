@@ -1,17 +1,23 @@
-;; Main entry-point for emacs configuration.
+;;; emacs-init.el --- Main entry-point for emacs configuration.
+
 ;; See http://wikemacs.org/wiki/Package.el
 
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
 (package-initialize)
 
-(message "Loading init.el ...")
+(message "Loading emacs-init.el ...")
 
-;; add package archives
+;; Add package archives:
+;; Note that packages will always be picked from melpa unless specifically
+;; pinned to use melpa-stable due to versioning schemes (20190101-1200 > 2.4).
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+	     '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives
 	     '("org" . "http://orgmode.org/elpa/") t)
+
 
 ;; Prevent emacs from writing customized settings to .emacs
 ;; By setting it as a temporary file, we effectively disable it.
