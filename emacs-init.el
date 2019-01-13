@@ -118,6 +118,8 @@
 (tool-bar-mode -1)
 ;; Display line numbers (toggle with M-x linum-mode)
 (global-linum-mode -1)
+;; Make yes/no prompts shourter (y/n)
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;
 ;; Package configs that can be set before the packages have been loaded
