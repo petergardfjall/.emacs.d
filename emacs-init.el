@@ -37,47 +37,10 @@
 (require 'cl-lib)
 
 (defvar my-packages
-  '(material-theme    ;; color theme
-    company           ;; generic auto-completion functionality
-    company-quickhelp ;; show auto-completion candidates in popup
-    powerline         ;; Prettier mode line at bottom of screen
-    projectile        ;; Make aware of git/VCS projects on F7
-    neotree           ;; File navigator on the left via F8
-    flycheck          ;; pluggable on-the-fly syntax checking
+  '(use-package       ;; package declaration macro
     ggtags            ;; work with GNU Global source code tagging (via gtags)
-    ;; Markdown (.md) editing
-    markdown-mode
-    ;; Yaml editing
-    yaml-mode
-    ;; TOML editing
-    toml-mode
-    ;; a languate template system for emacs. lsp-mode auto-configures
-    ;; yasnippet for use with a given language server.
-    yasnippet
-    yasnippet-snippets ;; a collection of snippets for many languages
-    ;; emacs Language Server Protocol client
-    lsp-mode       ;; emacs Language Server Protocol client
-    lsp-ui
-    company-lsp
-    ;; Python editing
-    ;; note: python lsp support available natively in lsp-mode
+
     sphinx-doc     ;; Templated docstring when pressing C-c M-d in function head
-    ;; Go editing
-    go-mode
-    ;; note: go lsp support available natively in lsp-mode
-    ;; Java editing
-    lsp-java
-    ;; Terraform editing
-    terraform-mode
-    ;; Rust editing
-    rust-mode
-    ;; note: rust lsp support available natively in lsp-mode
-    ;; C editing
-    ccls     ;; LSP server for C/C++
-    ;; Dockerfile editing
-    dockerfile-mode
-    ;; Varnish editing
-    vcl-mode
     )
   "A list of packages that are to be installed at launch (unless present).")
 
@@ -100,6 +63,7 @@
 ;;
 ;; General settings
 ;;
+;; TODO: create a function global-settings (for better grouping) and call
 (set-language-environment "UTF-8")
 (setq inhibit-startup-screen t)
 (setq column-number-mode t)
@@ -120,9 +84,16 @@
 (global-linum-mode -1)
 ;; Make yes/no prompts shourter (y/n)
 (defalias 'yes-or-no-p 'y-or-n-p)
-;; Show matching paranthesis
-(show-paren-mode 1)
-(setq show-paren-delay 0)
+;; no blinking cursor
+(blink-cursor-mode 0)
+;; set initial frame width (in characters)
+(if (display-graphic-p)
+    (setq initial-frame-alist '((width . 80) )))
+;; TODO: before-save-hook: delete-trailing-whitespace
+;; TODO: neotree
+;; TODO: undo-tree
+;; Comment line(s)
+(global-set-key (kbd "C-c c") 'comment-line)
 
 ;;
 ;; Package configs that can be set before the packages have been loaded
@@ -133,37 +104,90 @@
 ;; Set up hooks for configuration that is to take place after packages have
 ;; been loaded (loading happens on exit of init.el).
 ;;
-(add-hook 'after-init-hook 'theme-setup-hook t)
-(add-hook 'after-init-hook 'lsp-setup-hook t)
-(add-hook 'after-init-hook 'python-setup-hook t)
-(add-hook 'after-init-hook 'go-setup-hook t)
-(add-hook 'after-init-hook 'js-setup-hook t)
-(add-hook 'after-init-hook 'yaml-setup-hook t)
-(add-hook 'after-init-hook 'markdown-setup-hook t)
-(add-hook 'after-init-hook 'terraform-setup-hook t)
-(add-hook 'after-init-hook 'rust-setup-hook t)
-(add-hook 'after-init-hook 'c-setup-hook t)
-(add-hook 'after-init-hook 'java-setup-hook t)
+;; (add-hook 'after-init-hook 'go-setup-hook t)
+;; (add-hook 'after-init-hook 'terraform-setup-hook t)
+;; (add-hook 'after-init-hook 'rust-setup-hook t)
+;; (add-hook 'after-init-hook 'c-setup-hook t)
+;; (add-hook 'after-init-hook 'java-setup-hook t)
 
-(defun theme-setup-hook ()
-  (message "theme-setup-hook ...")
-  (require 'material-theme)
-  (load-theme 'material t)
+(require 'use-package)
 
-  ;; set initial frame width (in characters)
-  (if (display-graphic-p)
-      (setq initial-frame-alist '((width . 80) )))
+;;
+;; Theme-related settings
+;;
 
-  ;; no blinking cursor
-  (blink-cursor-mode 0)
+(use-package material-theme
+  :ensure t
+  :config
+  (load-theme 'material t))
 
-  (require 'powerline)
-  (powerline-default-theme)
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme))
 
-  (require 'projectile)
-  (global-set-key [f7] 'projectile-mode)
+(use-package projectile
+  :defer t ;; actually implied by :commands
+  :commands projectile-mode
+  :init
+  (global-set-key [f7] 'projectile-mode))
 
-  (require 'neotree)
+;; generic auto-completion functionality
+(use-package company
+    :ensure t
+    ;;:diminish ;; TODO: remove from mode line if diminish is installed
+    :init
+    (add-hook 'after-init-hook 'global-company-mode)
+    :config
+    (setq company-tooltip-limit 20) ; bigger popup window
+    (setq company-idle-delay .1)    ; decrease delay 'til completion popup shows
+    (setq company-echo-delay 0)     ; remove annoying blinking
+    (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+    )
+
+;; show auto-completion candidates in popup
+(use-package company-quickhelp
+  :ensure t
+  :hook (company-quickhelp-mode))
+
+;; On-the-fly syntax checking (support for different languages)
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :config
+  ;; list errors in current buffer
+  (global-set-key (kbd "C-c e") 'list-flycheck-errors))
+
+;; A languate template system for emacs. lsp-mode auto-configures yasnippet for
+;; use with a given language server.  Write a snippet key and press the key
+;; associated with yas-expand (TAB by default) to have the snippet expanded. To
+;; see available snippets: M-x yas-describe-tables
+(use-package yasnippet
+  :ensure t
+  :config
+  ;; use yasnippet as a global minor mode
+  ;; note: it can also be activated per language/major-mode
+  ;;    see https://github.com/joaotavora/yasnippet
+  (yas-global-mode 1))
+
+;; A collection of snippets for many languages.
+(use-package yasnippet-snippets
+  :ensure t
+  :defer t)
+
+;; File navigator on the left via F8
+(use-package neotree
+  :ensure t
+  :defer t
+  :commands (neotree-toggle neotree-toggle-project-aware)
+  :init
+  (global-set-key [f2] 'neotree-toggle)
+  ;; hide/show neotree
+  (global-set-key [f8] 'neotree-toggle-project-aware)
+  ;; refresh neotree: show entire project, set position to current buffer
+  (global-set-key [f9] 'neotree-show-project-aware)
+  :config
+  (message "neotree config ...")
   ;; change theme for neotree when running in x mode
   (setq neo-theme (if (display-graphic-p) 'arrow))
   ;; when tree is opened, find current file and jump to tree node
@@ -196,72 +220,35 @@
     (if (neo-global--window-exists-p)
 	(neotree-hide)
       (neotree-show-project-aware)))
-  ;; hide/show neotree
-  (global-set-key [f8] 'neotree-toggle-project-aware)
-  ;; refresh neotree: show entire project, set position to current buffer
-  (global-set-key [f9] 'neotree-show-project-aware)
-
-
-  (require 'company)
-  (global-company-mode)
-  (require 'company-quickhelp)
-  (company-quickhelp-mode 1)
-  (setq company-tooltip-limit 20) ; bigger popup window
-  (setq company-idle-delay .1)    ; decrease delay before autocompletion popup shows
-  (setq company-echo-delay 0)     ; remove annoying blinking
-  (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
-
-
-  ;; On-the-fly syntax checking (support for different languages)
-  (require 'flycheck)
-  (global-flycheck-mode)
-  ;; list errors in current buffer
-  (global-set-key (kbd "C-c e") 'list-flycheck-errors)
-
-  ;; Write a snippet key and press the key associated with yas-expand (TAB
-  ;; by default) to have the snippet expanded. To see available snippets:
-  ;;   M-x yas-describe-tables
-  (require 'yasnippet)
-  (require 'yasnippet-snippets)
-  ;; use yasnippet as a global minor mode
-  ;; note: it can also be activated per language/major-mode
-  ;;    see https://github.com/joaotavora/yasnippet
-  (yas-global-mode 1)
-
-  ;; comment line(s)
-  (global-set-key (kbd "C-c c") 'comment-line)
-
-  (defalias 'yes-or-no-p 'y-or-n-p)
   )
 
-(defun lsp-setup-hook ()
-  (message "lsp-setup-hook ...")
 
+(use-package lsp-mode
+  :ensure t
+  :defer t
+  :commands lsp
+  :init
+  (message "lsp-mode init ...")
   ;; Set to t to have eldoc display hover info when present.
-  (setq lsp-eldoc-enable-hover t)
+  (setq lsp-eldoc-enable-hover nil)
   ;; Set to t to have eldoc display signature help when present.
-  (setq lsp-eldoc-enable-signature-help t)
+  (setq lsp-eldoc-enable-signature-help nil)
   ;; display signature info when both signature and hover info present
   (setq lsp-eldoc-prefer-signature-help t)
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all t)
   ;; Seconds to wait for a response from the language server before timing out.
-  (setq lsp-response-timeout 5)
+  (setq lsp-response-timeout 5))
 
-  (require 'lsp-mode)
-  ;; register built-in language server clients:
-  ;;   see https://github.com/emacs-lsp/lsp-mode#supported-languages
-  (require 'lsp-clients)
-  )
 
-;;
-;; Set up emacs Language Server Protocol client UI and keyboard shortcuts.
-;;
-(defun lsp-ui-setup ()
-  (require 'lsp-ui)
-  (require 'company-lsp)
-
+;; TODO: started by lsp-mode
+(use-package lsp-ui
+  :ensure t
+  :defer t
+  ;;:commands lsp-ui-mode
+  :after lsp-mode
+  :init
   ;; show informations of the symbols on the current line?
   (setq lsp-ui-sideline-enable nil)
   ;; show object documentation at point in a child frame?
@@ -276,10 +263,9 @@
     (setq lsp-ui-peek-enable t)
     ;; show peek view even if there is only one candidate
     (setq lsp-ui-peek-always-show t))
-
   ;; add lsp as company completion engine backend to get completion-at-point
   (push 'company-lsp company-backends)
-
+  :config
   ;; keybindings for Language Server Protocol features
   (local-set-key (kbd "<M-down>") 'lsp-find-definition)
   (local-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
@@ -290,173 +276,157 @@
   (local-set-key (kbd "C-c f r")  'lsp-find-references)
   (local-set-key (kbd "C-c C-r")  'lsp-rename)
   (local-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
+  )
 
-  ;; when entering lsp-mode, enable lsp-ui-mode
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+(use-package company-lsp
+  :ensure t
+  :defer t
+  :commands company-lsp)
+
+(use-package python-mode
+  :ensure t
+  :defer t
+  :mode (("\\.py\\'" . python-mode))
+  :config
+  (message "python buffer setup hook ...")
+  (linum-mode t)
+  ;; no tabs for indentation
+  (setq indent-tabs-mode nil)
+  ;; NOTE: relies on python-language-server[all] being installed
+  (unless (executable-find "pyls")
+    (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
+  ;; C-c M-d with cursor in method signature to generate docstring template
+  (sphinx-doc-mode t)
+  ;; start lsp-mode
+  (add-hook 'python-mode-hook 'lsp)
+  )
+
+(use-package go-mode
+  :ensure t
+  :defer t
+  :mode (("\\.go\\'" . go-mode))
+  :config
+  (message "go-mode config ...")
+  (linum-mode t)
+  ;; NOTE: relies on bingo lsp server being on the PATH
+  (unless (executable-find "bingo")
+    (user-error "bingo LSP server is not on PATH\n"))
+  ;; run gofmt (or actually, goimports) on save
+  ;; note: requires ${GOROOT}/bin to be on PATH
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ;; start lsp-mode
+  (add-hook 'go-mode-hook 'lsp)
+  )
+
+;; Major mode for json file editing.
+(use-package json-mode
+  :ensure t
+  :defer t
+  :mode (("\\.json\\'" . json-mode)
+	 ("\\.js\\'" . json-mode))
+  :config
+  (message "json buffer config ...")
+  (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
+  (setq indent-tabs-mode nil) ; no tabs for indentation
+  (linum-mode t)) ; show line numbers
+
+;; Major mode for yaml file editing.
+(use-package yaml-mode
+  :ensure t
+  :defer t
+  :mode (("\\.yaml\\'" . yaml-mode)
+	 ("\\.yml\\'" . yaml-mode))
+  :config
+  (message "yaml buffer config ...")
+  (setq indent-tabs-mode nil) ; no tabs for indentation
+  (linum-mode t)) ; show line numbers
+
+;; Major mode for markdown (.md) file editing.
+(use-package markdown-mode
+  :ensure t
+  :defer t
+  :mode (("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :config
+  (message "markdown buffer config ...")
+  ;; no tabs for indentation
+  (setq indent-tabs-mode nil))
+
+;; Varnish .vcl file editing.
+(use-package vcl-mode
+  :ensure t
+  :defer t
+  :mode (("\\.vcl\\'" . vcl-mode)))
+
+;; Dockerfile editing
+(use-package dockerfile-mode
+  :ensure t
+  :defer t
+  :mode (("\\Dockerfile\\'" . dockerfile-mode)))
+
+;; TOML editing
+(use-package toml-mode
+  :ensure t
+  :defer t
+  :mode (("\\.toml\\'" . toml-mode)))
+
+(use-package terraform-mode
+  :ensure t
+  :defer t
+  :mode (("\\.tf\\'" . terraform-mode))
+  :config
+  (message "terraform-mode config ...")
+  ;; show line numbers
+  (linum-mode t))
+
+;; Rust-mode
+(use-package rust-mode
+  :ensure t
+  :defer t
+  :mode (("\\.rs\\'" . rust-mode))
+  :config
+  (message "rust-mode config ...")
+  (linum-mode t)
+  (setq rust-format-on-save t)
+  ;; start rust LSP server.
+  (add-hook 'rust-mode-hook 'lsp))
+
+;; LSP server for C/C++17
+(use-package ccls
+  :ensure t
+  :defer t
+  :hook ((c-mode c++-mode objc-mode) .
+	 (lambda () (require 'ccls) (lsp)))
+  :config
+  (message "C/C++ (ccls) config ...")
+  (linum-mode t)
+  (setq ccls-executable "/opt/bin/ccls")
+  ;; For proper operation, a .ccls or compile_commands.json file is needed in
+  ;; the project root.
+  ;; For CMake projects, a compile_commands.json is created via:
+  ;;   mkdir build
+  ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
+  ;;   ln -s build/compile_commands.json
   )
 
 
-(defun python-setup-hook ()
-  (message "python-setup-hook ...")
-
-  ;; mode hooks are evaluated once per buffer
-  (defun py-buffer-setup ()
-    (message "python buffer setup hook ...")
-    (linum-mode t)
-    ;; no tabs for indentation
-    (setq indent-tabs-mode nil)
-
-    ;; NOTE: relies on python-language-server[all] being installed
-    (unless (executable-find "pyls")
-      (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
-    (lsp-ui-setup)
-    ;; start lsp-mode with a previously registered LSP client
-    (lsp)
-
-    ;; C-c M-d with cursor in method signature to generate docstring template
-    (sphinx-doc-mode t)
-    )
-  (add-hook 'python-mode-hook 'py-buffer-setup)
-)
+(use-package lsp-java
+  :ensure t
+  :defer t
+  :hook ((java-mode) .
+	 (lambda () (require 'lsp-java) (lsp)))
+  :config
+  (message "lsp-java config ...")
+  (linum-mode t)
+  ;; disable completion cache
+  (setq company-lsp-cache-candidates nil))
 
 
-(defun go-setup-hook ()
-  ;; http://yousefourabi.com/blog/2014/05/emacs-for-go/
-  (message "go-setup-hook ...")
-  (require 'go-mode)
 
-  ;; mode hooks are evaluated once per buffer
-  (defun go-buffer-setup ()
-    (message "go buffer setup hook ...")
-    (linum-mode t)
-
-    ;; NOTE: relies on bingo lsp server being on the PATH
-    (unless (executable-find "bingo")
-      (user-error "bingo LSP server is not on PATH\n"))
-    (lsp-ui-setup)
-    ;; start lsp-mode with a previously registered LSP client
-    (lsp)
-
-    ;; run gofmt (or actually, goimports) on save
-    ;; note: requires ${GOROOT}/bin to be on PATH
-    (setq gofmt-command "goimports")
-    (add-hook 'before-save-hook 'gofmt-before-save)
-    )
-
-  (add-hook 'go-mode-hook 'go-buffer-setup)
-  )
-
-
-(defun js-setup-hook ()
-  (message "js-setup-hook ...")
-  (defun js-buffer-setup ()
-    (message "js buffer setup hook ...")
-    ;; use 4 space indentation
-    (setq indent-tabs-mode nil js-indent-level 4)
-    ;; no tabs for indentation
-    (setq indent-tabs-mode nil)
-    (linum-mode t))
-  (add-hook 'js-mode-hook 'js-buffer-setup))
-
-
-(defun yaml-setup-hook ()
-  (message "yaml-setup-hook ...")
-  (defun yaml-buffer-setup ()
-    (message "yaml buffer setup hook ...")
-    ;; no tabs for indentation
-    (setq indent-tabs-mode nil)
-    ;; show line numbers
-    (linum-mode t))
-  (add-hook 'yaml-mode-hook 'yaml-buffer-setup))
-
-
-(defun markdown-setup-hook ()
-  (message "markdown-setup-hook ...")
-  (defun markdown-buffer-setup ()
-    (message "markdown buffer setup hook ...")
-    ;; no tabs for indentation
-    (setq indent-tabs-mode nil)
-
-    ;; automatically break lines exceeding 80 characters
-    ;;(set-fill-column 80)
-    ;;(auto-fill-mode)
-    )
-  (add-hook 'markdown-mode-hook 'markdown-buffer-setup))
-
-(defun terraform-setup-hook ()
-  (message "terraform-setup-hook ...")
-  ;; default indent-level is 2
-  ;; (custom-set-variables '(terraform-indent-level 2))
-  (defun terraform-buffer-setup ()
-    (message "terraform buffer setup hook ...")
-    ;; show line numbers
-    (linum-mode t))
-  (add-hook 'terraform-mode-hook 'terraform-buffer-setup))
-
-(defun rust-setup-hook ()
-  ;; http://julienblanchard.com/2016/fancy-rust-development-with-emacs/
-  (message "rust-setup-hook ...")
-  (require 'rust-mode)
-
-  ;; mode hooks are evaluated once per buffer
-  (defun rust-buffer-setup ()
-    (message "rust buffer setup hook ...")
-    (linum-mode t)
-
-    (lsp-ui-setup)
-    ;; start lsp-mode with a previously registered LSP client
-    (lsp)
-    (setq rust-format-on-save t)
-    )
-
-  (add-hook 'rust-mode-hook 'rust-buffer-setup)
-  )
-
-
-(defun c-setup-hook ()
-  (message "c-setup-hook ...")
-  (require 'ccls)
-
-  ;; mode hooks are evaluated once per buffer
-  (defun c-buffer-setup ()
-    (message "c buffer setup hook ...")
-    (linum-mode t)
-
-    (setq ccls-executable "/opt/bin/ccls")
-    (lsp-ui-setup)
-    (lsp-ccls-enable)
-
-    ;; For proper operation, a .ccls or compile_commands.json file is needed in
-    ;; the project root.
-    ;; For CMake projects, a compile_commands.json is created via:
-    ;;   mkdir build
-    ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
-    ;;   ln -s build/compile_commands.json
-    )
-
-  (add-hook 'c-mode-hook 'c-buffer-setup)
-  (add-hook 'c++-mode-hook 'c-buffer-setup)
-  )
-
-(defun java-setup-hook ()
-  (message "java-setup-hook ...")
-  ;; mode hooks are evaluated once per buffer
-  (defun java-buffer-setup ()
-    (message "java buffer setup hook ...")
-    (linum-mode t)
-
-    ;; disable completion cache
-    (setq company-lsp-cache-candidates nil)
-    (lsp-ui-setup)
-    ;; start lsp-mode with a previously registered LSP client
-    (lsp)
-    )
-  (add-hook 'java-mode-hook 'java-buffer-setup))
-
-
-;
-; load any local modules from module directory in lexicographical order
-;
+;;
+;; Load any local modules from module directory in lexicographical order.
+;;
 (setq modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el"))
 (setq sortedmodules (sort (copy-sequence modules) #'string-lessp))
 ;; Note: messages are logged in *Messages* buffer
