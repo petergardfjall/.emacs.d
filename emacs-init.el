@@ -38,9 +38,7 @@
 
 (defvar my-packages
   '(use-package       ;; package declaration macro
-    ggtags            ;; work with GNU Global source code tagging (via gtags)
-
-    sphinx-doc     ;; Templated docstring when pressing C-c M-d in function head
+     ;;ggtags            ;; work with GNU Global source code tagging (via gtags)
     )
   "A list of packages that are to be installed at launch (unless present).")
 
@@ -63,58 +61,55 @@
 ;;
 ;; General settings
 ;;
-;; TODO: create a function global-settings (for better grouping) and call
-(set-language-environment "UTF-8")
-(setq inhibit-startup-screen t)
-(setq column-number-mode t)
-;; Sets the fill column (where to break paragraphs on M-q)
-(setq-default fill-column 80)
-; set the default font to use
-(add-to-list 'default-frame-alist
-             '(font . "DejaVu Sans Mono-10"))
-;; Allow copy/paste to/from system clipboard
-(setq select-enable-clipboard t)
-;; Middle mouse button inserts the clipboard (rather than emacs primary)
-(global-set-key (kbd "<mouse-2>") 'x-clipboard-yank)
-;; Hide vertical scrollbar on right
-(scroll-bar-mode -1)
-;; Hide tool-bar (icons, such as open file, cut, paste, etc)
-(tool-bar-mode -1)
-;; Display line numbers (toggle with M-x linum-mode)
-(global-linum-mode -1)
-;; Make yes/no prompts shourter (y/n)
-(defalias 'yes-or-no-p 'y-or-n-p)
-;; no blinking cursor
-(blink-cursor-mode 0)
-;; set initial frame width (in characters)
-(if (display-graphic-p)
-    (setq initial-frame-alist '((width . 80) )))
-;; TODO: before-save-hook: delete-trailing-whitespace
-;; TODO: neotree
-;; TODO: undo-tree
-;; Comment line(s)
-(global-set-key (kbd "C-c c") 'comment-line)
+(defun general-settings ()
+  (set-language-environment "UTF-8")
+  (setq inhibit-startup-screen t)
+  (setq column-number-mode t)
+  ;; Sets the fill column (where to break paragraphs on M-q)
+  (setq-default fill-column 80)
+					; set the default font to use
+  (add-to-list 'default-frame-alist
+	       '(font . "DejaVu Sans Mono-10"))
+  ;; Allow copy/paste to/from system clipboard
+  (setq select-enable-clipboard t)
+  ;; Middle mouse button inserts the clipboard (rather than emacs primary)
+  (global-set-key (kbd "<mouse-2>") 'x-clipboard-yank)
+  ;; Hide vertical scrollbar on right
+  (scroll-bar-mode -1)
+  ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
+  (tool-bar-mode -1)
+  ;; Display line numbers (toggle with M-x linum-mode)
+  (global-linum-mode -1)
+  ;; Make yes/no prompts shourter (y/n)
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  ;; no blinking cursor
+  (blink-cursor-mode 0)
+  ;; set initial frame width (in characters)
+  (if (display-graphic-p)
+      (setq initial-frame-alist '((width . 80) )))
+  ;; Comment line(s)
+  (global-set-key (kbd "C-c c") 'comment-line)
+  ;; Show matching paranthesis
+  (show-paren-mode 1)
+  (setq show-paren-delay 0)
+)
 
-;;
-;; Package configs that can be set before the packages have been loaded
-;; (happens on exit of init.el)
-;;
+(general-settings)
 
-;;
-;; Set up hooks for configuration that is to take place after packages have
-;; been loaded (loading happens on exit of init.el).
-;;
-;; (add-hook 'after-init-hook 'go-setup-hook t)
-;; (add-hook 'after-init-hook 'terraform-setup-hook t)
-;; (add-hook 'after-init-hook 'rust-setup-hook t)
-;; (add-hook 'after-init-hook 'c-setup-hook t)
-;; (add-hook 'after-init-hook 'java-setup-hook t)
+;;;
+;;; Start for custom package installation/configuration.
+;;;
 
 (require 'use-package)
 
 ;;
 ;; Theme-related settings
 ;;
+
+(use-package diminish
+  :ensure t
+  :demand t)
+
 
 (use-package material-theme
   :ensure t
@@ -126,6 +121,20 @@
   :config
   (powerline-default-theme))
 
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode ; don't display on modeline
+  :init
+  (global-undo-tree-mode)
+  :bind
+  (:map undo-tree-map
+	("C-x u" . undo)
+	("C-z" . undo-tree-undo)
+	("C-Z" . undo-tree-redo)
+	;; show undo tree (can select state and press 'q')
+	("C-c u t" . undo-tree-visualize))
+   )
+
 (use-package projectile
   :defer t ;; actually implied by :commands
   :commands projectile-mode
@@ -135,7 +144,7 @@
 ;; generic auto-completion functionality
 (use-package company
     :ensure t
-    ;;:diminish ;; TODO: remove from mode line if diminish is installed
+    :diminish ; don't display on modeline
     :init
     (add-hook 'after-init-hook 'global-company-mode)
     :config
@@ -154,6 +163,7 @@
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode)
+  :diminish ; don't display on modeline
   :config
   ;; list errors in current buffer
   (global-set-key (kbd "C-c e") 'list-flycheck-errors))
@@ -164,6 +174,7 @@
 ;; see available snippets: M-x yas-describe-tables
 (use-package yasnippet
   :ensure t
+  :diminish yas-minor-mode ; don't display on modeline
   :config
   ;; use yasnippet as a global minor mode
   ;; note: it can also be activated per language/major-mode
@@ -181,11 +192,27 @@
   :defer t
   :commands (neotree-toggle neotree-toggle-project-aware)
   :init
-  (global-set-key [f2] 'neotree-toggle)
+  (defun neotree-project-dir-toggle ()
+    "Projectile-aware neotree-toggle."
+    (interactive)
+    (let ((cw (selected-window))
+	  (project-dir
+	   (ignore-errors (projectile-project-root)))
+	  (file-name (buffer-file-name))
+	  (neo-smart-open t))
+      (if (and (fboundp 'neo-global--window-exists-p)
+	       (neo-global--window-exists-p))
+	  (neotree-hide)
+	(progn
+	  (neotree-show)
+	  (if project-dir
+	      (neotree-dir project-dir))
+	  (if file-name
+	      (neotree-find file-name))
+	  (select-window cw)))))
+
   ;; hide/show neotree
-  (global-set-key [f8] 'neotree-toggle-project-aware)
-  ;; refresh neotree: show entire project, set position to current buffer
-  (global-set-key [f9] 'neotree-show-project-aware)
+  (global-set-key [f8] 'neotree-project-dir-toggle)
   :config
   (message "neotree config ...")
   ;; change theme for neotree when running in x mode
@@ -199,29 +226,11 @@
   ;; fix for https://github.com/jaypei/emacs-neotree/issues/209
   ;; for example, godoc-at-point would open in new frame
   (setq split-window-preferred-function 'neotree-split-window-sensibly)
-  (defun neotree-show-project-aware ()
-    "make neotree project-aware => open neotree at git/VCS root."
-    (interactive)
-    (let ((project-dir (projectile-project-root))
-          (file-name (buffer-file-name))
-	  (cw (selected-window)))
-      (neotree-show)
-      (if project-dir
-	  (progn
-	    (neotree-dir project-dir)
-	    (neotree-find file-name))
-	(message "Could not find git project root."))
-      ;; keep focus in buffer
-      (when neo-toggle-window-keep-p
-	(select-window cw))))
-  (defun neotree-toggle-project-aware ()
-    "Toggle show the NeoTree window."
-    (interactive)
-    (if (neo-global--window-exists-p)
-	(neotree-hide)
-      (neotree-show-project-aware)))
   )
 
+;;;
+;;; Development/coding
+;;;
 
 (use-package lsp-mode
   :ensure t
@@ -267,15 +276,15 @@
   (push 'company-lsp company-backends)
   :config
   ;; keybindings for Language Server Protocol features
-  (local-set-key (kbd "<M-down>") 'lsp-find-definition)
-  (local-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
-  (local-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
-  (local-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
-  (local-set-key (kbd "C-c h")    'lsp-hover)
-  (local-set-key (kbd "C-c f d")  'lsp-find-definition)
-  (local-set-key (kbd "C-c f r")  'lsp-find-references)
-  (local-set-key (kbd "C-c C-r")  'lsp-rename)
-  (local-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
+  (global-set-key (kbd "<M-down>") 'lsp-find-definition)
+  (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
+  (global-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
+  (global-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
+  (global-set-key (kbd "C-c h")    'lsp-hover)
+  (global-set-key (kbd "C-c f d")  'lsp-find-definition)
+  (global-set-key (kbd "C-c f r")  'lsp-find-references)
+  (global-set-key (kbd "C-c C-r")  'lsp-rename)
+  (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
   )
 
 (use-package company-lsp
@@ -283,11 +292,17 @@
   :defer t
   :commands company-lsp)
 
+
 (use-package python-mode
   :ensure t
   :defer t
   :mode (("\\.py\\'" . python-mode))
   :config
+
+  ;; Templated docstring when pressing C-c M-d in function head
+  (use-package sphinx-doc
+    :ensure t)
+
   (message "python buffer setup hook ...")
   (linum-mode t)
   ;; no tabs for indentation
@@ -295,7 +310,6 @@
   ;; NOTE: relies on python-language-server[all] being installed
   (unless (executable-find "pyls")
     (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
-  ;; C-c M-d with cursor in method signature to generate docstring template
   (sphinx-doc-mode t)
   ;; start lsp-mode
   (add-hook 'python-mode-hook 'lsp)
@@ -307,7 +321,7 @@
   :mode (("\\.go\\'" . go-mode))
   :config
   (message "go-mode config ...")
-  (linum-mode t)
+  (linum-mode)
   ;; NOTE: relies on bingo lsp server being on the PATH
   (unless (executable-find "bingo")
     (user-error "bingo LSP server is not on PATH\n"))
@@ -422,7 +436,9 @@
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil))
 
-
+;; remove "ElDoc" from modeline
+(use-package eldoc
+  :diminish eldoc-mode)
 
 ;;
 ;; Load any local modules from module directory in lexicographical order.
