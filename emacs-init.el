@@ -228,6 +228,8 @@
 
   ;; comment line(s)
   (global-set-key (kbd "C-c c") 'comment-line)
+
+  (defalias 'yes-or-no-p 'y-or-n-p)
   )
 
 (defun lsp-setup-hook ()
