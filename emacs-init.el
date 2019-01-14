@@ -120,6 +120,9 @@
 (global-linum-mode -1)
 ;; Make yes/no prompts shourter (y/n)
 (defalias 'yes-or-no-p 'y-or-n-p)
+;; Show matching paranthesis
+(show-paren-mode 1)
+(setq show-paren-delay 0)
 
 ;;
 ;; Package configs that can be set before the packages have been loaded
