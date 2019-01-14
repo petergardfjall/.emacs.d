@@ -167,7 +167,9 @@
   ;; change theme for neotree when running in x mode
   (setq neo-theme (if (display-graphic-p) 'arrow))
   ;; when tree is opened, find current file and jump to tree node
-  ;;(setq neo-smart-open t)
+  (setq neo-smart-open t)
+  ;; Auto-refresh the neotree buffer
+  (setq neo-autorefresh t)
   ;; do not switch to neotree window on toggle
   (setq neo-toggle-window-keep-p t)
   ;; fix for https://github.com/jaypei/emacs-neotree/issues/209
