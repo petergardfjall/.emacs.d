@@ -314,7 +314,7 @@
   (sphinx-doc-mode t)
   ;; start lsp-mode
   (add-hook 'python-mode-hook 'lsp)
-  )
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 (use-package go-mode
   :ensure t
@@ -332,7 +332,8 @@
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
   (add-hook 'go-mode-hook 'lsp)
-  )
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+
 
 ;; Major mode for json file editing.
 (use-package json-mode
@@ -344,7 +345,8 @@
   (message "json buffer config ...")
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (linum-mode t)) ; show line numbers
+  (linum-mode t) ; show line numbers
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
@@ -372,19 +374,22 @@
 (use-package vcl-mode
   :ensure t
   :defer t
-  :mode (("\\.vcl\\'" . vcl-mode)))
+  :mode (("\\.vcl\\'" . vcl-mode))
+  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
   :ensure t
   :defer t
-  :mode (("\\Dockerfile\\'" . dockerfile-mode)))
+  :mode (("\\Dockerfile\\'" . dockerfile-mode))
+  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; TOML editing
 (use-package toml-mode
   :ensure t
   :defer t
-  :mode (("\\.toml\\'" . toml-mode)))
+  :mode (("\\.toml\\'" . toml-mode))
+  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 (use-package terraform-mode
   :ensure t
@@ -393,7 +398,8 @@
   :config
   (message "terraform-mode config ...")
   ;; show line numbers
-  (linum-mode t))
+  (linum-mode t)
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Rust-mode
 (use-package rust-mode
@@ -423,7 +429,7 @@
   ;;   mkdir build
   ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
   ;;   ln -s build/compile_commands.json
-  )
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 
 (use-package lsp-java
@@ -435,7 +441,8 @@
   (message "lsp-java config ...")
   (linum-mode t)
   ;; disable completion cache
-  (setq company-lsp-cache-candidates nil))
+  (setq company-lsp-cache-candidates nil)
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
@@ -444,6 +451,7 @@
 ;;
 ;; Load any local modules from module directory in lexicographical order.
 ;;
+
 (setq modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el"))
 (setq sortedmodules (sort (copy-sequence modules) #'string-lessp))
 ;; Note: messages are logged in *Messages* buffer
