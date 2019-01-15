@@ -233,6 +233,12 @@
 ;;; Development/coding
 ;;;
 
+;; Enable linum-mode whenever we are in prog-mode
+(use-package linum
+  :ensure t
+  :defer t
+  :hook (prog-mode . linum-mode))
+
 (use-package lsp-mode
   :ensure t
   :defer t
@@ -304,7 +310,6 @@
     :ensure t)
 
   (message "python buffer setup hook ...")
-  (linum-mode t)
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; NOTE: relies on python-language-server[all] being installed
@@ -321,7 +326,6 @@
   :mode (("\\.go\\'" . go-mode))
   :config
   (message "go-mode config ...")
-  (linum-mode)
   ;; NOTE: relies on bingo lsp server being on the PATH
   (unless (executable-find "bingo")
     (user-error "bingo LSP server is not on PATH\n"))
@@ -344,7 +348,7 @@
   (message "json buffer config ...")
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (linum-mode t) ; show line numbers
+  (add-hook 'json-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Major mode for yaml file editing.
@@ -356,7 +360,7 @@
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (linum-mode t) ; show line numbers
+  (add-hook 'yaml-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Major mode for markdown (.md) file editing.
@@ -377,21 +381,27 @@
   :ensure t
   :defer t
   :mode (("\\.vcl\\'" . vcl-mode))
-  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  :config
+  (add-hook 'vcl-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
   :ensure t
   :defer t
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
-  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  :config
+  (add-hook 'dockerfile-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; TOML editing
 (use-package toml-mode
   :ensure t
   :defer t
   :mode (("\\.toml\\'" . toml-mode))
-  :config (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  :config
+  (add-hook 'toml-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 (use-package terraform-mode
   :ensure t
@@ -399,8 +409,7 @@
   :mode (("\\.tf\\'" . terraform-mode))
   :config
   (message "terraform-mode config ...")
-  ;; show line numbers
-  (linum-mode t)
+  (add-hook 'terraform-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Rust-mode
@@ -410,7 +419,6 @@
   :mode (("\\.rs\\'" . rust-mode))
   :config
   (message "rust-mode config ...")
-  (linum-mode t)
   (setq rust-format-on-save t)
   ;; start rust LSP server.
   (add-hook 'rust-mode-hook 'lsp))
@@ -423,7 +431,6 @@
 	 (lambda () (require 'ccls) (lsp)))
   :config
   (message "C/C++ (ccls) config ...")
-  (linum-mode t)
   (setq ccls-executable "/opt/bin/ccls")
   ;; For proper operation, a .ccls or compile_commands.json file is needed in
   ;; the project root.
@@ -441,7 +448,6 @@
 	 (lambda () (require 'lsp-java) (lsp)))
   :config
   (message "lsp-java config ...")
-  (linum-mode t)
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil)
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
