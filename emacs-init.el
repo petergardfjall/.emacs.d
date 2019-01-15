@@ -252,12 +252,11 @@
   (setq lsp-response-timeout 5))
 
 
-;; TODO: started by lsp-mode
 (use-package lsp-ui
   :ensure t
   :defer t
-  ;;:commands lsp-ui-mode
-  :after lsp-mode
+  ;; gets started by lsp-mode
+  :commands lsp-ui-mode
   :init
   ;; show informations of the symbols on the current line?
   (setq lsp-ui-sideline-enable nil)
