@@ -356,14 +356,17 @@
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (linum-mode t)) ; show line numbers
+  (linum-mode t) ; show line numbers
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
   :ensure t
   :defer t
   :mode (("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
+	 ("\\.markdown\\'" . markdown-mode)
+	 ;; cheat sheets under ~/dotfiles/cheat/sheets
+	 ("\\.cheat\\'" . markdown-mode))
   :config
   (message "markdown buffer config ...")
   ;; no tabs for indentation
