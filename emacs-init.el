@@ -191,7 +191,7 @@
 (use-package neotree
   :ensure t
   :defer t
-  :commands (neotree-toggle neotree-toggle-project-aware)
+  :commands (neotree-toggle neotree-project-dir-toggle)
   :init
   (defun neotree-project-dir-toggle ()
     "Projectile-aware neotree-toggle."
