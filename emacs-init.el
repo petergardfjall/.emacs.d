@@ -300,7 +300,7 @@
   (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
   (global-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
   (global-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
-  (global-set-key (kbd "C-c h")    'lsp-hover)
+  (global-set-key (kbd "C-c h")    'lsp-document-highlight)
   (global-set-key (kbd "C-c f d")  'lsp-find-definition)
   (global-set-key (kbd "C-c f r")  'lsp-find-references)
   (global-set-key (kbd "C-c C-r")  'lsp-rename)
