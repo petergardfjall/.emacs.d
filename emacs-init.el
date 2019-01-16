@@ -282,6 +282,9 @@
   (push 'company-lsp company-backends)
   :config
   ;; keybindings for Language Server Protocol features
+  ;; NOTE: these can be overridden by keymaps for a particular major mode
+  ;;       such as "C-c C" in c++-mode. If so, disable the keybinding locally
+  ;;       in that mode's keymap.
   (global-set-key (kbd "<M-down>") 'lsp-find-definition)
   (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
   (global-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
@@ -290,8 +293,8 @@
   (global-set-key (kbd "C-c f d")  'lsp-find-definition)
   (global-set-key (kbd "C-c f r")  'lsp-find-references)
   (global-set-key (kbd "C-c C-r")  'lsp-rename)
-  (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point)
-  )
+  (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point))
+
 
 (use-package company-lsp
   :ensure t
@@ -432,6 +435,9 @@
   :config
   (message "C/C++ (ccls) config ...")
   (setq ccls-executable "/opt/bin/ccls")
+  ;; disable keymap bindings that would override lsp ones.
+  (define-key c++-mode-map (kbd "C-c C-d") nil)
+  (define-key c-mode-map (kbd "C-c C-d") nil)
   ;; For proper operation, a .ccls or compile_commands.json file is needed in
   ;; the project root.
   ;; For CMake projects, a compile_commands.json is created via:
@@ -450,6 +456,8 @@
   (message "lsp-java config ...")
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil)
+  ;; disable keymap bindings that would override lsp ones.
+  (define-key java-mode-map (kbd "C-c C-d") nil)
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 ;; remove "ElDoc" from modeline
