@@ -455,7 +455,9 @@
   ;;   mkdir build
   ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
   ;;   ln -s build/compile_commands.json
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (use-package clang-format
+    :ensure t)
+  (add-hook 'before-save-hook 'clang-format-buffer))
 
 
 (use-package lsp-java
