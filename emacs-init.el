@@ -10,6 +10,10 @@
 (defun elapsed-time ()
   (float-time (time-subtract (current-time) emacs-start-time)))
 
+;; regular frame width (in characters)
+(defconst normal-width  80)
+;; frame width when neotree is enabled (in characters)
+(defconst neotree-width 120)
 
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
@@ -86,7 +90,7 @@
   (blink-cursor-mode 0)
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
-      (setq initial-frame-alist '((width . 80) )))
+      (setq initial-frame-alist '((width . normal-width) )))
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") 'comment-line)
   (global-set-key (kbd "C-c d w") 'delete-trailing-whitespace)
@@ -203,9 +207,16 @@
 	  (neo-smart-open t))
       (if (and (fboundp 'neo-global--window-exists-p)
 	       (neo-global--window-exists-p))
-	  (neotree-hide)
+	  (progn
+	    (neotree-hide)
+	    ;; reset normal frame size when neotree is hidden
+	    (if (display-graphic-p)
+		(set-frame-width (selected-frame) normal-width)))
 	(progn
 	  (neotree-show)
+	  (if (display-graphic-p)
+	      ;; reset wider frame size when neotree is shown
+	      (set-frame-width (selected-frame) neotree-width))
 	  (if project-dir
 	      (neotree-dir project-dir))
 	  (if file-name
