@@ -1,6 +1,9 @@
 ;;; emacs-init.el --- Main entry-point for emacs configuration.
-
-;; See http://wikemacs.org/wiki/Package.el
+;;; Commentary:
+;;;
+;;; Makes heavy use of the use-package macro.  For bootstrapping, and installing
+;;; the use-package package a procedure similar to this is followed:
+;;; http://wikemacs.org/wiki/Package.el
 
 ;;; Code:
 
