@@ -286,6 +286,7 @@
     ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame for
     ;; is to be used for rendering docs on hover
     (setq lsp-ui-doc-enable nil)
+    (setq lsp-ui-doc-max-width 70)
     ;; set background color for ui-doc popup
     (custom-set-faces '(lsp-ui-doc-background ((t (:background "#003366"))))))
   ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
@@ -306,8 +307,11 @@
   (global-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
   (global-set-key (kbd "C-c h")    'lsp-document-highlight)
   (global-set-key (kbd "C-c f d")  'lsp-find-definition)
+  (global-set-key (kbd "C-c f i")  'lsp-find-implementation)
   (global-set-key (kbd "C-c f r")  'lsp-find-references)
   (global-set-key (kbd "C-c C-r")  'lsp-rename)
+  (global-set-key (kbd "C-c d")    'lsp-ui-doc-show)
+  (global-set-key (kbd "C-c e")    'lsp-ui-doc-hide) ; "end doc show"
   (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point))
 
 
