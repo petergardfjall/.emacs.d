@@ -122,7 +122,12 @@
 (use-package material-theme
   :ensure t
   :config
-  (load-theme 'material t))
+  (load-theme 'material t)
+  ;;(set-face-attribute 'linum nil :background "#212026")
+  ;;(set-face-attribute 'linum nil :foreground "#2D4159")
+  (set-face-attribute 'linum nil :background "#222")
+  (set-face-attribute 'linum nil :foreground "#246")
+  (set-face-attribute 'linum nil :height 100))
 
 (use-package powerline
   :ensure t
