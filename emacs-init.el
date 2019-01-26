@@ -126,8 +126,10 @@
 
 (use-package powerline
   :ensure t
+  :if window-system
   :config
-  (powerline-default-theme))
+  (powerline-default-theme)
+  (setq powerline-default-separator 'contour))
 
 (use-package undo-tree
   :ensure t
