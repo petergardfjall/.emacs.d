@@ -454,6 +454,10 @@
   :config
   (message "C/C++ (ccls) config ...")
   (setq ccls-executable "/opt/bin/ccls")
+  ;; disable completion cache
+  (setq company-transformers nil)
+  (setq company-lsp-async t)
+  (setq company-lsp-cache-candidates nil)
   ;; disable keymap bindings that would override lsp ones.
   (define-key c++-mode-map (kbd "C-c C-d") nil)
   (define-key c-mode-map (kbd "C-c C-d") nil)
