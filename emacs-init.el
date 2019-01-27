@@ -150,7 +150,7 @@
   ;; make line-number font more discrete
   (set-face-attribute 'linum nil :foreground "#777")
   ;; line-number font size should remain the same even if font on row is big
-  (set-face-attribute 'linum nil :height 1.0)
+  (set-face-attribute 'linum nil :height 100)
   (set-face-attribute 'linum nil :weight 'normal)
   ;; make keywords and functions in code display with bold font
   (custom-set-faces
