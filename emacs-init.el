@@ -64,12 +64,24 @@
     (when (not (package-installed-p p))
       (package-install p))))
 
+;;
+;; Load any local modules from module directory in lexicographical order.
+;;
+
+(setq modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el"))
+(setq sortedmodules (sort (copy-sequence modules) #'string-lessp))
+;; Note: messages are logged in *Messages* buffer
+(message "Loading local modules: %s" sortedmodules)
+(dolist (module sortedmodules)
+  (load-file module)
+)
 
 ;;
 ;; General settings
 ;;
 (defun general-settings ()
   (set-language-environment "UTF-8")
+  (set-terminal-coding-system 'utf-8)
   (setq inhibit-startup-screen t)
   (setq column-number-mode t)
   ;; Sets the fill column (where to break paragraphs on M-q)
@@ -118,16 +130,98 @@
   :ensure t
   :demand t)
 
+(use-package themacs-theme
+  :disabled
+  :config
+  (load-theme 'themacs t))
+
+;; (use-package zenburn-theme
+;;   :ensure t
+;;   :disabled
+;;   :init
+;;   (setq zenburn-override-colors-alist '(("zenburn-bg" . "#111111")))
+;;   :config
+;;   (load-theme 'zenburn t))
 
 (use-package material-theme
   :ensure t
   :config
   (load-theme 'material t)
-  ;;(set-face-attribute 'linum nil :background "#212026")
-  ;;(set-face-attribute 'linum nil :foreground "#2D4159")
-  (set-face-attribute 'linum nil :background "#222")
-  (set-face-attribute 'linum nil :foreground "#246")
-  (set-face-attribute 'linum nil :height 100))
+  ;; make line-number font more discrete
+  (set-face-attribute 'linum nil :foreground "#777")
+  ;; line-number font size should remain the same even if font on row is big
+  (set-face-attribute 'linum nil :height 1.0)
+  (set-face-attribute 'linum nil :weight 'normal)
+  ;; make keywords and functions in code display with bold font
+  (custom-set-faces
+   '(font-lock-keyword-face ((t (:weight bold))))
+   '(font-lock-function-name-face ((t (:weight bold)))))
+  )
+
+;; pretty good for code, not great for markdown
+(use-package dakrone-theme
+  :ensure t
+  :disabled
+  :config
+  (load-theme 'dakrone t)
+  (set-face-background 'show-paren-match "#228b22"))
+
+;; too dull
+;; (use-package noctilux-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'noctilux t))
+
+;; pretty nice, works in terminal
+(use-package dracula-theme
+  :ensure t
+  :disabled
+  :config
+  (load-theme 'dracula t))
+
+;; ok, works in terminal
+(use-package molokai-theme
+  :ensure t
+  :disabled
+  :config
+  (load-theme 'molokai t))
+
+;; dull
+;; (use-package seti-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'seti t))
+
+;; boring
+;; (use-package soft-charcoal-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'soft-charcoal t))
+
+;; good, but a bit dark/pale
+(use-package atom-one-dark-theme
+  :ensure t
+  :disabled
+  :config
+  (load-theme 'atom-one-dark t))
+
+(use-package color-theme-solarized
+  :ensure t
+  :disabled
+  :init
+  (set-frame-parameter nil 'background-mode 'dark)
+  (set-terminal-parameter nil 'background-mode 'dark)
+  (setq solarized-termcolors 256)
+  ;;(setq solarized-degrade t)
+  (setq solarized-visibilty "high")
+  (setq solarized-contrast "high")
+  (load-theme 'solarized t))
+
+(use-package spacemacs-theme
+  :ensure t
+  :disabled
+  :defer t
+  :init (load-theme 'spacemacs-dark t))
 
 (use-package powerline
   :ensure t
@@ -496,17 +590,6 @@
 (use-package eldoc
   :diminish eldoc-mode)
 
-;;
-;; Load any local modules from module directory in lexicographical order.
-;;
-
-(setq modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el"))
-(setq sortedmodules (sort (copy-sequence modules) #'string-lessp))
-;; Note: messages are logged in *Messages* buffer
-(message "Loading local modules: %s" sortedmodules)
-(dolist (module sortedmodules)
-  (load-file module)
-)
 
 ;;; Finalization
 
