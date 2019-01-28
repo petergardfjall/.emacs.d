@@ -230,6 +230,16 @@
   (powerline-default-theme)
   (setq powerline-default-separator 'contour))
 
+;; highlights occurences of colors (in text) with a background of that
+;; color. For example, "#aaaaaa" will be displayed with a gray background.
+;; Activate via M-x rainbow-mode
+(use-package rainbow-mode
+  :ensure t
+  :config
+  ;; don't highlight color words such as "white", "blue"
+  (setq rainbow-x-colors nil))
+
+
 (use-package undo-tree
   :ensure t
   :diminish undo-tree-mode ; don't display on modeline
