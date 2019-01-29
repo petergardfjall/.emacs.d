@@ -271,6 +271,10 @@
     (setq company-idle-delay .1)    ; decrease delay 'til completion popup shows
     (setq company-echo-delay 0)     ; remove annoying blinking
     (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+    ;; minimum number of letters to type before triggering autocompletion
+    (setq company-minimum-prefix-length 2)
+    ;; trigger completion
+    (global-set-key (kbd "C-<tab>") 'company-complete)
     )
 
 ;; show auto-completion candidates in popup
@@ -284,8 +288,8 @@
   :init (global-flycheck-mode)
   :diminish ; don't display on modeline
   :config
-  ;; list errors in current buffer
-  (global-set-key (kbd "C-c e") 'list-flycheck-errors))
+  ;; show errors in current buffer
+  (global-set-key (kbd "C-c s e") 'list-flycheck-errors))
 
 ;; A languate template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
