@@ -131,8 +131,8 @@
   :demand t)
 
 (use-package themacs-theme
-  :disabled
   :config
+  :disabled
   (load-theme 'themacs t))
 
 ;; (use-package zenburn-theme
@@ -145,6 +145,7 @@
 
 (use-package material-theme
   :ensure t
+  ;;:disabled
   :config
   (load-theme 'material t)
   ;; make line-number font more discrete
@@ -290,6 +291,12 @@
   :config
   ;; show errors in current buffer
   (global-set-key (kbd "C-c s e") 'list-flycheck-errors))
+
+;; built-in on-the-fly syntax checking (use flycheck instead)
+(use-package flymake
+  :diminish ; don't display on modeline
+  )
+
 
 ;; A languate template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
