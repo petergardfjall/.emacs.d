@@ -46,7 +46,7 @@
 (defvar my-packages
   '(use-package       ;; package declaration macro
      ;;ggtags            ;; work with GNU Global source code tagging (via gtags)
-    )
+     )
   "A list of packages that are to be installed at launch (unless present).")
 
 (defun my-packages-installed-p ()
@@ -74,7 +74,7 @@
 (message "Loading local modules: %s" sortedmodules)
 (dolist (module sortedmodules)
   (load-file module)
-)
+  )
 
 ;;
 ;; General settings
@@ -112,7 +112,7 @@
   ;; Show matching paranthesis
   (show-paren-mode 1)
   (setq show-paren-delay 0)
-)
+  )
 
 (general-settings)
 
@@ -131,21 +131,17 @@
   :demand t)
 
 (use-package themacs-theme
+  :init
+  (setq themacs-color-override-alist
+	'(
+	  ("cursor" . "#ffca28")
+	  ))
   :config
-  :disabled
   (load-theme 'themacs t))
-
-;; (use-package zenburn-theme
-;;   :ensure t
-;;   :disabled
-;;   :init
-;;   (setq zenburn-override-colors-alist '(("zenburn-bg" . "#111111")))
-;;   :config
-;;   (load-theme 'zenburn t))
 
 (use-package material-theme
   :ensure t
-  ;;:disabled
+  :disabled
   :config
   (load-theme 'material t)
   ;; make line-number font more discrete
@@ -159,71 +155,6 @@
    '(font-lock-function-name-face ((t (:weight bold)))))
   )
 
-;; pretty good for code, not great for markdown
-(use-package dakrone-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'dakrone t)
-  (set-face-background 'show-paren-match "#228b22"))
-
-;; too dull
-;; (use-package noctilux-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'noctilux t))
-
-;; pretty nice, works in terminal
-(use-package dracula-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'dracula t))
-
-;; ok, works in terminal
-(use-package molokai-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'molokai t))
-
-;; dull
-;; (use-package seti-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'seti t))
-
-;; boring
-;; (use-package soft-charcoal-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'soft-charcoal t))
-
-;; good, but a bit dark/pale
-(use-package atom-one-dark-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'atom-one-dark t))
-
-(use-package color-theme-solarized
-  :ensure t
-  :disabled
-  :init
-  (set-frame-parameter nil 'background-mode 'dark)
-  (set-terminal-parameter nil 'background-mode 'dark)
-  (setq solarized-termcolors 256)
-  ;;(setq solarized-degrade t)
-  (setq solarized-visibilty "high")
-  (setq solarized-contrast "high")
-  (load-theme 'solarized t))
-
-(use-package spacemacs-theme
-  :ensure t
-  :disabled
-  :defer t
-  :init (load-theme 'spacemacs-dark t))
-
 (use-package powerline
   :ensure t
   :if window-system
@@ -236,6 +167,7 @@
 ;; Activate via M-x rainbow-mode
 (use-package rainbow-mode
   :ensure t
+  :diminish
   :config
   ;; don't highlight color words such as "white", "blue"
   (setq rainbow-x-colors nil))
@@ -253,7 +185,7 @@
 	("C-Z" . undo-tree-redo)
 	;; show undo tree (can select state and press 'q')
 	("C-c u t" . undo-tree-visualize))
-   )
+  )
 
 (use-package projectile
   :defer t ;; actually implied by :commands
@@ -263,20 +195,20 @@
 
 ;; generic auto-completion functionality
 (use-package company
-    :ensure t
-    :diminish ; don't display on modeline
-    :init
-    (add-hook 'after-init-hook 'global-company-mode)
-    :config
-    (setq company-tooltip-limit 20) ; bigger popup window
-    (setq company-idle-delay .1)    ; decrease delay 'til completion popup shows
-    (setq company-echo-delay 0)     ; remove annoying blinking
-    (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
-    ;; minimum number of letters to type before triggering autocompletion
-    (setq company-minimum-prefix-length 2)
-    ;; trigger completion
-    (global-set-key (kbd "C-<tab>") 'company-complete)
-    )
+  :ensure t
+  :diminish ; don't display on modeline
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (setq company-tooltip-limit 20) ; bigger popup window
+  (setq company-idle-delay .1)    ; decrease delay 'til completion popup shows
+  (setq company-echo-delay 0)     ; remove annoying blinking
+  (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+  ;; minimum number of letters to type before triggering autocompletion
+  (setq company-minimum-prefix-length 2)
+  ;; trigger completion
+  (global-set-key (kbd "C-<tab>") 'company-complete)
+  )
 
 ;; show auto-completion candidates in popup
 (use-package company-quickhelp
