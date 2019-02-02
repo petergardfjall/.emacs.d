@@ -130,14 +130,17 @@
   :ensure t
   :demand t)
 
-(use-package themacs-theme
+(use-package immaterial-theme
   :init
-  (setq themacs-color-override-alist
-	'(
-	  ("cursor" . "#ffca28")
-	  ))
+  ;; (setq immaterial-color-override-alist
+  ;; 	'(
+  ;; 	   ("primary"         . "#ce93d8")
+  ;; 	   ("primary-light"   . "#ffc4ff")
+  ;; 	   ("primary-dark"    . "#9c64a6")
+  ;; 	  ;;("cursor" . "#ffca28")
+  ;; 	  ))
   :config
-  (load-theme 'themacs t))
+  (load-theme 'immaterial t))
 
 (use-package material-theme
   :ensure t
