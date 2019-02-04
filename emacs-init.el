@@ -108,7 +108,7 @@
       (setq initial-frame-alist '((width . normal-width) )))
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") 'comment-line)
-  (global-set-key (kbd "C-c d w") 'delete-trailing-whitespace)
+  (global-set-key (kbd "C-c w") 'delete-trailing-whitespace)
   ;; Show matching paranthesis
   (show-paren-mode 1)
   (setq show-paren-delay 0)
