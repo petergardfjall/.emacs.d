@@ -77,6 +77,15 @@
   )
 
 ;;
+;; Utility functions
+;;
+
+(defun untabify-buffer ()
+  "Runs M-x untabify on the whole buffer."
+  (lambda () (untabify (point-min) (point-max))))
+
+
+;;
 ;; General settings
 ;;
 (defun general-settings ()
@@ -429,8 +438,7 @@
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'json-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook (untabify-buffer)))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
@@ -443,8 +451,7 @@
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook (untabify-buffer)))
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
@@ -458,8 +465,7 @@
   (message "markdown buffer config ...")
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook (untabify-buffer)))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
@@ -478,8 +484,7 @@
   :config
   (add-hook 'dockerfile-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook (untabify-buffer)))
 
 ;; TOML editing
 (use-package toml-mode
@@ -489,8 +494,7 @@
   :config
   (add-hook 'toml-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook (untabify-buffer)))
 
 (use-package terraform-mode
   :ensure t
@@ -500,8 +504,7 @@
   (message "terraform-mode config ...")
   (add-hook 'terraform-mode-hook 'linum-mode) ; show line numbers
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  ;; untabify on save
-  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
+  (add-hook 'before-save-hook 'untabify-buffer))
 
 ;; Rust-mode
 (use-package rust-mode
