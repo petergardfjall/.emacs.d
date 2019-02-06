@@ -428,7 +428,9 @@
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'json-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
@@ -440,7 +442,9 @@
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
@@ -453,7 +457,9 @@
   :config
   (message "markdown buffer config ...")
   ;; no tabs for indentation
-  (setq indent-tabs-mode nil))
+  (setq indent-tabs-mode nil)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
@@ -471,7 +477,9 @@
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
   (add-hook 'dockerfile-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 ;; TOML editing
 (use-package toml-mode
@@ -480,7 +488,9 @@
   :mode (("\\.toml\\'" . toml-mode))
   :config
   (add-hook 'toml-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 (use-package terraform-mode
   :ensure t
@@ -489,7 +499,9 @@
   :config
   (message "terraform-mode config ...")
   (add-hook 'terraform-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; untabify on save
+  (add-hook 'before-save-hook (lambda() (untabify (point-min) (point-max)))))
 
 ;; Rust-mode
 (use-package rust-mode
