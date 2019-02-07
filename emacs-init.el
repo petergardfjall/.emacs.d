@@ -333,8 +333,11 @@
 
 ;; TODO: can we use use-package for this?
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
-(add-hook 'sh-mode-hook 'untabify-on-save-hook)
-(add-hook 'sh-mode-hook 'strip-on-save-hook)
+(use-package sh-script
+  :mode (("\\.sh\\'" . sh-mode))
+  :config
+  (add-hook 'sh-mode-hook 'untabify-on-save-hook)
+  (add-hook 'sh-mode-hook 'strip-on-save-hook))
 
 (use-package lsp-mode
   :ensure t
