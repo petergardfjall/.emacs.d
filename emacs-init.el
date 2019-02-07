@@ -44,9 +44,7 @@
 (require 'cl-lib)
 
 (defvar my-packages
-  '(use-package       ;; package declaration macro
-     ;;ggtags            ;; work with GNU Global source code tagging (via gtags)
-     )
+  '(use-package)
   "A list of packages that are to be installed at launch (unless present).")
 
 (defun my-packages-installed-p ()
@@ -81,8 +79,22 @@
 ;;
 
 (defun untabify-buffer ()
-  "Runs M-x untabify on the whole buffer."
-  (lambda () (untabify (point-min) (point-max))))
+  "Run 'untabify' on the whole buffer."
+  (untabify (point-min) (point-max)))
+
+(defun strip-buffer ()
+  "Run 'delete-trailing-whitespace' on the whole buffer."
+  (delete-trailing-whitespace))
+
+(defun untabify-on-save-hook ()
+  "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
+  ;; note: last argument makes this save-hook local to the buffer
+  (add-hook 'before-save-hook 'untabify-buffer nil t))
+
+(defun strip-on-save-hook ()
+  "Register a buffer-local 'before-save-hook' to run 'strip-buffer'."
+  ;; note: last argument makes this save-hook local to the buffer
+  (add-hook 'before-save-hook 'strip-buffer nil t))
 
 
 ;;
@@ -319,6 +331,11 @@
   :defer t
   :hook (prog-mode . linum-mode))
 
+;; TODO: can we use use-package for this?
+;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
+(add-hook 'sh-mode-hook 'untabify-on-save-hook)
+(add-hook 'sh-mode-hook 'strip-on-save-hook)
+
 (use-package lsp-mode
   :ensure t
   :pin melpa-stable
@@ -406,7 +423,9 @@
   (sphinx-doc-mode t)
   ;; start lsp-mode
   (add-hook 'python-mode-hook 'lsp)
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'python-mode-hook 'untabify-on-save-hook)
+  (add-hook 'python-mode-hook 'strip-on-save-hook))
 
 (use-package go-mode
   :ensure t
@@ -422,8 +441,7 @@
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
-  (add-hook 'go-mode-hook 'lsp)
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  (add-hook 'go-mode-hook 'lsp))
 
 
 ;; Major mode for json file editing.
@@ -437,8 +455,11 @@
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'json-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  (add-hook 'before-save-hook (untabify-buffer)))
+
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'json-mode-hook 'untabify-on-save-hook)
+  (add-hook 'json-mode-hook 'strip-on-save-hook))
+
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
@@ -450,8 +471,9 @@
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  (add-hook 'before-save-hook (untabify-buffer)))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'yaml-mode-hook 'untabify-on-save-hook)
+  (add-hook 'yaml-mode-hook 'strip-on-save-hook))
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
@@ -465,7 +487,8 @@
   (message "markdown buffer config ...")
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
-  (add-hook 'before-save-hook (untabify-buffer)))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'markdown-mode-hook 'untabify-on-save-hook))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
@@ -474,7 +497,9 @@
   :mode (("\\.vcl\\'" . vcl-mode))
   :config
   (add-hook 'vcl-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'vcl-mode-hook 'untabify-on-save-hook)
+  (add-hook 'vcl-mode-hook 'strip-on-save-hook))
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
@@ -483,8 +508,9 @@
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
   (add-hook 'dockerfile-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  (add-hook 'before-save-hook (untabify-buffer)))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'dockerfile-mode-hook 'untabify-on-save-hook)
+  (add-hook 'dockerfile-mode-hook 'strip-on-save-hook))
 
 ;; TOML editing
 (use-package toml-mode
@@ -493,8 +519,9 @@
   :mode (("\\.toml\\'" . toml-mode))
   :config
   (add-hook 'toml-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  (add-hook 'before-save-hook (untabify-buffer)))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'toml-mode-hook 'untabify-on-save-hook)
+  (add-hook 'toml-mode-hook 'strip-on-save-hook))
 
 (use-package terraform-mode
   :ensure t
@@ -503,8 +530,9 @@
   :config
   (message "terraform-mode config ...")
   (add-hook 'terraform-mode-hook 'linum-mode) ; show line numbers
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  (add-hook 'before-save-hook 'untabify-buffer))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'terraform-mode-hook 'untabify-on-save-hook)
+  (add-hook 'terraform-mode-hook 'strip-on-save-hook))
 
 ;; Rust-mode
 (use-package rust-mode
@@ -541,7 +569,8 @@
   ;;   ln -s build/compile_commands.json
   (use-package clang-format
     :ensure t)
-  (add-hook 'before-save-hook 'clang-format-buffer))
+  ;; add buffer-local save hooks
+  (add-hook 'before-save-hook 'clang-format-buffer) nil t)
 
 
 (use-package lsp-java
@@ -555,7 +584,9 @@
   (setq company-lsp-cache-candidates nil)
   ;; disable keymap bindings that would override lsp ones.
   (define-key java-mode-map (kbd "C-c C-d") nil)
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'java-mode-hook 'untabify-on-save-hook)
+  (add-hook 'java-mode-hook 'strip-on-save-hook))
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
