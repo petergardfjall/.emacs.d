@@ -481,17 +481,55 @@
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
   :ensure t
+  :pin melpa-stable
   :defer t
-  :mode (("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode)
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . gfm-mode)
 	 ;; cheat sheets under ~/dotfiles/cheat/sheets
 	 ("\\.cheat\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown")
   :config
-  (message "markdown buffer config ...")
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'markdown-mode-hook 'untabify-on-save-hook))
+
+(use-package markdown-preview-mode
+  :ensure t
+  :after markdown-mode
+  :config
+  ;; TODO: can these be loaded from somewhere?
+  (setq markdown-preview-stylesheets
+       (list "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.9.0/github-markdown.min.css"
+             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" "
+   <style>
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+   </style>
+ "))
+ (setq markdown-preview-javascript
+       (list "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" "
+   <script>
+    $(document).on('mdContentChange', function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });
+   </script>
+ ")))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
