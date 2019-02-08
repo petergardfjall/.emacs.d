@@ -489,7 +489,7 @@
          ("\\.markdown\\'" . gfm-mode)
 	 ;; cheat sheets under ~/dotfiles/cheat/sheets
 	 ("\\.cheat\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown")
+  :init (setq markdown-command "pandoc")
   :config
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
@@ -500,36 +500,15 @@
   :ensure t
   :after markdown-mode
   :config
-  ;; TODO: can these be loaded from somewhere?
+  (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-preview-stylesheets
-       (list "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.9.0/github-markdown.min.css"
-             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" "
-   <style>
-    .markdown-body {
-      box-sizing: border-box;
-      min-width: 200px;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 45px;
-    }
-
-    @media (max-width: 767px) {
-      .markdown-body {
-        padding: 15px;
-      }
-    }
-   </style>
- "))
- (setq markdown-preview-javascript
-       (list "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" "
-   <script>
-    $(document).on('mdContentChange', function() {
-      $('pre code').each(function(i, block) {
-        hljs.highlightBlock(block);
-      });
-    });
-   </script>
- ")))
+	(list "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.9.0/github-markdown.min.css"
+	      "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
+	      "https://gist.github.com/petergardfjall/94e17cf55bfaf69ab14a4fc1b9412478#file-gfm-markdown-body-css"))
+  (setq markdown-preview-javascript
+	(list "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
+	      "https://gist.github.com/petergardfjall/e14dc7fc3367af54cc35aa52353e46a9#file-gfm-markdown-code-block-highlight-js"
+	      )))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
