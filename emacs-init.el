@@ -512,15 +512,15 @@
 	 ;; style very similar to github's for markdown rendering
 	 "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
 	 ;; style that adds some margins
-	 (read-file "~/dotfiles/emacs.modules/markdown-preview-styling/github-markdown-body.css")
+	 "https://petergardfjall.github.io/css/emacs-markdown/github-markdown-body.css"
 	 ;; style for syntax highlighting of fenced codeblocks
 	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"))
   (setq markdown-preview-javascript
 	(list
 	 ;; javascript lib for syntax highlighting of fenced code blocks
 	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
-	 ;; javascript that uses the highlights js lib to apply to doc
-	 (read-file "~/dotfiles/emacs.modules/markdown-preview-styling/github-markdown-block-highlight.js"))))
+	 ;; javascript that applies the highlight js lib to the doc
+	 "https://petergardfjall.github.io/js/emacs-markdown/github-markdown-block-highlight.js")))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
