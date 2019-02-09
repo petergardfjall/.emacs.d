@@ -62,6 +62,7 @@
     (when (not (package-installed-p p))
       (package-install p))))
 
+
 ;;
 ;; Load any local modules from module directory in lexicographical order.
 ;;
@@ -77,6 +78,10 @@
 ;;
 ;; Utility functions
 ;;
+
+(defun read-file (path)
+  "Read the file at the specified PATH (may contain ~) and return as string."
+  (f-read (car (file-expand-wildcards path))))
 
 (defun untabify-buffer ()
   "Run 'untabify' on the whole buffer."
@@ -500,15 +505,22 @@
   :ensure t
   :after markdown-mode
   :config
+  (global-set-key (kbd "C-c p m")  'markdown-preview-mode)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-preview-stylesheets
-	(list "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.9.0/github-markdown.min.css"
-	      "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
-	      "https://gist.github.com/petergardfjall/94e17cf55bfaf69ab14a4fc1b9412478#file-gfm-markdown-body-css"))
+	(list
+	 ;; style very similar to github's for markdown rendering
+	 "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
+	 ;; style that adds some margins
+	 (read-file "~/dotfiles/emacs.modules/markdown-preview-styling/github-markdown-body.css")
+	 ;; style for syntax highlighting of fenced codeblocks
+	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"))
   (setq markdown-preview-javascript
-	(list "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
-	      "https://gist.github.com/petergardfjall/e14dc7fc3367af54cc35aa52353e46a9#file-gfm-markdown-code-block-highlight-js"
-	      )))
+	(list
+	 ;; javascript lib for syntax highlighting of fenced code blocks
+	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
+	 ;; javascript that uses the highlights js lib to apply to doc
+	 (read-file "~/dotfiles/emacs.modules/markdown-preview-styling/github-markdown-block-highlight.js"))))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
