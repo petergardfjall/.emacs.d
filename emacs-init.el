@@ -624,6 +624,12 @@
 (use-package eldoc
   :diminish eldoc-mode)
 
+;; can be used for working with .groovy and Jenkinsfile
+(use-package groovy-mode
+  :ensure t
+  :defer t
+  :commands (groovy-mode))
+
 
 ;;; Finalization
 
