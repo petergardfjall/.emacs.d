@@ -447,7 +447,7 @@
   ;; run gofmt (or actually, goimports) on save
   ;; note: requires ${GOROOT}/bin to be on PATH
   (setq gofmt-command "goimports")
-  (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'before-save-hook 'gofmt-before-save nil t)
   ;; start lsp-mode
   (add-hook 'go-mode-hook 'lsp))
 
@@ -602,7 +602,7 @@
   (use-package clang-format
     :ensure t)
   ;; add buffer-local save hooks
-  (add-hook 'before-save-hook 'clang-format-buffer) nil t)
+  (add-hook 'before-save-hook 'clang-format-buffer nil t))
 
 
 (use-package lsp-java
