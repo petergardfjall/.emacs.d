@@ -157,6 +157,7 @@
   :demand t)
 
 (use-package immaterial-theme
+  :ensure t
   :init
   ;; (setq immaterial-color-override-alist
   ;; 	'(
