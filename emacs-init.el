@@ -347,7 +347,6 @@
 
 (use-package lsp-mode
   :ensure t
-  :pin melpa-stable
   :defer t
   :commands lsp
   :init
@@ -362,7 +361,15 @@
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all t)
   ;; Seconds to wait for a response from the language server before timing out.
-  (setq lsp-response-timeout 5))
+  (setq lsp-response-timeout 5)
+  :config
+  ;; prefer bingo as go language server (over gopls)
+  ;; TODO: remove when gopls reaches sufficient maturity
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "bingo")
+		    :priority 100
+                    :major-modes '(go-mode)
+                    :server-id 'bingo)))
 
 
 (use-package lsp-ui
@@ -399,7 +406,7 @@
   (global-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
   (global-set-key (kbd "C-c h")    'lsp-document-highlight)
   (global-set-key (kbd "C-c f d")  'lsp-find-definition)
-  (global-set-key (kbd "C-c f i")  'lsp-find-implementation)
+  (global-set-key (kbd "C-c f i")  'lsp-goto-implementation)
   (global-set-key (kbd "C-c f r")  'lsp-find-references)
   (global-set-key (kbd "C-c C-r")  'lsp-rename)
   (global-set-key (kbd "C-c d")    'lsp-ui-doc-show)
