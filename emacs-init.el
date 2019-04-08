@@ -369,7 +369,12 @@
    (make-lsp-client :new-connection (lsp-stdio-connection "bingo")
 		    :priority 100
                     :major-modes '(go-mode)
-                    :server-id 'bingo)))
+                    :server-id 'bingo))
+
+  ;; Remove the (default) py language server, since we want to make use of
+  ;; microsoft's language server (arguably better:
+  ;; https://vxlabs.com/2018/11/19/configuring-emacs-lsp-mode-and-microsofts-visual-studio-code-python-language-server/)
+  (remhash 'pyls lsp-clients))
 
 
 (use-package lsp-ui
@@ -420,6 +425,17 @@
   :commands company-lsp)
 
 
+;; Use microsoft's (dotnet-based) language server for python.
+(use-package lsp-python-ms
+  :ensure nil
+  :hook (python-mode . lsp)
+  :config
+  (setq lsp-python-ms-executable "/opt/bin/ms-python-language-server")
+  ;; override python-mode keybindings
+  (bind-keys*
+   ("C-c C-d" . lsp-describe-thing-at-point)
+   ("C-c C-r" . lsp-rename)))
+
 (use-package python-mode
   :ensure t
   :defer t
@@ -433,9 +449,6 @@
   (message "python buffer setup hook ...")
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
-  ;; NOTE: relies on python-language-server[all] being installed
-  (unless (executable-find "pyls")
-    (user-error "pyls language server not on path. In your (v)env run:\n  pip3 install python-language-server[all]\n"))
   (sphinx-doc-mode t)
   ;; start lsp-mode
   (add-hook 'python-mode-hook 'lsp)
