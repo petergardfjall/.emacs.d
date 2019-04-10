@@ -123,8 +123,8 @@
   (scroll-bar-mode -1)
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
   (tool-bar-mode -1)
-  ;; Display line numbers (toggle with M-x linum-mode)
-  (global-linum-mode -1)
+  ;; Display line numbers (toggle with M-x display-line-numbers-mode)
+  (global-display-line-numbers-mode -1)
   ;; Make yes/no prompts shourter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; no blinking cursor
@@ -331,11 +331,11 @@
 ;;; Development/coding
 ;;;
 
-;; Enable linum-mode whenever we are in prog-mode
+;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
   :ensure t
   :defer t
-  :hook (prog-mode . linum-mode))
+  :hook (prog-mode . display-line-numbers-mode))
 
 ;; TODO: can we use use-package for this?
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
@@ -483,7 +483,7 @@
   (message "json buffer config ...")
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (add-hook 'json-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'json-mode-hook 'display-line-numbers-mode) ; show line numbers
 
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'json-mode-hook 'untabify-on-save-hook)
@@ -499,7 +499,7 @@
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (add-hook 'yaml-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'yaml-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'yaml-mode-hook 'untabify-on-save-hook)
   (add-hook 'yaml-mode-hook 'strip-on-save-hook))
@@ -549,7 +549,7 @@
   :defer t
   :mode (("\\.vcl\\'" . vcl-mode))
   :config
-  (add-hook 'vcl-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'vcl-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'vcl-mode-hook 'untabify-on-save-hook)
   (add-hook 'vcl-mode-hook 'strip-on-save-hook))
@@ -560,7 +560,7 @@
   :defer t
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
-  (add-hook 'dockerfile-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'dockerfile-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'dockerfile-mode-hook 'untabify-on-save-hook)
   (add-hook 'dockerfile-mode-hook 'strip-on-save-hook))
@@ -571,7 +571,7 @@
   :defer t
   :mode (("\\.toml\\'" . toml-mode))
   :config
-  (add-hook 'toml-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'toml-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'toml-mode-hook 'untabify-on-save-hook)
   (add-hook 'toml-mode-hook 'strip-on-save-hook))
@@ -582,7 +582,7 @@
   :mode (("\\.tf\\'" . terraform-mode))
   :config
   (message "terraform-mode config ...")
-  (add-hook 'terraform-mode-hook 'linum-mode) ; show line numbers
+  (add-hook 'terraform-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'terraform-mode-hook 'untabify-on-save-hook)
   (add-hook 'terraform-mode-hook 'strip-on-save-hook))
