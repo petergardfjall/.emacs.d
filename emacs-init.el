@@ -587,6 +587,17 @@
   (add-hook 'terraform-mode-hook 'untabify-on-save-hook)
   (add-hook 'terraform-mode-hook 'strip-on-save-hook))
 
+(use-package protobuf-mode
+  :ensure t
+  :defer t
+  :mode (("\\.proto\\'" . protobuf-mode))
+  :config
+  (message "protobuf-mode config ...")
+  (add-hook 'protobuf-mode-hook 'display-line-numbers-mode) ; show line numbers
+  ;; add buffer-local save hook only for buffers in this mode
+  (add-hook 'protobuf-mode-hook 'untabify-on-save-hook)
+  (add-hook 'protobuf-mode-hook 'strip-on-save-hook))
+
 ;; Rust-mode
 (use-package rust-mode
   :ensure t
