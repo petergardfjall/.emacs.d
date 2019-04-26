@@ -363,13 +363,6 @@
   ;; Seconds to wait for a response from the language server before timing out.
   (setq lsp-response-timeout 5)
   :config
-  ;; prefer bingo as go language server (over gopls)
-  ;; TODO: remove when gopls reaches sufficient maturity
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "bingo")
-		    :priority 100
-                    :major-modes '(go-mode)
-                    :server-id 'bingo))
 
   ;; Remove the (default) py language server, since we want to make use of
   ;; microsoft's language server (arguably better:
@@ -462,14 +455,12 @@
   :mode (("\\.go\\'" . go-mode))
   :config
   (message "go-mode config ...")
-  ;; NOTE: relies on bingo lsp server being on the PATH
-  (unless (executable-find "bingo")
-    (user-error "bingo LSP server is not on PATH\n"))
   ;; run gofmt (or actually, goimports) on save
   ;; note: requires ${GOROOT}/bin to be on PATH
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
+  ;; NOTE: relies on gopls lsp server being on the PATH
   (add-hook 'go-mode-hook 'lsp))
 
 
