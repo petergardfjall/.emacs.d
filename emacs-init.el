@@ -420,7 +420,7 @@
 
 ;; Use microsoft's (dotnet-based) language server for python.
 (use-package lsp-python-ms
-  :ensure nil
+  :ensure t
   :hook (python-mode . lsp)
   :config
   (setq lsp-python-ms-executable "/opt/bin/ms-python-language-server")
