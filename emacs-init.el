@@ -331,6 +331,28 @@
 ;;; Development/coding
 ;;;
 
+;; ag is an Emacs frontend to the silver searcher (ag) command-line tool.
+;; The following M-x commands are available
+;;   ag|ag-files|ag-regexp|ag-project|ag-project-files|ag-project-regexp
+;; *-project commands detects the git root.
+;; *-regexp allows PCRE patterns for the search term.
+;; see: https://agel.readthedocs.io/en/latest/usage.html
+;;
+(use-package ag
+  :ensure t
+  :config
+  (setq ag-highlight-search t))
+
+;; Emacs frontend for GNU global/gtags to search code tags.
+;; On a soure tree run gtags from the root. Then e.g. use
+;; M-x ggtags-find-definition to find a certain symbol
+;; On multiple hits use M-n/M-p to navigate hits.
+(use-package ggtags
+  :ensure t
+  :config
+  ;; "find-tag", "find-type"
+  (global-set-key (kbd "C-c f t") 'ggtags-find-definition))
+
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
   :ensure t
@@ -410,7 +432,6 @@
   (global-set-key (kbd "C-c d")    'lsp-ui-doc-show)
   (global-set-key (kbd "C-c e")    'lsp-ui-doc-hide) ; "end doc show"
   (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point))
-
 
 (use-package company-lsp
   :ensure t
