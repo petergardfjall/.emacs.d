@@ -373,6 +373,8 @@
   :commands lsp
   :init
   (message "lsp-mode init ...")
+  ;; If non-nil, print all messages to/from lang server in *lsp-log*.
+  (setq lsp-print-io nil)
   ;; Set to t to have eldoc display hover info when present.
   (setq lsp-eldoc-enable-hover nil)
   ;; Set to t to have eldoc display signature help when present.
@@ -402,8 +404,8 @@
   (setq lsp-ui-sideline-enable nil)
   ;; show object documentation at point in a child frame?
   (progn
-    ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame for
-    ;; is to be used for rendering docs on hover
+    ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame is to
+    ;; be used for rendering docs on hover
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-doc-max-width 70)
     ;; set background color for ui-doc popup
