@@ -136,6 +136,22 @@
   ;; Show matching paranthesis
   (show-paren-mode 1)
   (setq show-paren-delay 0)
+
+  ;; Automatic saving of the desktop when you exit Emacs, and automatic
+  ;; restoration of the last saved desktop when Emacs starts.  At start, it
+  ;; looks for a saved desktop in the current directory (or actually in the
+  ;; directories specified by desktop-path, and uses the first desktop it
+  ;; finds).
+  (desktop-save-mode 1)
+  ;; Save desktop state in working directory.
+  (setq desktop-path '("."))
+  ;; Save desktop on exit without prompting.
+  (setq desktop-save t)
+  ;; Max number of buffers to restore immediately. The rest are lazily loaded.
+  (setq desktop-restore-eager 10)
+
+  ;; Move between windows with Shift-<up|down|left|right>
+  (windmove-default-keybindings)
   )
 
 (general-settings)
