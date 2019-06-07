@@ -173,31 +173,8 @@
 (use-package immaterial-theme
   :ensure t
   :init
-  ;; (setq immaterial-color-override-alist
-  ;; 	'(
-  ;; 	   ("primary"         . "#ce93d8")
-  ;; 	   ("primary-light"   . "#ffc4ff")
-  ;; 	   ("primary-dark"    . "#9c64a6")
-  ;; 	  ;;("cursor" . "#ffca28")
-  ;; 	  ))
   :config
   (load-theme 'immaterial t))
-
-(use-package material-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'material t)
-  ;; make line-number font more discrete
-  (set-face-attribute 'linum nil :foreground "#777")
-  ;; line-number font size should remain the same even if font on row is big
-  (set-face-attribute 'linum nil :height 100)
-  (set-face-attribute 'linum nil :weight 'normal)
-  ;; make keywords and functions in code display with bold font
-  (custom-set-faces
-   '(font-lock-keyword-face ((t (:weight bold))))
-   '(font-lock-function-name-face ((t (:weight bold)))))
-  )
 
 (use-package powerline
   :ensure t
