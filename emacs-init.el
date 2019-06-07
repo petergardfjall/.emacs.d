@@ -13,8 +13,8 @@
 (defun elapsed-time ()
   (float-time (time-subtract (current-time) emacs-start-time)))
 
-;; minimum frame width when neotree is enabled (in characters)
-(defconst neotree-min-width 120)
+;; minimum frame width when treemacs is enabled (in characters)
+(defconst treemacs-min-width 120)
 
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
@@ -269,53 +269,61 @@
   :ensure t
   :defer t)
 
-;; File navigator on the left via F8
-(use-package neotree
+(defun toggle-treemacs ()
+  "Enable or disable the treemacs project explorer.  When treemacs
+is enabled in graphical mode, ensure that the frame width is
+sufficiently large."
+  (interactive)
+  (message "toggling treemacs ...")
+  (treemacs)
+  (when (display-graphic-p)
+    (when (and (eq (treemacs-current-visibility) 'visible)
+	       (< (frame-width) treemacs-min-width))
+      (set-frame-width (selected-frame) treemacs-min-width))))
+
+;; File navigator
+;; Pressing '?' will show help hydra.
+(use-package treemacs
   :ensure t
   :defer t
-  :commands (neotree-toggle neotree-project-dir-toggle)
-  :init
-  (defun neotree-project-dir-toggle ()
-    "Projectile-aware neotree-toggle."
-    (interactive)
-    (let ((cw (selected-window))
-	  (project-dir
-	   (ignore-errors (projectile-project-root)))
-	  (file-name (buffer-file-name))
-	  (neo-smart-open t))
-      (if (and (fboundp 'neo-global--window-exists-p)
-	       (neo-global--window-exists-p))
-	  (progn
-	    (neotree-hide))
-	(progn
-	  (neotree-show)
-	  (if (display-graphic-p)
-	      (if (< (frame-width) neotree-min-width)
-		  ;; set wider frame size when neotree is shown unless the
-		  ;; window is already larger
-		  (set-frame-width (selected-frame) neotree-min-width)))
-	  (if project-dir
-	      (neotree-dir project-dir))
-	  (if file-name
-	      (neotree-find file-name))
-	  (select-window cw)))))
-
-  ;; hide/show neotree
-  (global-set-key [f8] 'neotree-project-dir-toggle)
   :config
-  (message "neotree config ...")
-  ;; change theme for neotree when running in x mode
-  (setq neo-theme (if (display-graphic-p) 'arrow))
-  ;; when tree is opened, find current file and jump to tree node
-  (setq neo-smart-open t)
-  ;; Auto-refresh the neotree buffer
-  (setq neo-autorefresh t)
-  ;; do not switch to neotree window on toggle
-  (setq neo-toggle-window-keep-p t)
-  ;; fix for https://github.com/jaypei/emacs-neotree/issues/209
-  ;; for example, godoc-at-point would open in new frame
-  (setq split-window-preferred-function 'neotree-split-window-sensibly)
-  )
+  (setq treemacs-indentation 2)
+  (setq treemacs-indentation-string " ")
+  (setq treemacs-missing-project-action 'ask)
+  ;; use textual icons
+  (setq treemacs-no-png-images t)
+  ;; keep only the current project expanded and all others closed.
+  (setq treemacs-project-follow-cleanup t)
+  ;; path where workspace state (all added projects) is saved
+  (setq treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
+  (setq treemacs-show-hidden-files t)
+  (setq treemacs-width 35)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode t)
+  (pcase (cons (not (null (executable-find "git")))
+	       (not (null (executable-find "python3"))))
+    (`(t . t)
+     (treemacs-git-mode 'deferred))
+    (`(t . _)
+     (treemacs-git-mode 'simple)))
+  :bind
+  (:map global-map
+	;; hide/show treemacs file explorer
+	("<f8>" . toggle-treemacs)))
+
+;; Quickly add your projectile projects to the treemacs workspace.
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+;; A small utility package to fill the small gaps left by using filewatch-mode
+;; and git-mode in conjunction with magit: it will inform treemacs about
+;; (un)staging of files and commits happening in magit.
+(use-package treemacs-magit
+  :after treemacs magit
+  :ensure t)
+
 
 ;;;
 ;;; Development/coding
