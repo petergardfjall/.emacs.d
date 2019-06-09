@@ -130,9 +130,20 @@
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
       (setq initial-frame-alist '((width . normal-width) )))
+  ;;
+  ;; generic key bindings
+  ;;
+
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") 'comment-line)
   (global-set-key (kbd "C-c w") 'delete-trailing-whitespace)
+  ;; find definition of thing at point (if supported by mode)
+  (global-set-key (kbd "<M-down>") 'xref-find-definitions)
+  (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
+  (global-set-key (kbd "C-c f d")  'xref-find-definitions)
+  (global-set-key (kbd "C-c f r")  'xref-find-references)
+  ;; see if documentation can be found for thing at point
+  (global-set-key (kbd "C-c C-d")  'describe-symbol)
   ;; Show matching paranthesis
   (show-paren-mode 1)
   (setq show-paren-delay 0)
