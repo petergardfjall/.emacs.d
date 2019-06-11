@@ -285,7 +285,6 @@
 is enabled in graphical mode, ensure that the frame width is
 sufficiently large."
   (interactive)
-  (message "toggling treemacs ...")
   (treemacs)
   (when (display-graphic-p)
     (when (and (eq (treemacs-current-visibility) 'visible)
