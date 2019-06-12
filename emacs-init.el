@@ -99,6 +99,10 @@
   ;; note: last argument makes this save-hook local to the buffer
   (add-hook 'before-save-hook 'strip-buffer nil t))
 
+(defun close-all-buffers ()
+  "Kill all open buffers."
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
 
 ;;
 ;; General settings
