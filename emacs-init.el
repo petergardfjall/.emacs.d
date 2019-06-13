@@ -148,6 +148,8 @@
   (global-set-key (kbd "C-c f r")  'xref-find-references)
   ;; see if documentation can be found for thing at point
   (global-set-key (kbd "C-c C-d")  'describe-symbol)
+  ;; find file (in project)
+  (global-set-key (kbd "C-c f f")  'projectile-find-file)
   ;; Show matching paranthesis
   (show-paren-mode 1)
   (setq show-paren-delay 0)
