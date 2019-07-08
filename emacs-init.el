@@ -400,12 +400,7 @@ sufficiently large."
   (setq lsp-eldoc-render-all t)
   ;; Seconds to wait for a response from the language server before timing out.
   (setq lsp-response-timeout 5)
-  :config
-
-  ;; Remove the (default) py language server, since we want to make use of
-  ;; microsoft's language server (arguably better:
-  ;; https://vxlabs.com/2018/11/19/configuring-emacs-lsp-mode-and-microsofts-visual-studio-code-python-language-server/)
-  (remhash 'pyls lsp-clients))
+  :config)
 
 
 (use-package lsp-ui
@@ -455,12 +450,26 @@ sufficiently large."
   :commands company-lsp)
 
 
-;; Use microsoft's (dotnet-based) language server for python.
+;; Use microsoft's (dotnet-based) language server for python (appears to be
+;; better than the default pyls). Downloads the language server under
+;; ~/.emacs.d/mspyls.
 (use-package lsp-python-ms
   :ensure t
-  :hook (python-mode . lsp)
+  :defer t
+  :init
+  (add-hook 'python-mode-hook
+	    (lambda ()
+	      (progn
+		;; Load the package prior to running lsp so that the language
+		;; server gets properly registered. The documentation suggests
+		;; using use-package :demand, but that runs on every launch
+		;; (irrespective of major mode and (always) adds 0.5s startup
+		;; time.
+		(require 'lsp-python-ms)
+		(lsp))))
   :config
-  (setq lsp-python-ms-executable "/opt/bin/ms-python-language-server")
+  ;; language server to download
+  (setq lsp-python-ms-nupkg-channel "stable")
   ;; override python-mode keybindings
   (bind-keys*
    ("C-c C-d" . lsp-describe-thing-at-point)
