@@ -108,15 +108,15 @@
 ;; General settings
 ;;
 (defun general-settings ()
+  "Apply appearance and general editor settings."
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
   (setq inhibit-startup-screen t)
   (setq column-number-mode t)
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
-					; set the default font to use
-  (add-to-list 'default-frame-alist
-	       '(font . "DejaVu Sans Mono-10"))
+  ;; set the default font to use
+  (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-10"))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
@@ -127,7 +127,7 @@
   (tool-bar-mode -1)
   ;; Display line numbers (toggle with M-x display-line-numbers-mode)
   (global-display-line-numbers-mode -1)
-  ;; Make yes/no prompts shourter (y/n)
+  ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; no blinking cursor
   (blink-cursor-mode 0)
@@ -151,27 +151,62 @@
   ;; find file (in project)
   (global-set-key (kbd "C-c f f")  'projectile-find-file)
   ;; Show matching paranthesis
-  (show-paren-mode 1)
   (setq show-paren-delay 0)
-
-  ;; Automatic saving of the desktop when you exit Emacs, and automatic
-  ;; restoration of the last saved desktop when Emacs starts.  At start, it
-  ;; looks for a saved desktop in the current directory (or actually in the
-  ;; directories specified by desktop-path, and uses the first desktop it
-  ;; finds).
-  (desktop-save-mode 1)
-  ;; Save desktop state in working directory.
-  (setq desktop-path '("."))
-  ;; Save desktop on exit without prompting.
-  (setq desktop-save t)
-  ;; Max number of buffers to restore immediately. The rest are lazily loaded.
-  (setq desktop-restore-eager 10)
+  (show-paren-mode 1)
 
   ;; Move between windows with Shift-<up|down|left|right>
-  (windmove-default-keybindings)
-  )
+  (windmove-default-keybindings))
 
 (general-settings)
+
+(defun vc-backend-or-nil (path)
+  "Determines the type of version control (e.g. 'Git') a certain
+PATH is under.  Returns nil for paths not under version control."
+  (condition-case err
+      (vc-responsible-backend path)
+    (error
+     (message "%s does not look version controlled: %s" path err)
+     nil)))
+
+(defun enable-desktop-if-started-in-git-repo ()
+  "Enable desktop save mode if Emacs was started in a
+version-controlled (project) directory. The desktop is saved
+to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
+  ;; Find out if directory emacs was started in is version controlled and, if
+  ;; so, find the repo root dir and use that as desktop save <path>.
+  (let* ((cwd default-directory)
+	 (vc-backend (vc-backend-or-nil cwd)))
+    (message "emacs started in directory %s" cwd)
+    (when vc-backend
+      (message "start directory is a %s repo" vc-backend)
+      (let ((repo-root-dir (vc-call-backend vc-backend 'root cwd)))
+	(message "start directory repo root is at %s" repo-root-dir)
+	(message "enabling desktop save mode ...")
+	(setq my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops")))
+	(setq desktop-dir (concat my-desktops-dir (expand-file-name repo-root-dir)))
+	(message "setting desktop save dir to: %s" desktop-dir)
+	(make-directory desktop-dir t)
+	;; Automatic saving of the desktop when Emacs exits, and automatic
+	;; restoration of the last saved desktop when Emacs starts. At start, it
+	;; looks for a saved desktop in the the directories in desktop-path.
+	(desktop-save-mode 1)
+	;; Directory where desktop state is to be stored.
+	(setq desktop-path (list desktop-dir))
+	;; Save desktop on exit without prompting.
+	(setq desktop-save t)
+	;; Max number of buffers to restore immediately. The rest are lazily loaded.
+	(setq desktop-restore-eager 10)
+	(setq desktop-auto-save-timeout 30))
+      ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked
+      ;; by another process)
+      (add-hook 'desktop-not-loaded-hook
+		(lambda ()
+		  (message "desktop appears locked, disabling desktop-save-mode ...")
+		  (setq desktop-save-mode nil))))))
+
+(enable-desktop-if-started-in-git-repo)
+
+
 
 ;;;
 ;;; Start for custom package installation/configuration.
