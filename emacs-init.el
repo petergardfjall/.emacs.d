@@ -418,6 +418,7 @@ sufficiently large."
 
 (use-package lsp-mode
   :ensure t
+  :pin melpa-stable
   :defer t
   :commands lsp
   :init
