@@ -390,7 +390,9 @@ sufficiently large."
 (use-package ag
   :ensure t
   :config
-  (setq ag-highlight-search t))
+  (setq ag-highlight-search t)
+  ;; free-text "search-in-project"
+  (global-set-key (kbd "C-c s p") 'ag-project))
 
 ;; Emacs frontend for GNU global/gtags to search code tags.
 ;; On a soure tree run gtags from the root. Then e.g. use
