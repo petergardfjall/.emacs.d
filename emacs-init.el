@@ -405,6 +405,8 @@ sufficiently large."
   :ensure t
   :config
   (setq ag-highlight-search t)
+  ;; reuse the same *ag* buffer for all searches
+  (setq ag-reuse-buffers t)
   ;; free-text "search-in-project"
   (global-set-key (kbd "C-c s p") 'ag-project))
 
