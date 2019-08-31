@@ -558,6 +558,8 @@ sufficiently large."
   ;; run gofmt (or actually, goimports) on save
   ;; note: requires ${GOROOT}/bin to be on PATH
   (setq gofmt-command "goimports")
+  ;; Reuse a single *godoc* buffer to display godoc-at-point calls.
+  (setq godoc-reuse-buffer t)
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
   ;; NOTE: relies on gopls lsp server being on the PATH
