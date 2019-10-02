@@ -359,8 +359,11 @@ sufficiently large."
   (setq treemacs-no-png-images t)
   ;; keep only the current project expanded and all others closed.
   (setq treemacs-project-follow-cleanup t)
-  ;; path where workspace state (all added projects) is saved
-  (setq treemacs-persist-file (expand-file-name ".cache/treemacs-persist" user-emacs-directory))
+  ;; path where workspace state (all added projects) is saved (a separate
+  ;; treemacs state file is kept for each location where emacs is opened --
+  ;; assumed to be project root most of the time):
+  ;; ~/.emacs.d/treemacs-persist/<working-dir>
+  (setq treemacs-persist-file (concat user-emacs-directory "treemacs" (getenv "PWD") "/treemacs-persist"))
   (setq treemacs-show-hidden-files t)
   (setq treemacs-width 35)
   (treemacs-follow-mode t)
