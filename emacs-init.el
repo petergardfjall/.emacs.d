@@ -758,6 +758,12 @@ sufficiently large."
   :defer t
   :commands (groovy-mode))
 
+;; emacs mode to edit GraphQL schemas and queries (automtically enabled when
+;; opening .graphql and .gql files)
+(use-package graphql-mode
+  :ensure t
+  :defer t)
+
 
 ;;; Finalization
 
