@@ -429,10 +429,10 @@ sufficiently large."
   :defer t
   :hook (prog-mode . display-line-numbers-mode))
 
-;; TODO: can we use use-package for this?
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
 (use-package sh-script
-  :mode (("\\.sh\\'" . sh-mode))
+  :mode (("\\.sh\\'" . sh-mode)
+	 ("\\.env\\'" . sh-mode))
   :config
   (add-hook 'sh-mode-hook 'untabify-on-save-hook)
   (add-hook 'sh-mode-hook 'strip-on-save-hook))
