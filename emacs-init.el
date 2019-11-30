@@ -130,7 +130,7 @@
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
   ;; set the default font to use
-  (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-10"))
+  (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono:pixelsize=14"))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
