@@ -240,6 +240,14 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   :ensure t
   :init
   :config
+  ;; default: https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=4DB6AC&secondary.color=AED581
+  (setq immaterial-color-override-alist
+	'(
+	  ;; solarized dark background colors
+	  ("background-primary"   . "#002b36")
+	  ("background-secondary" . "#003644")
+	  ("background-tertiary"  . "#00212b")
+	))
   (load-theme 'immaterial t))
 
 (use-package powerline
