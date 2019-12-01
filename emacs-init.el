@@ -236,6 +236,16 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   :ensure t
   :demand t)
 
+;; make font larger/smaller globally (entire frame, not just per buffer)
+(use-package default-text-scale
+  :ensure t
+  :demand t
+  :config
+  (setq default-text-scale-amount 10)
+  (global-set-key (kbd "C-x C-+") 'default-text-scale-increase)
+  (global-set-key (kbd "C-x C--") 'default-text-scale-decrease)
+  (global-set-key (kbd "C-x C-0") 'default-text-scale-reset))
+
 (use-package immaterial-theme
   :ensure t
   :init
