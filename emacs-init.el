@@ -131,6 +131,7 @@
   (setq-default fill-column 80)
   ;; set the default font to use
   (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono:pixelsize=14"))
+  ;; (add-to-list 'default-frame-alist '(font . "Ubuntu Mono:pixelsize=16"))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
@@ -252,12 +253,14 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   :config
   ;; default: https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=4DB6AC&secondary.color=AED581
   (setq immaterial-color-override-alist
-	'(
-	  ;; solarized dark background colors
+	'(;; solarized dark background colors
 	  ("background-primary"   . "#002b36")
-	  ("background-secondary" . "#003644")
-	  ("background-tertiary"  . "#00212b")
-	))
+	  ("background-secondary" . "#00212b")
+	  ("background-tertiary"  . "#003644")
+	  ;; purple
+	  ("primary"         . "#b39ddb")
+	  ("primary-light"   . "#e6ceff")
+	  ("primary-dark"    . "#836fa9")))
   (load-theme 'immaterial t))
 
 (use-package powerline
@@ -491,9 +494,7 @@ sufficiently large."
     ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame is to
     ;; be used for rendering docs on hover
     (setq lsp-ui-doc-enable nil)
-    (setq lsp-ui-doc-max-width 70)
-    ;; set background color for ui-doc popup
-    (custom-set-faces '(lsp-ui-doc-background ((t (:background "#003366"))))))
+    (setq lsp-ui-doc-max-width 70))
   ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
   (progn
     (setq lsp-ui-peek-enable t)
