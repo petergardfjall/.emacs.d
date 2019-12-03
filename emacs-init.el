@@ -260,7 +260,21 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
 	  ;; purple
 	  ("primary"         . "#b39ddb")
 	  ("primary-light"   . "#e6ceff")
-	  ("primary-dark"    . "#836fa9")))
+	  ("primary-dark"    . "#836fa9")
+	  ;; bright
+	  ;; ("background-primary"   . "#fafafa")
+	  ;; ("background-on"        . "#cfd8dc")
+	  ;; ("background-off"       . "#eeeeee")
+	  ;; ("foreground-primary"   . "#263238")
+	  ;; ("foreground-secondary" . "#4f5b62")
+	  ;; ("foreground-tertiary"  . "#000a12")
+	  ;; ("primary"              . "#311b92")
+	  ;; ("primary-light"        . "#6746c3")
+	  ;; ("primary-dark"         . "#000063")
+	  ;; ("secondary"            . "#33691e")
+	  ;; ("secondary-light"      . "#629749")
+	  ;; ("secondary-dark"       . "#003d00")
+	))
   (load-theme 'immaterial t))
 
 (use-package powerline
@@ -338,7 +352,7 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   )
 
 
-;; A languate template system for emacs. lsp-mode auto-configures yasnippet for
+;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
 ;; associated with yas-expand (TAB by default) to have the snippet expanded. To
 ;; see available snippets: M-x yas-describe-tables
