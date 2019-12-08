@@ -539,7 +539,6 @@ sufficiently large."
   :defer t
   :commands company-lsp)
 
-
 ;; Use microsoft's (dotnet-based) language server for python (appears to be
 ;; better than the default pyls). Downloads the language server under
 ;; ~/.emacs.d/mspyls.
@@ -547,16 +546,7 @@ sufficiently large."
   :ensure t
   :defer t
   :init
-  (add-hook 'python-mode-hook
-	    (lambda ()
-	      (progn
-		;; Load the package prior to running lsp so that the language
-		;; server gets properly registered. The documentation suggests
-		;; using use-package :demand, but that runs on every launch
-		;; (irrespective of major mode and (always) adds 0.5s startup
-		;; time.
-		(require 'lsp-python-ms)
-		(lsp))))
+  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp)))
   :config
   ;; language server to download
   (setq lsp-python-ms-nupkg-channel "stable")
@@ -565,25 +555,25 @@ sufficiently large."
    ("C-c C-d" . lsp-describe-thing-at-point)
    ("C-c C-r" . lsp-rename)))
 
-(use-package python-mode
-  :ensure t
-  :defer t
-  :mode (("\\.py\\'" . python-mode))
+(use-package python
+  ;; note: no :ensure since it is already built into emacs
   :config
-
-  ;; Templated docstring when pressing C-c M-d in function head
-  (use-package sphinx-doc
-    :ensure t)
-
   (message "python buffer setup hook ...")
+
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
-  (sphinx-doc-mode t)
-  ;; start lsp-mode
-  (add-hook 'python-mode-hook 'lsp)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'python-mode-hook 'untabify-on-save-hook)
   (add-hook 'python-mode-hook 'strip-on-save-hook))
+
+;; Use sphinx-doc when python-mode is activated. Gives a templated docstring
+;; when pressing C-c M-d in function head.
+(use-package sphinx-doc
+  :ensure t
+  :commands python-mode
+  :config
+  (sphinx-doc-mode))
+
 
 (use-package go-mode
   :ensure t
