@@ -7,20 +7,97 @@
 
 ;;; Code:
 
-;; Time the loading of this file.
+;; Time for starting to load this file.
 (defconst emacs-start-time (current-time))
-;; Function to print the elapsed time since start of loading.
+
+;;
+;; Declarations
+;;
+
+(defconst treemacs-min-width 120
+  "Minimum frame width when treemacs is enabled (in characters).")
+
+(defvar custom-gc-cons-threshold 67108864
+    "The value (in bytes) to set for `gc-cons-threshold`.
+Decrease if you experience freezing, increase if you experience stuttering.")
+
+;;
+;; Tricks to reduce startup time. These need to be set at an eary stage.
+;;
+
+;; avoid GC performance-penalty on startup by temporarily bumping the memory
+;; threshold for GC. This effectively defers garbage collection.
+(setq gc-cons-threshold 268435456) ;; 256 mb
+(setq package-enable-at-startup nil)
+(defvar file-name-handler-alist-old file-name-handler-alist)
+;; at startup we don't want emacs to look for a handler for every opened file.
+(setq file-name-handler-alist nil)
+
+;; re-set temporarily disabled features once init is complete.
+(add-hook 'after-init-hook
+          (lambda ()
+	    ;; set a more appropriate GC threshold.
+            (setq gc-cons-threshold custom-gc-cons-threshold)
+	    ;; re-enable file handler associations.
+	    (setq file-name-handler-alist file-name-handler-alist-old)))
+
+;;
+;; Utility functions
+;;
+
 (defun elapsed-time ()
+  "Get the elapsed time since start of loading."
   (float-time (time-subtract (current-time) emacs-start-time)))
 
-;; minimum frame width when treemacs is enabled (in characters)
-(defconst treemacs-min-width 120)
+(defun read-file (path)
+  "Read the file at the specified PATH (may contain ~) and return as string."
+  (f-read (car (file-expand-wildcards path))))
+
+(defun untabify-buffer ()
+  "Run 'untabify' on the whole buffer."
+  (untabify (point-min) (point-max)))
+
+(defun strip-buffer ()
+  "Run 'delete-trailing-whitespace' on the whole buffer."
+  (delete-trailing-whitespace))
+
+(defun untabify-on-save-hook ()
+  "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
+  ;; note: last argument makes this save-hook local to the buffer
+  (add-hook 'before-save-hook 'untabify-buffer nil t))
+
+(defun strip-on-save-hook ()
+  "Register a buffer-local 'before-save-hook' to run 'strip-buffer'."
+  ;; note: last argument makes this save-hook local to the buffer
+  (add-hook 'before-save-hook 'strip-buffer nil t))
+
+(defun close-all-buffers ()
+  "Kill all open buffers."
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
+
+(defun rename-file-and-buffer ()
+  "Rename the current buffer and file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (message "Buffer '%s' is not visiting a file!" (buffer-name))
+      (let ((new-name (read-file-name "Rename file: " filename)))
+        (cond
+         ((vc-backend filename) (vc-rename-file filename new-name))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+
+;;
+;; Start of actual initialization.
+;;
+
+(message "Loading emacs-init.el ...")
 
 ;; Use the package.el package manager that comes bundled with Emacs24
 (require 'package)
 (package-initialize)
-
-(message "Loading emacs-init.el ...")
 
 ;; Add package archives:
 ;; Note that packages will always be picked from melpa unless specifically
@@ -73,49 +150,6 @@
   (load-file module)
   )
 
-;;
-;; Utility functions
-;;
-
-(defun read-file (path)
-  "Read the file at the specified PATH (may contain ~) and return as string."
-  (f-read (car (file-expand-wildcards path))))
-
-(defun untabify-buffer ()
-  "Run 'untabify' on the whole buffer."
-  (untabify (point-min) (point-max)))
-
-(defun strip-buffer ()
-  "Run 'delete-trailing-whitespace' on the whole buffer."
-  (delete-trailing-whitespace))
-
-(defun untabify-on-save-hook ()
-  "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
-  ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'untabify-buffer nil t))
-
-(defun strip-on-save-hook ()
-  "Register a buffer-local 'before-save-hook' to run 'strip-buffer'."
-  ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'strip-buffer nil t))
-
-(defun close-all-buffers ()
-  "Kill all open buffers."
-  (interactive)
-  (mapc 'kill-buffer (buffer-list)))
-
-(defun rename-file-and-buffer ()
-  "Rename the current buffer and file it is visiting."
-  (interactive)
-  (let ((filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (message "Buffer '%s' is not visiting a file!" (buffer-name))
-      (let ((new-name (read-file-name "Rename file: " filename)))
-        (cond
-         ((vc-backend filename) (vc-rename-file filename new-name))
-         (t
-          (rename-file filename new-name t)
-          (set-visited-file-name new-name t t)))))))
 
 
 ;;
@@ -224,7 +258,7 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
 
 
 ;;;
-;;; Start for custom package installation/configuration.
+;;; Start of custom package installation/configuration.
 ;;;
 
 (require 'use-package)
