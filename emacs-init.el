@@ -17,29 +17,27 @@
 (defconst treemacs-min-width 120
   "Minimum frame width when treemacs is enabled (in characters).")
 
-(defvar custom-gc-cons-threshold 67108864
-    "The value (in bytes) to set for `gc-cons-threshold`.
-Decrease if you experience freezing, increase if you experience stuttering.")
-
 ;;
 ;; Tricks to reduce startup time. These need to be set at an eary stage.
 ;;
 
 ;; avoid GC performance-penalty on startup by temporarily bumping the memory
 ;; threshold for GC. This effectively defers garbage collection.
+(defvar gc-cons-threshold-default gc-cons-threshold)
 (setq gc-cons-threshold 268435456) ;; 256 mb
+;; don't run (package-initialize)
 (setq package-enable-at-startup nil)
-(defvar file-name-handler-alist-old file-name-handler-alist)
 ;; at startup we don't want emacs to look for a handler for every opened file.
+(defvar file-name-handler-alist-default file-name-handler-alist)
 (setq file-name-handler-alist nil)
 
 ;; re-set temporarily disabled features once init is complete.
 (add-hook 'after-init-hook
           (lambda ()
-	    ;; set a more appropriate GC threshold.
-            (setq gc-cons-threshold custom-gc-cons-threshold)
+	    ;; re-set default GC threshold.
+            (setq gc-cons-threshold gc-cons-threshold-default)
 	    ;; re-enable file handler associations.
-	    (setq file-name-handler-alist file-name-handler-alist-old)))
+	    (setq file-name-handler-alist file-name-handler-alist-default)))
 
 ;;
 ;; Utility functions
