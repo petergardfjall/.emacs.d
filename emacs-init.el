@@ -281,7 +281,6 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
 
 (use-package immaterial-theme
   :ensure t
-  :init
   :config
   ;; default: https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=4DB6AC&secondary.color=AED581
   (setq immaterial-color-override-alist
@@ -342,10 +341,9 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   )
 
 (use-package projectile
-  :defer t ;; actually implied by :commands
-  :commands projectile-mode
-  :init
-  (global-set-key [f7] 'projectile-mode))
+  ;; defer loading of module until this function is called *and* set up key
+  ;; binding to invoke.
+  :bind ([f7] . projectile-mode))
 
 ;; generic auto-completion functionality
 (use-package company
@@ -509,46 +507,38 @@ sufficiently large."
   :pin melpa-stable
   :defer t
   :commands lsp
-  :init
-  (message "lsp-mode init ...")
+  :config
+  (message "lsp-mode config ...")
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
-  (setq lsp-print-io nil)
-  ;; Set to t to have eldoc display hover info when present.
-  (setq lsp-eldoc-enable-hover nil)
-  ;; Set to t to have eldoc display signature help when present.
-  (setq lsp-eldoc-enable-signature-help nil)
-  ;; display signature info when both signature and hover info present
-  (setq lsp-eldoc-prefer-signature-help t)
+  (setq lsp-log-io t)
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
-  (setq lsp-eldoc-render-all t)
+  (setq lsp-eldoc-render-all nil)
+  ;; prefer flymake over lsp-ui if both are present
+  (setq lsp-prefer-flymake t)
+  ;; Set to t to have eldoc display hover info when present.
+  (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
-  (setq lsp-response-timeout 5)
-  :config)
-
+  (setq lsp-response-timeout 5))
 
 (use-package lsp-ui
   :ensure t
-  :defer t
   ;; gets started by lsp-mode
   :commands lsp-ui-mode
-  :init
-  ;; show informations of the symbols on the current line?
-  (setq lsp-ui-sideline-enable nil)
-  ;; show object documentation at point in a child frame?
-  (progn
-    ;; enable (t)/disable (nil) lsp-ui-doc: indicate if a separate frame is to
-    ;; be used for rendering docs on hover
-    (setq lsp-ui-doc-enable nil)
-    (setq lsp-ui-doc-max-width 70))
-  ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
-  (progn
-    (setq lsp-ui-peek-enable t)
-    ;; show peek view even if there is only one candidate
-    (setq lsp-ui-peek-always-show t))
-  ;; add lsp as company completion engine backend to get completion-at-point
-  (push 'company-lsp company-backends)
   :config
+  ;; display information about symbols on the current line as we type?
+  (setq lsp-ui-sideline-enable nil)
+  ;; indicate if lsp-ui-doc should be rendered on hover at every symbol. if nil
+  ;; `(lsp-ui-doc-show)` can still be used to open the docs for a symbol.
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-max-width 70)
+  (setq lsp-ui-doc-delay 0.0)
+  ;; disaply doc in a WebKit widget?
+  (setq lsp-ui-doc-use-webkit nil)
+  ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
+  (setq lsp-ui-peek-enable t)
+  ;; show peek view even if there is only one candidate
+  (setq lsp-ui-peek-always-show t)
   ;; keybindings for Language Server Protocol features
   ;; NOTE: these can be overridden by keymaps for a particular major mode
   ;;       such as "C-c C" in c++-mode. If so, disable the keybinding locally
@@ -568,8 +558,22 @@ sufficiently large."
 
 (use-package company-lsp
   :ensure t
-  :defer t
-  :commands company-lsp)
+  ;; gets started by lsp-mode
+  :commands company-lsp
+  :config
+  ;; add lsp as company completion engine backend to get completion-at-point
+  (push 'company-lsp company-backends))
+
+;; treemacs LSP integration. provides a few functions to enable views:
+;; - (lsp-treemacs-errors-list): tree-like error list.
+;; - (lsp-treemacs-symbols): open a view that shows symbols declared in buffer
+(use-package lsp-treemacs
+  :ensure t
+  ;; defer loading of module until any of these functions are called *and* set
+  ;; up key bindings to invoke them.
+  :bind (("C-c t s" . lsp-treemacs-symbols)
+	 ("C-c t e" . lsp-treemacs-errors-list))
+  :config)
 
 ;; Use microsoft's (dotnet-based) language server for python (appears to be
 ;; better than the default pyls). Downloads the language server under
