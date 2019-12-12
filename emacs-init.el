@@ -23,8 +23,8 @@
 
 ;; avoid GC performance-penalty on startup by temporarily bumping the memory
 ;; threshold for GC. This effectively defers garbage collection.
-(defvar gc-cons-threshold-default gc-cons-threshold)
-(setq gc-cons-threshold 268435456) ;; 256 mb
+(defvar gc-cons-threshold-custom (* (expt 1 1) gc-cons-threshold)) ;; X^Y * default
+(setq gc-cons-threshold 268435456) ;; set high (256 mb) temporarily during init
 ;; don't run (package-initialize)
 (setq package-enable-at-startup nil)
 ;; at startup we don't want emacs to look for a handler for every opened file.
@@ -34,8 +34,8 @@
 ;; re-set temporarily disabled features once init is complete.
 (add-hook 'after-init-hook
           (lambda ()
-	    ;; re-set default GC threshold.
-            (setq gc-cons-threshold gc-cons-threshold-default)
+	    ;; set sensible GC threshold.
+            (setq gc-cons-threshold gc-cons-threshold-custom)
 	    ;; re-enable file handler associations.
 	    (setq file-name-handler-alist file-name-handler-alist-default)))
 
@@ -308,6 +308,14 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
 	))
   (load-theme 'immaterial t))
 
+;; A theme that runs on top of the existing theme to extend/highlight the
+;; modeline buffer id with the name of the host. Can be customized via
+;; `tramp-theme-face-remapping-alist`.
+;; (use-package tramp-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'tramp t))
+
 (use-package powerline
   :ensure t
   :if window-system
@@ -517,7 +525,7 @@ sufficiently large."
   :config
   (message "lsp-mode config ...")
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
-  (setq lsp-log-io t)
+  (setq lsp-log-io nil)
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all nil)
