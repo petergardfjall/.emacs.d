@@ -345,6 +345,13 @@ to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
   ;; binding to invoke.
   :bind ([f7] . projectile-mode))
 
+;; Transparent Remote Access, Multiple Protocols -- edit remote files
+(use-package tramp
+  :defer 5 ;; wait 5 seconds before loading
+  :config
+  ;; default method for transferring files (scp, ssh)
+  (customize-set-variable 'tramp-default-method "ssh"))
+
 ;; generic auto-completion functionality
 (use-package company
   :ensure t
