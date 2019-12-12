@@ -426,6 +426,13 @@ sufficiently large."
 	       (< (frame-width) treemacs-min-width))
       (set-frame-width (selected-frame) treemacs-min-width))))
 
+;; A Git porcelain inside Emacs.
+(use-package magit
+  :ensure t
+  ;; defer loading of module until any of these functions are called *and* set
+  ;; up key bindings to invoke them.
+  :bind (("C-x g" . magit-status)))
+
 ;; File navigator
 ;; Pressing '?' will show help hydra.
 (use-package treemacs
