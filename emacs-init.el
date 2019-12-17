@@ -507,8 +507,15 @@ sufficiently large."
 (use-package ggtags
   :ensure t
   :config
+  ;; Replacement for ggtags-find-definition that always prompts (default
+  ;; behavior is to just search for symbol at point if there is one)
+  (defun ggtags-find-definition-interactive  ()
+    (interactive)
+    ;; can read 'definition, 'symbol, 'reference, 'id, 'path
+    (let ((tag (ggtags-read-tag 'definition t "Find definition")))
+      (ggtags-find-definition tag)))
   ;; "find-tag", "find-type"
-  (global-set-key (kbd "C-c f t") 'ggtags-find-definition))
+  (global-set-key (kbd "C-c f t") 'ggtags-find-definition-interactive))
 
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
