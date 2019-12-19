@@ -871,6 +871,8 @@ sufficiently large."
   :config
   ;; show popup at the bottom of the window
   (which-key-setup-side-window-bottom)
+  ;; separator between key and bound command. Defaults to ' → '.
+  (setq which-key-separator " ")
   ;; delay after which which-key popup appears after starting to type a command
   (setq which-key-idle-delay 1.0)
   (which-key-mode))
