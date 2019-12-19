@@ -433,6 +433,15 @@ sufficiently large."
   ;; up key bindings to invoke them.
   :bind (("C-x g" . magit-status)))
 
+;; Highlight diffs (in the fringe) for version-controlled buffers.
+(use-package diff-hl
+  :ensure t
+  :diminish
+  :hook ((prog-mode text-mode) . diff-hl-mode)
+  :config
+  ;; refresh if magit does an update
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
 ;; File navigator
 ;; Pressing '?' will show help hydra.
 (use-package treemacs
