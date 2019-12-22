@@ -181,6 +181,8 @@
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
       (setq initial-frame-alist '((width . normal-width) )))
+  ;; automatically revert current buffer when visited file changes on disk
+  (global-auto-revert-mode)
   ;;
   ;; generic key bindings
   ;;
