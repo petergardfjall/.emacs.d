@@ -187,6 +187,10 @@
   ;; generic key bindings
   ;;
 
+  ;; unbind unneeded/disturbing keybindings
+  (global-set-key (kbd "C-t") nil) ;; transpose characters
+  (global-set-key (kbd "M-t") nil) ;; transpose words
+
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") 'comment-line)
   (global-set-key (kbd "C-c w") 'delete-trailing-whitespace)
