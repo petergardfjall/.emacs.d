@@ -206,9 +206,14 @@
   ;; Show matching paranthesis
   (setq show-paren-delay 0)
   (show-paren-mode 1)
-
   ;; Move between windows with Shift-<up|down|left|right>
-  (windmove-default-keybindings))
+  (windmove-default-keybindings)
+  ;; enlarge/shrink current window vertically (on vertical split)
+  (global-set-key (kbd "C-S-<up>")    'enlarge-window)
+  (global-set-key (kbd "C-S-<down>")  'shrink-window)
+  ;; enlarge/shrink current window horizontally (on horizontal split)
+  (global-set-key (kbd "C-S-<right>") 'enlarge-window-horizontally)
+  (global-set-key (kbd "C-S-<left>")  'shrink-window-horizontally))
 
 (general-settings)
 
