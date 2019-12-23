@@ -185,6 +185,9 @@
       (setq initial-frame-alist '((width . normal-width) )))
   ;; automatically revert current buffer when visited file changes on disk
   (global-auto-revert-mode)
+  ;; transparently open compressed files
+  (auto-compression-mode t)
+
   ;;
   ;; generic key bindings
   ;;
