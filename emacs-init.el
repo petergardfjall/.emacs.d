@@ -14,8 +14,11 @@
 ;; Declarations
 ;;
 
-(defconst treemacs-min-width 120
+(defconst my-treemacs-min-width 120
   "Minimum frame width when treemacs is enabled (in characters).")
+(defvar my-font "DejaVu Sans Mono"
+  "Text font to use (for example, `Ubuntu Mono`).")
+(defvar my-font-size 14 "Font size to use in pixels (for example, 16).")
 
 ;;
 ;; Tricks to reduce startup time. These need to be set at an eary stage.
@@ -162,8 +165,7 @@
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
   ;; set the default font to use
-  (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono:pixelsize=14"))
-  ;; (add-to-list 'default-frame-alist '(font . "Ubuntu Mono:pixelsize=16"))
+  (add-to-list 'default-frame-alist `(font . ,(format "%s:pixelsize=%d" my-font my-font-size)))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
@@ -434,8 +436,8 @@ sufficiently large."
   (treemacs)
   (when (display-graphic-p)
     (when (and (eq (treemacs-current-visibility) 'visible)
-	       (< (frame-width) treemacs-min-width))
-      (set-frame-width (selected-frame) treemacs-min-width))))
+	       (< (frame-width) my-treemacs-min-width))
+      (set-frame-width (selected-frame) my-treemacs-min-width))))
 
 ;; A Git porcelain inside Emacs.
 (use-package magit
