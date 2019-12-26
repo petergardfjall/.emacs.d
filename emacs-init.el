@@ -185,8 +185,6 @@
       (setq initial-frame-alist '((width . normal-width) )))
   ;; automatically revert current buffer when visited file changes on disk
   (global-auto-revert-mode)
-  ;; transparently open compressed files
-  (auto-compression-mode t)
 
   ;;
   ;; generic key bindings
@@ -504,6 +502,11 @@ sufficiently large."
   :after treemacs magit
   :ensure t)
 
+;; transparently open compressed files
+(use-package auto-compression-mode
+  :defer 5
+  :config
+  (auto-compression-mode t))
 
 ;;;
 ;;; Development/coding
