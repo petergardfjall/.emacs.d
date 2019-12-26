@@ -20,6 +20,12 @@
   "Text font to use (for example, `Ubuntu Mono`).")
 (defvar my-font-size 14 "Font size to use in pixels (for example, 16).")
 
+(defvar my-packages
+  '(use-package)
+  "A list of packages that will be installed at launch (unless present).
+This list is intentionally kept to a bare minimum.  Most packages
+are installed via `use-package` and loaded on-demand.")
+
 ;;
 ;; Tricks to reduce startup time. These need to be set at an eary stage.
 ;;
@@ -119,10 +125,9 @@
 ;; Common Lisp for Emacs
 (require 'cl-lib)
 
-(defvar my-packages
-  '(use-package)
-  "A list of packages that are to be installed at launch (unless present).")
-
+;;
+;; Install any uninstalled "base" packages.
+;;
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
 	   when (not (package-installed-p p))  do (cl-return nil)
@@ -148,8 +153,7 @@
 ;; Note: messages are logged in *Messages* buffer
 (message "Loading local modules: %s" sortedmodules)
 (dolist (module sortedmodules)
-  (load-file module)
-  )
+  (load-file module))
 
 
 
