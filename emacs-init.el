@@ -672,6 +672,7 @@ sufficiently large."
    ("C-c C-r" . lsp-rename)))
 
 (use-package python
+  :mode "\\.py$"
   ;; note: no :ensure since it is already built into emacs
   :config
   (message "python buffer setup hook ...")
