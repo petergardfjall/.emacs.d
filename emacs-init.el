@@ -255,24 +255,31 @@ Returns nil for paths not under version control."
 (defun enable-desktop-save-mode ()
   ""
   (interactive)
-  (message "enable-desktop-save-mode called")
-  (message "setting desktop save dir to: %s" (desktop-save-dir))
-  ;; Max buffers to restore immediately. The rest are lazily loaded.
-  (setq desktop-restore-eager 10)
-  (setq desktop-auto-save-timeout 10)
-  (setq desktop-dirname (desktop-save-dir))
-  (setq desktop-base-file-name ".emacs.desktop")
-   ;; Always save desktop on exit (without prompting).
-  (setq desktop-save t)
-  ;; Directory where desktop state is to be stored.
+  (message "using desktop save directory: %s" (desktop-save-dir))
+  ;;
+  ;; Save settings
+  ;;
+  (setq desktop-dirname (desktop-save-dir)) ;; state directory
+  (setq desktop-base-file-name ".emacs.desktop")  ;; state file
+  (setq desktop-save t) ;; always save on exit (without prompting)
+  (setq desktop-auto-save-timeout 10) ;; in seconds
+  ;;
+  ;; Desktop load settings.
+  ;;
+  ;; directory where desktop state is to be loaded from.
   (setq desktop-path (list (desktop-save-dir)))
-  ;; Never load the desktop if locked.
+  ;; max buffers to restore immediately (the rest are lazily loaded)
+  (setq desktop-restore-eager 10)
+  ;; never load the desktop if locked
   (setq desktop-load-locked-desktop nil)
+
+  ;; enable desktop-save-mode
   (desktop-save-mode 1)
   ;; create the desktop file if it doesn't already exist
   (when (not (file-exists-p (desktop-full-file-name)))
     (make-directory desktop-dirname t)
     (desktop-save desktop-dirname t))
+
   ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
   ;; another process)
   (add-hook 'desktop-not-loaded-hook
