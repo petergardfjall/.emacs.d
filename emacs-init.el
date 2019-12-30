@@ -26,6 +26,9 @@
 This list is intentionally kept to a bare minimum.  Most packages
 are installed via `use-package` and loaded on-demand.")
 
+(defvar my-modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el")
+  "The location of any version-controlled packages to load on init.")
+
 (defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
   "A directory where desktops are to be stored.  A separate directory will be created under this directory for each saved desktop.  For example, `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
 
@@ -148,6 +151,17 @@ Returns nil for paths not under version control."
 	      (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
 	      (desktop-save-mode 0))))
 
+(defun my-toggle-treemacs ()
+  "Enable or disable the treemacs project explorer.  When treemacs
+is enabled in graphical mode, ensure that the frame width is
+sufficiently large."
+  (interactive)
+  (treemacs)
+  (when (display-graphic-p)
+    (when (and (eq (treemacs-current-visibility) 'visible)
+	       (< (frame-width) my-treemacs-min-width))
+      (set-frame-width (selected-frame) my-treemacs-min-width))))
+
 ;;
 ;; Start of actual initialization.
 ;;
@@ -168,37 +182,27 @@ Returns nil for paths not under version control."
 (add-to-list 'package-archives
 	     '("org" . "http://orgmode.org/elpa/") t)
 
-;;
 ;; Install any uninstalled "base" packages.
-;;
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
 	   when (not (package-installed-p p)) do (cl-return nil)
 	   finally (cl-return t)))
 
 (unless (my-packages-installed-p)
-  ;; check for new packages (package versions)
-  (message "%s" "Emacs Prelude is now refreshing its package database...")
+  ;; check for new package versions
+  (message "%s" "refreshing package database ...")
   (package-refresh-contents)
-  (message "%s" " done.")
   ;; install the missing packages
   (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p))))
 
-
-;;
 ;; Load any local modules from module directory in lexicographical order.
-;;
-
-(setq modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el"))
-(setq sortedmodules (sort (copy-sequence modules) #'string-lessp))
+(setq sortedmodules (sort (copy-sequence my-modules) #'string-lessp))
 ;; Note: messages are logged in *Messages* buffer
 (message "Loading local modules: %s" sortedmodules)
 (dolist (module sortedmodules)
   (load-file module))
-
-
 
 ;;
 ;; General settings
@@ -272,13 +276,12 @@ Returns nil for paths not under version control."
 
 (my-general-settings)
 
-;;;
-;;; Start of custom package installation/configuration.
-;;;
+;;
+;; Start of custom package installation/configuration.
+;;
 
 (require 'use-package)
-
-
+(setq use-package-verbose t)
 
 
 ;; F6 enables desktop-save-mode (the desktop state directory becomes the VCS
@@ -453,16 +456,6 @@ Returns nil for paths not under version control."
   :ensure t
   :defer t)
 
-(defun toggle-treemacs ()
-  "Enable or disable the treemacs project explorer.  When treemacs
-is enabled in graphical mode, ensure that the frame width is
-sufficiently large."
-  (interactive)
-  (treemacs)
-  (when (display-graphic-p)
-    (when (and (eq (treemacs-current-visibility) 'visible)
-	       (< (frame-width) my-treemacs-min-width))
-      (set-frame-width (selected-frame) my-treemacs-min-width))))
 
 ;; A Git porcelain inside Emacs.
 (use-package magit
@@ -512,7 +505,7 @@ sufficiently large."
   :bind
   (:map global-map
 	;; hide/show treemacs file explorer
-	("<f8>" . toggle-treemacs)))
+	("<f8>" . my-toggle-treemacs)))
 
 ;; Quickly add your projectile projects to the treemacs workspace.
 (use-package treemacs-projectile
@@ -692,7 +685,6 @@ sufficiently large."
   :config
   (sphinx-doc-mode))
 
-
 (use-package go-mode
   :ensure t
   :defer t
@@ -709,7 +701,6 @@ sufficiently large."
   ;; NOTE: relies on gopls lsp server being on the PATH
   (add-hook 'go-mode-hook 'lsp))
 
-
 ;; Major mode for json file editing.
 (use-package json-mode
   :ensure t
@@ -725,7 +716,6 @@ sufficiently large."
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'json-mode-hook 'my-strip-on-save-hook))
-
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
@@ -873,7 +863,6 @@ sufficiently large."
   ;; add buffer-local save hooks
   (add-hook 'before-save-hook 'clang-format-buffer nil t))
 
-
 (use-package lsp-java
   :ensure t
   :defer t
@@ -930,5 +919,4 @@ sufficiently large."
 
 ;; Output the time at which the loading of all init-hooks completed.
 (add-hook 'after-init-hook
-	  (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time)))
-	  t)
+	  (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time))) t)
