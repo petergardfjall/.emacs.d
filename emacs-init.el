@@ -14,7 +14,7 @@
 ;; Declarations
 ;;
 
-(defconst my-treemacs-min-width 120
+(defvar my-treemacs-min-width 120
   "Minimum frame width when treemacs is enabled (in characters).")
 (defvar my-font "DejaVu Sans Mono"
   "Text font to use (for example, `Ubuntu Mono`).")
@@ -25,6 +25,10 @@
   "A list of packages that will be installed at launch (unless present).
 This list is intentionally kept to a bare minimum.  Most packages
 are installed via `use-package` and loaded on-demand.")
+
+(defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
+  "A directory where desktops will be stored.  A separate directory will be created under this directory for each saved desktop.  For example, `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`")
+
 
 ;;
 ;; Tricks to reduce startup time. These need to be set at an eary stage.
@@ -52,39 +56,31 @@ are installed via `use-package` and loaded on-demand.")
 ;; Utility functions
 ;;
 
-(defun elapsed-time ()
+(defun my-elapsed-time ()
   "Get the elapsed time since start of loading."
   (float-time (time-subtract (current-time) emacs-start-time)))
 
-(defun read-file (path)
-  "Read the file at the specified PATH (may contain ~) and return as string."
-  (f-read (car (file-expand-wildcards path))))
-
-(defun untabify-buffer ()
+(defun my-untabify-buffer ()
   "Run 'untabify' on the whole buffer."
   (interactive)
   (untabify (point-min) (point-max)))
 
-(defun strip-buffer ()
-  "Run 'delete-trailing-whitespace' on the whole buffer."
-  (delete-trailing-whitespace))
-
-(defun untabify-on-save-hook ()
+(defun my-untabify-on-save-hook ()
   "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
   ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'untabify-buffer nil t))
+  (add-hook 'before-save-hook 'my-untabify-buffer nil t))
 
-(defun strip-on-save-hook ()
-  "Register a buffer-local 'before-save-hook' to run 'strip-buffer'."
+(defun my-strip-on-save-hook ()
+  "Register a buffer-local 'before-save-hook' to run 'delete-trailing-whitespace'."
   ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'strip-buffer nil t))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace nil t))
 
-(defun close-all-buffers ()
+(defun my-close-all-buffers ()
   "Kill all open buffers."
   (interactive)
   (mapc 'kill-buffer (buffer-list)))
 
-(defun rename-file-and-buffer ()
+(defun my-rename-file-and-buffer ()
   "Rename the current buffer and file it is visiting."
   (interactive)
   (let ((filename (buffer-file-name)))
@@ -96,6 +92,60 @@ are installed via `use-package` and loaded on-demand.")
          (t
           (rename-file filename new-name t)
           (set-visited-file-name new-name t t)))))))
+
+(defun my-vcs-dir-p (path)
+  "Determines if the PATH directory is under version control (e.g. 'Git').
+Returns nil for paths not under version control."
+  (if (vc-responsible-backend path)
+      t
+    nil))
+
+(defun my-project-root-or-cwd ()
+  "Return the project root of the directory tree where Emacs was opened.  If Emacs wasn't opened in a version-controlled directory, the result will be the current working directory."
+  (if (my-vcs-dir-p default-directory)
+      ;; determine project root
+      (let ((vc-backend (vc-responsible-backend default-directory)))
+	(vc-call-backend vc-backend 'root default-directory))
+    default-directory))
+
+(defun my-desktop-save-dir ()
+  "Return the save directory to use for `desktop-save-mode` based on where Emacs was opened."
+  (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
+
+(defun my-enable-desktop-save-mode ()
+  "Enable `desktop-save-mode`, which will load the saved desktop if one exsists, or create a new desktop state file if one does not exist.  If the desktop is already loaded by another Emacs process, a warning is printed."
+  (interactive)
+  (message "using desktop save directory: %s" (my-desktop-save-dir))
+  ;;
+  ;; Save settings
+  ;;
+  (setq desktop-dirname (my-desktop-save-dir)) ;; state directory
+  (setq desktop-base-file-name ".emacs.desktop")  ;; state file
+  (setq desktop-save t) ;; always save on exit (without prompting)
+  (setq desktop-auto-save-timeout 10) ;; in seconds
+  ;;
+  ;; Desktop load settings.
+  ;;
+  ;; directory where desktop state is to be loaded from.
+  (setq desktop-path (list (my-desktop-save-dir)))
+  ;; max buffers to restore immediately (the rest are lazily loaded)
+  (setq desktop-restore-eager 10)
+  ;; never load the desktop if locked
+  (setq desktop-load-locked-desktop nil)
+
+  ;; enable desktop-save-mode
+  (desktop-save-mode 1)
+  ;; create the desktop file if it doesn't already exist
+  (when (not (file-exists-p (desktop-full-file-name)))
+    (make-directory desktop-dirname t)
+    (desktop-save desktop-dirname t))
+
+  ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
+  ;; another process)
+  (add-hook 'desktop-not-loaded-hook
+	    (lambda ()
+	      (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
+	      (desktop-save-mode 0))))
 
 ;;
 ;; Start of actual initialization.
@@ -161,7 +211,7 @@ are installed via `use-package` and loaded on-demand.")
 ;;
 ;; General settings
 ;;
-(defun general-settings ()
+(defun my-general-settings ()
   "Apply appearance and general editor settings."
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
@@ -223,7 +273,7 @@ are installed via `use-package` and loaded on-demand.")
   (global-set-key (kbd "C-S-<right>") 'enlarge-window-horizontally)
   (global-set-key (kbd "C-S-<left>")  'shrink-window-horizontally))
 
-(general-settings)
+(my-general-settings)
 
 ;;;
 ;;; Start of custom package installation/configuration.
@@ -232,60 +282,7 @@ are installed via `use-package` and loaded on-demand.")
 (require 'use-package)
 
 
-(defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops")) "")
 
-(defun vcs-dir-p (path)
-  "Determines if the directory is under version control (e.g. 'Git').
-Returns nil for paths not under version control."
-  (if (vc-responsible-backend path)
-      t
-    nil))
-
-(defun project-root-or-cwd ()
-  (if (vcs-dir-p default-directory)
-      ;; determine project root
-      (let ((vc-backend (vc-responsible-backend default-directory)))
-	(vc-call-backend vc-backend 'root default-directory))
-    default-directory))
-
-(defun desktop-save-dir ()
-  ""
-  (concat my-desktops-dir (expand-file-name (project-root-or-cwd))))
-
-(defun enable-desktop-save-mode ()
-  ""
-  (interactive)
-  (message "using desktop save directory: %s" (desktop-save-dir))
-  ;;
-  ;; Save settings
-  ;;
-  (setq desktop-dirname (desktop-save-dir)) ;; state directory
-  (setq desktop-base-file-name ".emacs.desktop")  ;; state file
-  (setq desktop-save t) ;; always save on exit (without prompting)
-  (setq desktop-auto-save-timeout 10) ;; in seconds
-  ;;
-  ;; Desktop load settings.
-  ;;
-  ;; directory where desktop state is to be loaded from.
-  (setq desktop-path (list (desktop-save-dir)))
-  ;; max buffers to restore immediately (the rest are lazily loaded)
-  (setq desktop-restore-eager 10)
-  ;; never load the desktop if locked
-  (setq desktop-load-locked-desktop nil)
-
-  ;; enable desktop-save-mode
-  (desktop-save-mode 1)
-  ;; create the desktop file if it doesn't already exist
-  (when (not (file-exists-p (desktop-full-file-name)))
-    (make-directory desktop-dirname t)
-    (desktop-save desktop-dirname t))
-
-  ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
-  ;; another process)
-  (add-hook 'desktop-not-loaded-hook
-	    (lambda ()
-	      (display-warning :warning "desktop appears locked, disabling desktop-save-mode ...")
-	      (desktop-save-mode 0))))
 
 ;; F6 enables desktop-save-mode (the desktop state directory becomes the VCS
 ;; root, or the current working directory if not in a version-controlled file
@@ -297,13 +294,13 @@ Returns nil for paths not under version control."
 ;; desktop-save-mode stays disabled.
 (use-package desktop
   ;; defers loading of package until command is invoked
-  :commands enable-desktop-save-mode
+  :commands my-enable-desktop-save-mode
   :defer t
   :init
-  (when (file-directory-p (desktop-save-dir))
+  (when (file-directory-p (my-desktop-save-dir))
     (message "discovered saved desktop, enabling desktop-save-mode ...")
-    (enable-desktop-save-mode))
-  (global-set-key (kbd "<f6>") 'enable-desktop-save-mode))
+    (my-enable-desktop-save-mode))
+  (global-set-key (kbd "<f6>") 'my-enable-desktop-save-mode))
 
 ;;
 ;; Theme-related settings
@@ -586,8 +583,8 @@ sufficiently large."
   :mode (("\\.sh\\'" . sh-mode)
 	 ("\\.env\\'" . sh-mode))
   :config
-  (add-hook 'sh-mode-hook 'untabify-on-save-hook)
-  (add-hook 'sh-mode-hook 'strip-on-save-hook))
+  (add-hook 'sh-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
 
 (use-package lsp-mode
   :ensure t
@@ -687,8 +684,8 @@ sufficiently large."
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'python-mode-hook 'untabify-on-save-hook)
-  (add-hook 'python-mode-hook 'strip-on-save-hook))
+  (add-hook 'python-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'python-mode-hook 'my-strip-on-save-hook))
 
 ;; Use sphinx-doc when python-mode is activated. Gives a templated docstring
 ;; when pressing C-c M-d in function head.
@@ -729,8 +726,8 @@ sufficiently large."
   (add-hook 'json-mode-hook 'display-line-numbers-mode) ; show line numbers
 
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'json-mode-hook 'untabify-on-save-hook)
-  (add-hook 'json-mode-hook 'strip-on-save-hook))
+  (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'json-mode-hook 'my-strip-on-save-hook))
 
 
 ;; Major mode for yaml file editing.
@@ -744,8 +741,8 @@ sufficiently large."
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'yaml-mode-hook 'untabify-on-save-hook)
-  (add-hook 'yaml-mode-hook 'strip-on-save-hook))
+  (add-hook 'yaml-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'yaml-mode-hook 'my-strip-on-save-hook))
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
@@ -763,7 +760,7 @@ sufficiently large."
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'markdown-mode-hook 'untabify-on-save-hook))
+  (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
 
 (use-package markdown-preview-mode
   :ensure t
@@ -794,8 +791,8 @@ sufficiently large."
   :config
   (add-hook 'vcl-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'vcl-mode-hook 'untabify-on-save-hook)
-  (add-hook 'vcl-mode-hook 'strip-on-save-hook))
+  (add-hook 'vcl-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'vcl-mode-hook 'my-strip-on-save-hook))
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
@@ -805,8 +802,8 @@ sufficiently large."
   :config
   (add-hook 'dockerfile-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'dockerfile-mode-hook 'untabify-on-save-hook)
-  (add-hook 'dockerfile-mode-hook 'strip-on-save-hook))
+  (add-hook 'dockerfile-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'dockerfile-mode-hook 'my-strip-on-save-hook))
 
 ;; TOML editing
 (use-package toml-mode
@@ -816,8 +813,8 @@ sufficiently large."
   :config
   (add-hook 'toml-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'toml-mode-hook 'untabify-on-save-hook)
-  (add-hook 'toml-mode-hook 'strip-on-save-hook))
+  (add-hook 'toml-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'toml-mode-hook 'my-strip-on-save-hook))
 
 (use-package terraform-mode
   :ensure t
@@ -827,8 +824,8 @@ sufficiently large."
   (message "terraform-mode config ...")
   (add-hook 'terraform-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'terraform-mode-hook 'untabify-on-save-hook)
-  (add-hook 'terraform-mode-hook 'strip-on-save-hook))
+  (add-hook 'terraform-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'terraform-mode-hook 'my-strip-on-save-hook))
 
 (use-package protobuf-mode
   :ensure t
@@ -838,8 +835,8 @@ sufficiently large."
   (message "protobuf-mode config ...")
   (add-hook 'protobuf-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'protobuf-mode-hook 'untabify-on-save-hook)
-  (add-hook 'protobuf-mode-hook 'strip-on-save-hook))
+  (add-hook 'protobuf-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'protobuf-mode-hook 'my-strip-on-save-hook))
 
 ;; Rust-mode
 (use-package rust-mode
@@ -892,8 +889,8 @@ sufficiently large."
   ;; disable keymap bindings that would override lsp ones.
   (define-key java-mode-map (kbd "C-c C-d") nil)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'java-mode-hook 'untabify-on-save-hook)
-  (add-hook 'java-mode-hook 'strip-on-save-hook))
+  (add-hook 'java-mode-hook 'my-untabify-on-save-hook)
+  (add-hook 'java-mode-hook 'my-strip-on-save-hook))
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
@@ -932,9 +929,9 @@ sufficiently large."
 
 
 ;; Output the time at which the loading of the init-file itself completed.
-(message "Loaded %s after %.3fs." load-file-name (elapsed-time))
+(message "Loaded %s after %.3fs." load-file-name (my-elapsed-time))
 
 ;; Output the time at which the loading of all init-hooks completed.
 (add-hook 'after-init-hook
-	  (lambda () (message "init-hooks done after %.3fs." (elapsed-time)))
+	  (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time)))
 	  t)
