@@ -62,6 +62,7 @@ are installed via `use-package` and loaded on-demand.")
 
 (defun untabify-buffer ()
   "Run 'untabify' on the whole buffer."
+  (interactive)
   (untabify (point-min) (point-max)))
 
 (defun strip-buffer ()
@@ -224,60 +225,78 @@ are installed via `use-package` and loaded on-demand.")
 
 (general-settings)
 
-(defun vc-backend-or-nil (path)
-  "Determines the type of version control (e.g. 'Git') a certain
-PATH is under.  Returns nil for paths not under version control."
-  (condition-case err
-      (vc-responsible-backend path)
-    (error
-     (message "%s does not look version controlled: %s" path err)
-     nil)))
-
-(defun enable-desktop-if-started-in-git-repo ()
-  "Enable desktop save mode if Emacs was started in a
-version-controlled (project) directory. The desktop is saved
-to/restored from ~/.emacs.d/desktops/<path>/.emacs.desktop."
-  ;; Find out if directory emacs was started in is version controlled and, if
-  ;; so, find the repo root dir and use that as desktop save <path>.
-  (let* ((cwd default-directory)
-	 (vc-backend (vc-backend-or-nil cwd)))
-    (message "emacs started in directory %s" cwd)
-    (when vc-backend
-      (message "start directory is a %s repo" vc-backend)
-      (let ((repo-root-dir (vc-call-backend vc-backend 'root cwd)))
-	(message "start directory repo root is at %s" repo-root-dir)
-	(message "enabling desktop save mode ...")
-	(setq my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops")))
-	(setq desktop-dir (concat my-desktops-dir (expand-file-name repo-root-dir)))
-	(message "setting desktop save dir to: %s" desktop-dir)
-	(make-directory desktop-dir t)
-	;; Automatic saving of the desktop when Emacs exits, and automatic
-	;; restoration of the last saved desktop when Emacs starts. At start, it
-	;; looks for a saved desktop in the the directories in desktop-path.
-	(desktop-save-mode 1)
-	;; Directory where desktop state is to be stored.
-	(setq desktop-path (list desktop-dir))
-	;; Save desktop on exit without prompting.
-	(setq desktop-save t)
-	;; Max number of buffers to restore immediately. The rest are lazily loaded.
-	(setq desktop-restore-eager 10)
-	(setq desktop-auto-save-timeout 30))
-      ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked
-      ;; by another process)
-      (add-hook 'desktop-not-loaded-hook
-		(lambda ()
-		  (message "desktop appears locked, disabling desktop-save-mode ...")
-		  (setq desktop-save-mode nil))))))
-
-(enable-desktop-if-started-in-git-repo)
-
-
-
 ;;;
 ;;; Start of custom package installation/configuration.
 ;;;
 
 (require 'use-package)
+
+
+(defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops")) "")
+
+(defun vcs-dir-p (path)
+  "Determines if the directory is under version control (e.g. 'Git').
+Returns nil for paths not under version control."
+  (if (vc-responsible-backend path)
+      t
+    nil))
+
+(defun project-root-or-cwd ()
+  (if (vcs-dir-p default-directory)
+      ;; determine project root
+      (let ((vc-backend (vc-responsible-backend default-directory)))
+	(vc-call-backend vc-backend 'root default-directory))
+    default-directory))
+
+(defun desktop-save-dir ()
+  ""
+  (concat my-desktops-dir (expand-file-name (project-root-or-cwd))))
+
+(defun enable-desktop-save-mode ()
+  ""
+  (interactive)
+  (message "enable-desktop-save-mode called")
+  (message "setting desktop save dir to: %s" (desktop-save-dir))
+  ;; Max buffers to restore immediately. The rest are lazily loaded.
+  (setq desktop-restore-eager 10)
+  (setq desktop-auto-save-timeout 10)
+  (setq desktop-dirname (desktop-save-dir))
+  (setq desktop-base-file-name ".emacs.desktop")
+   ;; Always save desktop on exit (without prompting).
+  (setq desktop-save t)
+  ;; Directory where desktop state is to be stored.
+  (setq desktop-path (list (desktop-save-dir)))
+  ;; Never load the desktop if locked.
+  (setq desktop-load-locked-desktop nil)
+  (desktop-save-mode 1)
+  ;; create the desktop file if it doesn't already exist
+  (when (not (file-exists-p (desktop-full-file-name)))
+    (make-directory desktop-dirname t)
+    (desktop-save desktop-dirname t))
+  ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
+  ;; another process)
+  (add-hook 'desktop-not-loaded-hook
+	    (lambda ()
+	      (display-warning :warning "desktop appears locked, disabling desktop-save-mode ...")
+	      (desktop-save-mode 0))))
+
+;; F6 enables desktop-save-mode (the desktop state directory becomes the VCS
+;; root, or the current working directory if not in a version-controlled file
+;; tree. In this mode the desktop is saved periodically and on exit.
+;;
+;; If, on load of this init file, an existing desktop state directory is found
+;; it gets loaded and desktop-save-mode is enabled. If the desktop is already in
+;; use by another emacs process (locked), a warning is printed and
+;; desktop-save-mode stays disabled.
+(use-package desktop
+  ;; defers loading of package until command is invoked
+  :commands enable-desktop-save-mode
+  :defer t
+  :init
+  (when (file-directory-p (desktop-save-dir))
+    (message "discovered saved desktop, enabling desktop-save-mode ...")
+    (enable-desktop-save-mode))
+  (global-set-key (kbd "<f6>") 'enable-desktop-save-mode))
 
 ;;
 ;; Theme-related settings
