@@ -26,6 +26,8 @@
 This list is intentionally kept to a bare minimum.  Most packages
 are installed via `use-package` and loaded on-demand.")
 
+;; TODO: should skip this and use use-package without :ensure but with
+;; :load-path
 (defvar my-modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el")
   "The location of any version-controlled packages to load on init.")
 
@@ -369,11 +371,11 @@ sufficiently large."
 ;; Activate via M-x rainbow-mode
 (use-package rainbow-mode
   :ensure t
+  :defer 5
   :diminish
   :config
   ;; don't highlight color words such as "white", "blue"
   (setq rainbow-x-colors nil))
-
 
 (use-package undo-tree
   :ensure t
@@ -437,13 +439,13 @@ sufficiently large."
   :diminish ; don't display on modeline
   )
 
-
 ;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
 ;; associated with yas-expand (TAB by default) to have the snippet expanded. To
 ;; see available snippets: M-x yas-describe-tables
 (use-package yasnippet
   :ensure t
+  :defer 2
   :diminish yas-minor-mode ; don't display on modeline
   :config
   ;; use yasnippet as a global minor mode
@@ -467,6 +469,7 @@ sufficiently large."
 ;; Highlight diffs (in the fringe) for version-controlled buffers.
 (use-package diff-hl
   :ensure t
+  :defer 5
   :diminish
   :hook ((prog-mode text-mode) . diff-hl-mode)
   :config
@@ -538,6 +541,7 @@ sufficiently large."
 ;;
 (use-package ag
   :ensure t
+  :defer 2
   :config
   (setq ag-highlight-search t)
   ;; reuse the same *ag* buffer for all searches
@@ -551,6 +555,7 @@ sufficiently large."
 ;; On multiple hits use M-n/M-p to navigate hits.
 (use-package ggtags
   :ensure t
+  :defer 2
   :config
   ;; Replacement for ggtags-find-definition that always prompts (default
   ;; behavior is to just search for symbol at point if there is one)
