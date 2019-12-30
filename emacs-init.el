@@ -283,7 +283,7 @@ sufficiently large."
 ;;
 
 (require 'use-package)
-(setq use-package-verbose t)
+(setq use-package-verbose nil) ;; set to t to see when packages are loaded
 
 
 ;; F6 enables desktop-save-mode (the desktop state directory becomes the VCS
