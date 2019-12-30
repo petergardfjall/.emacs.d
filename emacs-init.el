@@ -27,11 +27,11 @@ This list is intentionally kept to a bare minimum.  Most packages
 are installed via `use-package` and loaded on-demand.")
 
 (defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
-  "A directory where desktops will be stored.  A separate directory will be created under this directory for each saved desktop.  For example, `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`")
+  "A directory where desktops are to be stored.  A separate directory will be created under this directory for each saved desktop.  For example, `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
 
 
 ;;
-;; Tricks to reduce startup time. These need to be set at an eary stage.
+;; Tricks to reduce startup time. These need to be set at an early stage.
 ;;
 
 ;; avoid GC performance-penalty on startup by temporarily bumping the memory
@@ -133,12 +133,13 @@ Returns nil for paths not under version control."
   ;; never load the desktop if locked
   (setq desktop-load-locked-desktop nil)
 
-  ;; enable desktop-save-mode
-  (desktop-save-mode 1)
   ;; create the desktop file if it doesn't already exist
-  (when (not (file-exists-p (desktop-full-file-name)))
+  (when (not (file-directory-p desktop-dirname))
     (make-directory desktop-dirname t)
     (desktop-save desktop-dirname t))
+
+  ;; enable desktop-save-mode
+  (desktop-save-mode 1)
 
   ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
   ;; another process)
@@ -167,21 +168,12 @@ Returns nil for paths not under version control."
 (add-to-list 'package-archives
 	     '("org" . "http://orgmode.org/elpa/") t)
 
-
-;; Prevent emacs from writing customized settings to .emacs
-;; By setting it as a temporary file, we effectively disable it.
-;; Any changes become session-local.
-(setq custom-file (make-temp-file "emacs-custom"))
-
-;; Common Lisp for Emacs
-(require 'cl-lib)
-
 ;;
 ;; Install any uninstalled "base" packages.
 ;;
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
-	   when (not (package-installed-p p))  do (cl-return nil)
+	   when (not (package-installed-p p)) do (cl-return nil)
 	   finally (cl-return t)))
 
 (unless (my-packages-installed-p)
@@ -240,6 +232,11 @@ Returns nil for paths not under version control."
       (setq initial-frame-alist '((width . normal-width) )))
   ;; automatically revert current buffer when visited file changes on disk
   (global-auto-revert-mode)
+
+  ;; Prevent emacs from writing customized settings to .emacs
+  ;; By setting it as a temporary file, we effectively disable it.
+  ;; Any changes become session-local.
+  (setq custom-file (make-temp-file "emacs-custom"))
 
   ;;
   ;; generic key bindings
