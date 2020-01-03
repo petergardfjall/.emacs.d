@@ -333,8 +333,8 @@ sufficiently large."
   (setq immaterial-color-override-alist
 	'(;; solarized dark background colors
 	  ("background-primary"   . "#002b36")
-	  ("background-secondary" . "#00212b")
-	  ("background-tertiary"  . "#003644")
+	  ("background-off" . "#00212b")
+	  ("background-on"  . "#003644")
 	  ;; purple
 	  ("primary"         . "#b39ddb")
 	  ("primary-light"   . "#e6ceff")
