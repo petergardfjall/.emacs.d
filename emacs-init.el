@@ -32,7 +32,9 @@ are installed via `use-package` and loaded on-demand.")
   "The location of any version-controlled packages to load on init.")
 
 (defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
-  "A directory where desktops are to be stored.  A separate directory will be created under this directory for each saved desktop.  For example, `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
+  "A directory where desktops are to be stored.  A separate directory
+will be created under this directory for each saved desktop.  For example,
+`<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
 
 
 ;;
@@ -366,6 +368,71 @@ sufficiently large."
   (powerline-default-theme)
   (setq powerline-default-separator 'contour))
 
+;; ido is a completion engine that is activated on calls to `switch-to-buffer`
+;; (C-x b) and `find-file` (C-x C-f). It can be used as an alternative to ivy
+;; (and counsel), which offers a superset of ido's functionality.
+(use-package ido
+  :disabled
+  :config
+  ;; any item that contains all entered characters will match
+  (setq ido-enable-flex-matching t)
+  (ido-mode t))
+
+;; ivy ensures that any Emacs command using `completing-read-function` uses ivy
+;; for completion. Can be complemented with (1) swiper for ivy-enhanced isearch
+;; and (2) counsel for versions of common Emacs commands customised to make use
+;; of ivy.
+(use-package ivy
+  :ensure t
+  :pin melpa-stable
+  :diminish ivy-mode
+  :config
+  ;; add recent files and bookmarks to ivy-switch-buffer
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-display-style 'fancy)
+  (setq enable-recursive-minibuffers t)
+  ;; find-file-in-project will use ivy by default
+  (setq projectile-completion-system 'ivy)
+  (ivy-mode 1)
+  (define-key minibuffer-local-map
+    (kbd "C-r") 'counsel-minibuffer-history))
+
+;; ivy-enhanced version of isearch
+(use-package swiper
+  :ensure t
+  :pin melpa-stable
+  :bind (("C-s" . swiper)))
+
+;; a collection of ivy-enhanced versions of common Emacs commands.
+(use-package counsel
+  :ensure t
+  :pin melpa-stable
+  :bind (("M-x"     . counsel-M-x)
+	 ("C-x C-f" . counsel-find-file)
+	 ;; list faces
+	 ("C-c l f" . counsel-faces)))
+
+;; uses ivy to improve projectile. For example, freetext search in project via
+;; `counsel-projectile-ag`.
+(use-package counsel-projectile
+  :ensure t
+  :pin melpa-stable
+  :after projectile
+  :config
+  ;; free-text "search-in-project"
+  (global-set-key (kbd "C-c s p") 'counsel-projectile-ag))
+
+;; display ivy searches elsewhere than in the minibuffer
+(use-package ivy-posframe
+  :disabled
+  :ensure t
+  :after ivy
+  :config
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  (ivy-posframe-mode 1))
+
+
 ;; highlights occurences of colors (in text) with a background of that
 ;; color. For example, "#aaaaaa" will be displayed with a gray background.
 ;; Activate via M-x rainbow-mode
@@ -456,7 +523,7 @@ sufficiently large."
 ;; A collection of snippets for many languages.
 (use-package yasnippet-snippets
   :ensure t
-  :defer t)
+  :after yasnippet)
 
 
 ;; A Git porcelain inside Emacs.
@@ -540,6 +607,7 @@ sufficiently large."
 ;; see: https://agel.readthedocs.io/en/latest/usage.html
 ;;
 (use-package ag
+  :disabled
   :ensure t
   :defer 2
   :config
