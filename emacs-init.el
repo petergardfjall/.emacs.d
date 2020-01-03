@@ -232,7 +232,7 @@ sufficiently large."
   ;; Display line numbers (toggle with M-x display-line-numbers-mode)
   (global-display-line-numbers-mode -1)
   ;; set to t to highlight the current line
-  (global-hl-line-mode 0)
+  (global-hl-line-mode t)
   ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; no blinking cursor
@@ -362,6 +362,20 @@ sufficiently large."
 ;;   :ensure t
 ;;   :config
 ;;   (load-theme 'tramp t))
+
+;; beacon shows a brief light flash at the cursor to help keep track
+(use-package beacon
+  :disabled
+  :ensure t
+  :config
+  (setq beacon-blink-when-buffer-changes t)   ;; on buffer switch
+  (setq beacon-blink-when-window-scrolls nil) ;; on scrolling
+  (setq beacon-blink-when-window-changes t)   ;; change window (on splits)
+  (setq beacon-blink-when-focused nil)        ;; when emacs gains focus
+  (setq beacon-blink-duration 0.2)
+  (setq beacon-blink-delay 0.2)
+  (beacon-mode t))
+
 
 (use-package powerline
   :ensure t
