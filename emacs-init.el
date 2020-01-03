@@ -427,7 +427,6 @@ sufficiently large."
 
 ;; display ivy searches elsewhere than in the minibuffer
 (use-package ivy-posframe
-  :disabled
   :ensure t
   :after ivy
   :config
