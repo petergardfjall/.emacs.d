@@ -231,6 +231,8 @@ sufficiently large."
   (tool-bar-mode -1)
   ;; Display line numbers (toggle with M-x display-line-numbers-mode)
   (global-display-line-numbers-mode -1)
+  ;; set to t to highlight the current line
+  (global-hl-line-mode 0)
   ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; no blinking cursor
