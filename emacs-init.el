@@ -235,6 +235,8 @@ sufficiently large."
   (global-hl-line-mode t)
   ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
+  ;; cursor appearance, default is 'box.
+  (set-default 'cursor-type 'box)
   ;; no blinking cursor
   (blink-cursor-mode 0)
   ;; set initial frame width (in characters)
@@ -442,6 +444,7 @@ sufficiently large."
 ;; display ivy searches elsewhere than in the minibuffer
 (use-package ivy-posframe
   :ensure t
+  :diminish
   :after ivy
   :config
   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
