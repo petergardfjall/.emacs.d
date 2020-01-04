@@ -378,7 +378,6 @@ sufficiently large."
   (setq beacon-blink-delay 0.2)
   (beacon-mode t))
 
-
 (use-package powerline
   :ensure t
   :if window-system
@@ -523,6 +522,12 @@ sufficiently large."
 (use-package flymake
   :diminish ; don't display on modeline
   )
+
+;; built-in on-the-fly spell checking for text or code comments.
+(use-package flyspell
+  :diminish
+  :hook ((prog-mode . flyspell-prog-mode)
+	 (text-mode . flyspell-mode)))
 
 ;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
