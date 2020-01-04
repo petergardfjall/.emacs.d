@@ -237,7 +237,7 @@ sufficiently large."
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; cursor appearance, default is 'box.
   (set-default 'cursor-type 'box)
-  ;; no blinking cursor
+  ;; blinking cursor?
   (blink-cursor-mode 0)
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
@@ -334,13 +334,32 @@ sufficiently large."
   ;; default: https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=4DB6AC&secondary.color=AED581
   (setq immaterial-color-override-alist
 	'(;; solarized dark background colors
-	  ("background-primary"   . "#002b36")
-	  ("background-off" . "#00212b")
-	  ("background-on"  . "#003644")
-	  ;; purple
-	  ("primary"         . "#b39ddb")
-	  ("primary-light"   . "#e6ceff")
-	  ("primary-dark"    . "#836fa9")
+	  ;; ("background-primary"   . "#002b36")
+	  ;; ("background-off"       . "#00212b")
+	  ;; ("background-on"        . "#003644")
+
+	  ;; blue-grey
+	  ;; ("background-primary" . "#1b292d")
+	  ;; ("background-off"     . "#121212")
+	  ;; ("background-on"      . "#23363d")
+
+	  ;; emacs purple dark
+	  ;; ("background-primary" . "#252342")
+	  ;; ("background-off"     . "#151426")
+	  ;; ("background-on"      . "#2d2b51")
+
+	  ;; petrol
+	  ;; ("background-primary" . "#002525")
+	  ;; ("background-off"     . "#002426")
+	  ;; ("background-on"      . "#003435")
+
+	  ;; ("primary"         . "#9fa8da")
+	  ;; ("primary-light"   . "#d1d9ff")
+	  ;; ("primary-dark"    . "#6f79a8")
+	  ;; ("secondary"         . "#ef9a9a")
+	  ;; ("secondary-light"   . "#ffcccb")
+	  ;; ("secondary-dark"    . "#ba6b6c")
+
 	  ;; bright
 	  ;; ("background-primary"   . "#fafafa")
 	  ;; ("background-on"        . "#cfd8dc")
@@ -374,8 +393,8 @@ sufficiently large."
   (setq beacon-blink-when-window-scrolls nil) ;; on scrolling
   (setq beacon-blink-when-window-changes t)   ;; change window (on splits)
   (setq beacon-blink-when-focused nil)        ;; when emacs gains focus
-  (setq beacon-blink-duration 0.2)
-  (setq beacon-blink-delay 0.2)
+  (setq beacon-blink-duration 0.3)
+  (setq beacon-blink-delay 0.3)
   (beacon-mode t))
 
 (use-package powerline
