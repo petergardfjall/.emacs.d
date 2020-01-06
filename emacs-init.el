@@ -242,8 +242,13 @@ sufficiently large."
   (tool-bar-mode -1)
   ;; Display line numbers (toggle with M-x display-line-numbers-mode)
   (global-display-line-numbers-mode -1)
-  ;; set to t to highlight the current line
+
+  ;; highlight the current line
   (global-hl-line-mode t)
+  ;; disable current line highlighting while selecting/marking a region
+  (add-hook 'activate-mark-hook (lambda () (global-hl-line-mode 0)))
+  (add-hook 'deactivate-mark-hook (lambda () (global-hl-line-mode t)))
+
   ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; cursor appearance, default is 'box.
