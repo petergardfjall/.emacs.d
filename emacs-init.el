@@ -18,7 +18,7 @@
   "Minimum frame width when treemacs is enabled (in characters).")
 (defvar my-font "DejaVu Sans Mono"
   "Text font to use (for example, `Ubuntu Mono`).")
-(defvar my-font-size 14 "Font size to use in pixels (for example, 16).")
+(defvar my-font-size 10 "Font size to use in points (for example, 10).")
 
 (defvar my-packages
   '(use-package)
@@ -99,6 +99,16 @@ will be created under this directory for each saved desktop.  For example,
          (t
           (rename-file filename new-name t)
           (set-visited-file-name new-name t t)))))))
+
+(defun my-set-default-font-height ()
+  "Reset the font height for the selected frame to the default font size."
+  (interactive)
+  ;; calculate delta between current face height and default font height and
+  ;; apply difference.
+  (let* ((font-height (face-attribute 'default :height))
+	 (default-font-height (* 10 my-font-size))
+	 (delta-to-default (- default-font-height font-height)))
+    (default-text-scale-increment delta-to-default)))
 
 (defun my-vcs-dir-p (path)
   "Determines if the PATH directory is under version control (e.g. 'Git').
@@ -219,8 +229,9 @@ sufficiently large."
   (setq column-number-mode t)
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
-  ;; set the default font to use
-  (add-to-list 'default-frame-alist `(font . ,(format "%s:pixelsize=%d" my-font my-font-size)))
+  ;; set the default font to use on all frames (see
+  ;; https://www.freedesktop.org/software/fontconfig/fontconfig-user.html)
+  (add-to-list 'default-frame-alist `(font . ,(format "%s-%d" my-font my-font-size)))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
@@ -323,10 +334,11 @@ sufficiently large."
   :ensure t
   :demand t
   :config
+  ;; increment delta (in tenths of points), so needs to be divisible by 10.
   (setq default-text-scale-amount 10)
   (global-set-key (kbd "C-x C-+") 'default-text-scale-increase)
   (global-set-key (kbd "C-x C--") 'default-text-scale-decrease)
-  (global-set-key (kbd "C-x C-0") 'default-text-scale-reset))
+  (global-set-key (kbd "C-x C-0") 'my-set-default-font-height))
 
 (use-package immaterial-theme
   :ensure t
