@@ -18,7 +18,7 @@
   "Minimum frame width when treemacs is enabled (in characters).")
 (defvar my-font "DejaVu Sans Mono"
   "Text font to use (for example, `Ubuntu Mono`).")
-(defvar my-font-size 10 "Font size to use in points (for example, 10).")
+(defvar my-font-size 10.5 "Font size to use in points (for example, 10.5).")
 
 (defvar my-packages
   '(use-package)
@@ -231,7 +231,7 @@ sufficiently large."
   (setq-default fill-column 80)
   ;; set the default font to use on all frames (see
   ;; https://www.freedesktop.org/software/fontconfig/fontconfig-user.html)
-  (add-to-list 'default-frame-alist `(font . ,(format "%s-%d" my-font my-font-size)))
+  (add-to-list 'default-frame-alist `(font . ,(format "%s-%f" my-font my-font-size)))
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
