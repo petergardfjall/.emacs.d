@@ -113,9 +113,7 @@ will be created under this directory for each saved desktop.  For example,
 (defun my-vcs-dir-p (path)
   "Determines if the PATH directory is under version control (e.g. 'Git').
 Returns nil for paths not under version control."
-  (if (vc-responsible-backend path)
-      t
-    nil))
+  (vc-backend path))
 
 (defun my-project-root-or-cwd ()
   "Return the project root of the directory tree where Emacs was opened.  If Emacs wasn't opened in a version-controlled directory, the result will be the current working directory."
