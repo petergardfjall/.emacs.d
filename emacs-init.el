@@ -434,8 +434,9 @@ sufficiently large."
   ;; find-file-in-project will use ivy by default
   (setq projectile-completion-system 'ivy)
   (ivy-mode 1)
-  (define-key minibuffer-local-map
-    (kbd "C-r") 'counsel-minibuffer-history))
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+  ;; during search, make ivy complete to the greatest common denominator on TAB.
+  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial))
 
 ;; ivy-enhanced version of isearch
 (use-package swiper
@@ -470,7 +471,6 @@ sufficiently large."
   :config
   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
   (ivy-posframe-mode 1))
-
 
 ;; highlights occurences of colors (in text) with a background of that
 ;; color. For example, "#aaaaaa" will be displayed with a gray background.
@@ -772,7 +772,9 @@ sufficiently large."
 ;; ~/.emacs.d/mspyls.
 (use-package lsp-python-ms
   :ensure t
-  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp)))
+  :defer t
+  :init
+  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp)))
   :config
   ;; language server to download
   (setq lsp-python-ms-nupkg-channel "stable")
