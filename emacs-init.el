@@ -772,9 +772,7 @@ sufficiently large."
 ;; ~/.emacs.d/mspyls.
 (use-package lsp-python-ms
   :ensure t
-  :defer t
-  :init
-  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp)))
+  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp)))
   :config
   ;; language server to download
   (setq lsp-python-ms-nupkg-channel "stable")
@@ -982,10 +980,11 @@ sufficiently large."
   (add-hook 'before-save-hook 'clang-format-buffer nil t))
 
 (use-package lsp-java
+  :disabled
   :ensure t
   :defer t
-  :hook ((java-mode) .
-	 (lambda () (require 'lsp-java) (lsp)))
+  :init
+  (add-hook 'java-mode-hook (lambda () (require 'lsp-java) (lsp)))
   :config
   (message "lsp-java config ...")
   ;; disable completion cache
