@@ -36,6 +36,8 @@ are installed via `use-package` and loaded on-demand.")
 will be created under this directory for each saved desktop.  For example,
 `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
 
+(defvar my-desktop-save-file ".emacs.desktop"
+  "File name to use for storing desktop state.")
 
 ;;
 ;; Tricks to reduce startup time. These need to be set at an early stage.
@@ -127,6 +129,10 @@ Returns nil for paths not under version control."
   "Return the save directory to use for `desktop-save-mode` based on where Emacs was opened."
   (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
 
+(defun my-desktop-save-path ()
+  "Return the path where `desktop-save-mode` will store its session based on where Emacs was opened."
+  (concat (my-desktop-save-dir) my-desktop-save-file))
+
 (defun my-enable-desktop-save-mode ()
   "Enable `desktop-save-mode`, which will load the saved desktop if one exsists, or create a new desktop state file if one does not exist.  If the desktop is already loaded by another Emacs process, a warning is printed."
   (interactive)
@@ -135,26 +141,29 @@ Returns nil for paths not under version control."
   ;; Save settings
   ;;
   (setq desktop-dirname (my-desktop-save-dir)) ;; state directory
-  (setq desktop-base-file-name ".emacs.desktop")  ;; state file
+  (setq desktop-base-file-name my-desktop-save-file)  ;; state file
   (setq desktop-save t) ;; always save on exit (without prompting)
-  (setq desktop-auto-save-timeout 10) ;; in seconds
+  (setq desktop-auto-save-timeout 30) ;; in seconds
   ;;
   ;; Desktop load settings.
   ;;
   ;; directory where desktop state is to be loaded from.
-  (setq desktop-path (list (my-desktop-save-dir)))
+  (setq desktop-path (list desktop-dirname))
   ;; max buffers to restore immediately (the rest are lazily loaded)
   (setq desktop-restore-eager 10)
   ;; never load the desktop if locked
   (setq desktop-load-locked-desktop nil)
 
   ;; create the desktop file if it doesn't already exist
-  (when (not (file-directory-p desktop-dirname))
+  (when (not (file-exists-p (my-desktop-save-path)))
     (make-directory desktop-dirname t)
-    (desktop-save desktop-dirname t))
+    (desktop-save desktop-dirname t)
+    ;; appears necessary to create desktop lock after save
+    (desktop-read))
 
   ;; enable desktop-save-mode
   (desktop-save-mode 1)
+  (desktop-auto-save-set-timer)
 
   ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
   ;; another process)
@@ -319,7 +328,7 @@ sufficiently large."
   :commands my-enable-desktop-save-mode
   :defer t
   :init
-  (when (file-directory-p (my-desktop-save-dir))
+  (when (file-exists-p (my-desktop-save-path))
     (message "discovered saved desktop, enabling desktop-save-mode ...")
     (my-enable-desktop-save-mode))
   (global-set-key (kbd "<f6>") 'my-enable-desktop-save-mode))
