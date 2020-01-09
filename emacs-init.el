@@ -133,6 +133,12 @@ Returns nil for paths not under version control."
   "Return the path where `desktop-save-mode` will store its session based on where Emacs was opened."
   (concat (my-desktop-save-dir) my-desktop-save-file))
 
+(defun my-desktop-delete ()
+  "Deletes the desktop save path (if it exists)."
+  (interactive)
+  (desktop-save-mode 0)
+  (delete-file (my-desktop-save-path)))
+
 (defun my-enable-desktop-save-mode ()
   "Enable `desktop-save-mode`, which will load the saved desktop if one exsists, or create a new desktop state file if one does not exist.  If the desktop is already loaded by another Emacs process, a warning is printed."
   (interactive)
