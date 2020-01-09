@@ -32,8 +32,9 @@ are installed via `use-package` and loaded on-demand.")
   "The location of any version-controlled packages to load on init.")
 
 (defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
-  "A directory where desktops are to be stored.  A separate directory
-will be created under this directory for each saved desktop.  For example,
+  "A directory where desktops are to be stored.
+A separate directory will be created under this directory for
+each saved desktop.  For example,
 `<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
 
 (defvar my-desktop-save-file ".emacs.desktop"
@@ -118,7 +119,9 @@ Returns nil for paths not under version control."
   (vc-backend path))
 
 (defun my-project-root-or-cwd ()
-  "Return the project root of the directory tree where Emacs was opened.  If Emacs wasn't opened in a version-controlled directory, the result will be the current working directory."
+  "Return the project root of the directory tree where Emacs was opened.
+If Emacs wasn't opened in a version-controlled directory, the
+result will be the current working directory."
   (if (my-vcs-dir-p default-directory)
       ;; determine project root
       (let ((vc-backend (vc-responsible-backend default-directory)))
@@ -126,11 +129,13 @@ Returns nil for paths not under version control."
     default-directory))
 
 (defun my-desktop-save-dir ()
-  "Return the save directory to use for `desktop-save-mode` based on where Emacs was opened."
+  "Return the save directory to use for `desktop-save-mode`.
+The location is determined from where Emacs was opened."
   (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
 
 (defun my-desktop-save-path ()
-  "Return the path where `desktop-save-mode` will store its session based on where Emacs was opened."
+  "Return the path where `desktop-save-mode` will store its session.
+The location is determined from where Emacs was opened."
   (concat (my-desktop-save-dir) my-desktop-save-file))
 
 (defun my-desktop-delete ()
@@ -140,7 +145,10 @@ Returns nil for paths not under version control."
   (delete-file (my-desktop-save-path)))
 
 (defun my-enable-desktop-save-mode ()
-  "Enable `desktop-save-mode`, which will load the saved desktop if one exsists, or create a new desktop state file if one does not exist.  If the desktop is already loaded by another Emacs process, a warning is printed."
+  "Enable `desktop-save-mode`.
+This will load the saved desktop if one exsists, or create a new
+desktop state file if one does not exist.  If the desktop is
+already loaded by another Emacs process, a warning is printed."
   (interactive)
   (message "using desktop save directory: %s" (my-desktop-save-dir))
   ;;
@@ -179,9 +187,9 @@ Returns nil for paths not under version control."
 	      (desktop-save-mode 0))))
 
 (defun my-toggle-treemacs ()
-  "Enable or disable the treemacs project explorer.  When treemacs
-is enabled in graphical mode, ensure that the frame width is
-sufficiently large."
+  "Enable or disable the treemacs project explorer.
+When Treemacs is enabled in graphical mode, ensure that the frame
+width is sufficiently large."
   (interactive)
   (treemacs)
   (when (display-graphic-p)
