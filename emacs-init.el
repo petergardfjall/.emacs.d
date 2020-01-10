@@ -40,6 +40,9 @@ each saved desktop.  For example,
 (defvar my-desktop-save-file ".emacs.desktop"
   "File name to use for storing desktop state.")
 
+(defvar my-emacs-start-dir default-directory
+  "Directory from which emacs was launched.")
+
 ;;
 ;; Tricks to reduce startup time. These need to be set at an early stage.
 ;;
@@ -122,11 +125,11 @@ Returns nil for paths not under version control."
   "Return the project root of the directory tree where Emacs was opened.
 If Emacs wasn't opened in a version-controlled directory, the
 result will be the current working directory."
-  (if (my-vcs-dir-p default-directory)
+  (if (my-vcs-dir-p my-emacs-start-dir)
       ;; determine project root
-      (let ((vc-backend (vc-responsible-backend default-directory)))
-	(vc-call-backend vc-backend 'root default-directory))
-    default-directory))
+      (let ((vc-backend (vc-responsible-backend my-emacs-start-dir)))
+	(vc-call-backend vc-backend 'root my-emacs-start-dir))
+    my-emacs-start-dir))
 
 (defun my-desktop-save-dir ()
   "Return the save directory to use for `desktop-save-mode`.
