@@ -489,6 +489,15 @@ width is sufficiently large."
   ;; free-text "search-in-project"
   (global-set-key (kbd "C-c s p") 'counsel-projectile-ag))
 
+;; annotates ivy completion candidates with additional descriptions. supports
+;; ivy-switch-buffer, counsel-M-x, counsel-describe-function and
+;; counsel-describe-variable
+(use-package ivy-rich
+  :ensure t
+  :after ivy
+  :config
+  (ivy-rich-mode 1))
+
 ;; display ivy searches elsewhere than in the minibuffer
 (use-package ivy-posframe
   :ensure t
