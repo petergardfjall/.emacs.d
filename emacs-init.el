@@ -496,6 +496,16 @@ width is sufficiently large."
   :ensure t
   :after ivy
   :config
+  (setq ivy-rich--display-transformers-list
+	;; customize what columns to display on switch buffer (C-x b)
+	'(ivy-switch-buffer
+	  (:columns
+	   ;; candidate itself
+	   ((ivy-rich-candidate (:width 30))
+	    ;; path relative to project root (or default-directory)
+	    (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
+	   :predicate
+	   (lambda (cand) (get-buffer cand)))))
   (ivy-rich-mode 1))
 
 ;; display ivy searches elsewhere than in the minibuffer
