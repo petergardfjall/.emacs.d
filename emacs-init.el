@@ -775,6 +775,7 @@ width is sufficiently large."
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-doc-max-width 70)
   (setq lsp-ui-doc-delay 0.0)
+  (setq lsp-ui-doc-position 'top)
   ;; disaply doc in a WebKit widget?
   (setq lsp-ui-doc-use-webkit nil)
   ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
