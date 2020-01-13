@@ -477,7 +477,9 @@ width is sufficiently large."
   :bind (("M-x"     . counsel-M-x)
 	 ("C-x C-f" . counsel-find-file)
 	 ;; list faces
-	 ("C-c l f" . counsel-faces)))
+	 ("C-c l f" . counsel-faces)
+	 ("C-h v"   . counsel-describe-variable)
+	 ("C-h f"   . counsel-describe-function)))
 
 ;; uses ivy to improve projectile. For example, freetext search in project via
 ;; `counsel-projectile-ag`.
@@ -496,16 +498,17 @@ width is sufficiently large."
   :ensure t
   :after ivy
   :config
+  ;; change appearance of `ivy-switch-buffer` colums
   (setq ivy-rich--display-transformers-list
-	;; customize what columns to display on switch buffer (C-x b)
-	'(ivy-switch-buffer
-	  (:columns
-	   ;; candidate itself
-	   ((ivy-rich-candidate (:width 30))
-	    ;; path relative to project root (or default-directory)
-	    (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
-	   :predicate
-	   (lambda (cand) (get-buffer cand)))))
+	(plist-put ivy-rich--display-transformers-list 'ivy-switch-buffer
+		   '(:columns
+		     ;; candidate itself
+		     ((ivy-rich-candidate (:width 30))
+		      ;; path relative to project root (or default-directory)
+		      (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
+		     :predicate
+		     (lambda (cand) (get-buffer cand)))))
+
   (ivy-rich-mode 1))
 
 ;; display ivy searches elsewhere than in the minibuffer
