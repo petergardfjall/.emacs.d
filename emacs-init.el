@@ -452,8 +452,8 @@ width is sufficiently large."
   :pin melpa-stable
   :diminish ivy-mode
   :config
-  ;; add recent files and bookmarks to ivy-switch-buffer
-  (setq ivy-use-virtual-buffers t)
+  ;; add recent files and bookmarks to ivy-switch-buffer?
+  (setq ivy-use-virtual-buffers nil)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-display-style 'fancy)
   (setq enable-recursive-minibuffers t)
