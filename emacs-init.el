@@ -251,8 +251,8 @@ width is sufficiently large."
   (set-terminal-coding-system 'utf-8)
   (setq inhibit-startup-screen t)
   (setq column-number-mode t)
-  ;; don't wrap long lines
-  (set-default 'truncate-lines t)
+  ;; wrap long lines
+  (set-default 'truncate-lines nil)
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
   ;; set the default font to use on all frames (see
