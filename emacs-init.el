@@ -292,6 +292,15 @@ width is sufficiently large."
   ;; Any changes become session-local.
   (setq custom-file (make-temp-file "emacs-custom"))
 
+  ;; centralize emacs backups (avoid littering with files ending in `~`).
+  (setq make-backup-files t    ; yes, we want backups
+	backup-directory-alist '(("." . "~/.emacs.d/backup"))
+	backup-by-copying t    ; Don't delink hardlinks
+	version-control t      ; Use version numbers on backups
+	delete-old-versions t  ; Automatically delete excess backups
+	kept-new-versions 20   ; how many of the newest versions to keep
+	kept-old-versions 5)   ; and how many of the old
+
   ;;
   ;; generic key bindings
   ;;
