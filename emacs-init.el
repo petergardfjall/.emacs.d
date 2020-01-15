@@ -112,7 +112,7 @@ each saved desktop.  For example,
   ;; calculate delta between current face height and default font height and
   ;; apply difference.
   (let* ((font-height (face-attribute 'default :height))
-	 (default-font-height (* 10 my-font-size))
+	 (default-font-height (truncate (* 10 my-font-size)))
 	 (delta-to-default (- default-font-height font-height)))
     (default-text-scale-increment delta-to-default)))
 
