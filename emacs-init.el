@@ -404,13 +404,6 @@ width is sufficiently large."
 	  ;; ("background-primary" . "#002525")
 	  ;; ("background-off"     . "#002426")
 	  ;; ("background-on"      . "#003435")
-
-	  ("primary"         . "#7986cb")
-	  ("primary-light"   . "#aab6fe")
-	  ("primary-dark"    . "#49599a")
-	  ("secondary"       . "#aed581")
-	  ("secondary-light" . "#e1ffb1")
-	  ("secondary-dark"  . "#7da453")
 	))
   (load-theme 'immaterial t))
 
@@ -522,12 +515,11 @@ width is sufficiently large."
 
 ;; display ivy searches elsewhere than in the minibuffer
 (use-package ivy-posframe
-  :disabled
   :ensure t
   :diminish
   :after ivy
   :config
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-window-center)))
   (ivy-posframe-mode 1))
 
 ;; highlights occurences of colors (in text) with a background of that
@@ -755,7 +747,7 @@ width is sufficiently large."
 
 (use-package lsp-mode
   :ensure t
-  :pin melpa-stable
+  ;;:pin melpa-stable
   :defer t
   :commands lsp
   :config
