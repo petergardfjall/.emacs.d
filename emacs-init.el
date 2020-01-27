@@ -406,12 +406,6 @@ width is sufficiently large."
 	  ;; ("background-off"     . "#002426")
 	  ;; ("background-on"      . "#003435")
 
-	  ("primary"         . "#7986cb")
-	  ("primary-light"   . "#aab6fe")
-	  ("primary-dark"    . "#49599a")
-	  ("secondary"       . "#aed581")
-	  ("secondary-light" . "#e1ffb1")
-	  ("secondary-dark"  . "#7da453")
 	  ("cursor"  . "#64d8cb")	
 	))
   (load-theme 'immaterial t))
