@@ -530,6 +530,7 @@ width is sufficiently large."
 
 ;; display ivy searches elsewhere than in the minibuffer
 (use-package ivy-posframe
+  :disabled
   :ensure t
   :diminish
   :after ivy
