@@ -335,6 +335,7 @@ width is sufficiently large."
 
 (my-general-settings)
 
+
 ;;
 ;; Start of custom package installation/configuration.
 ;;
@@ -404,6 +405,14 @@ width is sufficiently large."
 	  ;; ("background-primary" . "#002525")
 	  ;; ("background-off"     . "#002426")
 	  ;; ("background-on"      . "#003435")
+
+	  ("primary"         . "#7986cb")
+	  ("primary-light"   . "#aab6fe")
+	  ("primary-dark"    . "#49599a")
+	  ("secondary"       . "#aed581")
+	  ("secondary-light" . "#e1ffb1")
+	  ("secondary-dark"  . "#7da453")
+	  ("cursor"  . "#64d8cb")	
 	))
   (load-theme 'immaterial t))
 
@@ -476,6 +485,9 @@ width is sufficiently large."
 (use-package counsel
   :ensure t
   :pin melpa-stable
+  ;;
+  ;; cherry-pick commands to use (rather than applying all with `counsel-mode`).
+  ;;
   :bind (("M-x"     . counsel-M-x)
 	 ("C-x C-f" . counsel-find-file)
 	 ;; list faces
@@ -490,6 +502,9 @@ width is sufficiently large."
   :pin melpa-stable
   :after projectile
   :config
+  ;;
+  ;; cherry-pick commands to use (enable all via `(counsel-projectile-mode 1)`)
+  ;;
   ;; free-text "search-in-project"
   (global-set-key (kbd "C-c s p") 'counsel-projectile-ag))
 
