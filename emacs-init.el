@@ -751,7 +751,7 @@ width is sufficiently large."
 (use-package linum
   :ensure t
   :defer t
-  :hook ((prog-mode text-mode) . display-line-numbers-mode))
+  :hook ((prog-mode) . display-line-numbers-mode))
 
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
 (use-package sh-script
