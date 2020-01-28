@@ -168,8 +168,8 @@ already loaded by another Emacs process, a warning is printed."
   (setq desktop-path (list desktop-dirname))
   ;; max buffers to restore immediately (the rest are lazily loaded)
   (setq desktop-restore-eager 10)
-  ;; never load the desktop if locked
-  (setq desktop-load-locked-desktop nil)
+  ;; load the desktop if locked?
+  (setq desktop-load-locked-desktop 'ask)
 
   ;; create the desktop file if it doesn't already exist
   (when (not (file-exists-p (my-desktop-save-path)))
