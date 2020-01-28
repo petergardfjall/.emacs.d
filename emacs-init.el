@@ -731,15 +731,28 @@ width is sufficiently large."
   :ensure t
   :defer 2
   :config
-  ;; Replacement for ggtags-find-definition that always prompts (default
-  ;; behavior is to just search for symbol at point if there is one)
-  (defun ggtags-find-definition-interactive  ()
+
+  (defun my-ggtags-find-definition-interactive  ()
+    "Replacement for ggtags-find-definition that always
+prompts (default behavior is to just search for symbol at point
+if there is one)."
     (interactive)
     ;; can read 'definition, 'symbol, 'reference, 'id, 'path
     (let ((tag (ggtags-read-tag 'definition t "Find definition")))
       (ggtags-find-definition tag)))
+  (defun my-ggtags-create ()
+    "Creates gtags in the project root directory."
+    (interactive)
+    (if (fboundp 'projectile-project-root)
+        (progn
+          (message "Generating tags in %s ..." (projectile-project-root))
+          (ggtags-create-tags (projectile-project-root)))
+      (error "Cannot generate tags without a project(ile) root dir.")))
+
   ;; "find-tag", "find-type"
-  (global-set-key (kbd "C-c f t") 'ggtags-find-definition-interactive))
+  (global-set-key (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
+  ;; "gtags create"
+  (global-set-key (kbd "C-c g c") 'my-ggtags-create))
 
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
