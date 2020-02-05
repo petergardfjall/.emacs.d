@@ -134,11 +134,13 @@ result will be the current working directory."
 (defun my-desktop-save-dir ()
   "Return the save directory to use for `desktop-save-mode`.
 The location is determined from where Emacs was opened."
+  (interactive)
   (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
 
 (defun my-desktop-save-path ()
   "Return the path where `desktop-save-mode` will store its session.
 The location is determined from where Emacs was opened."
+  (interactive)
   (concat (my-desktop-save-dir) my-desktop-save-file))
 
 (defun my-desktop-delete ()
