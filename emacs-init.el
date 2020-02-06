@@ -408,7 +408,7 @@ width is sufficiently large."
 	  ;; ("background-off"     . "#002426")
 	  ;; ("background-on"      . "#003435")
 
-	  ("cursor"  . "#64d8cb")	
+	  ("cursor"  . "#64d8cb")
 	))
   (load-theme 'immaterial t))
 
