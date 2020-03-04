@@ -421,28 +421,30 @@ negative)."
 (use-package immaterial-theme
   :ensure t
   :config
-  ;; default: https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=4DB6AC&secondary.color=AED581
-  (setq immaterial-color-override-alist
-	'(;; solarized dark background colors
-	  ;; ("background-primary"   . "#002b36")
-	  ;; ("background-off"       . "#00212b")
-	  ;; ("background-on"        . "#003644")
+  ;; bright mode
+  ;; (setq immaterial-color-override-alist
+  ;; 	'(("background-primary"    . "#f5f5f5")
+  ;; 	  ("background-off"        . "#f2f2f2")
+  ;; 	  ("background-on"         . "#ecefe9")
+  ;; 	  ("foreground-primary"    . "#102027")
+  ;; 	  ("foreground-secondary"  . "#37474f")
+  ;; 	  ("foreground-tertiary"   . "#62727b")
+  ;; 	  ("primary"               . "#7b1fa2")
+  ;; 	  ("primary-light"         . "#ae52d4")
+  ;; 	  ("primary-dark"          . "#4a0072")
+  ;; 	  ("secondary"             . "#33691e")
+  ;; 	  ("secondary-light"       . "#629749")
+  ;; 	  ("secondary-dark"        . "#003d00")
+  ;; 	  ("error"                 . "#b0003a")
+  ;; 	  ("warning"               . "#ff6f00")
+  ;; 	  ("discrete"              . "#616161")
+  ;; 	  ("vertical-border"       . "#dddddd")
+  ;; 	  ("cursor"                . "#64d8cb")
+  ;; 	  ("modeline-active-bg"    . "#705697")
+  ;; 	  ("modeline-active-fg"    . "#ffffff")
+  ;; 	  ("modeline-inactive-bg"  . "#d0d0d0")
+  ;; 	  ("modeline-inactive-fg"  . "#616161")))
 
-	  ;; blue-grey
-	  ;; ("background-primary" . "#1b292d")
-	  ;; ("background-off"     . "#121212")
-	  ;; ("background-on"      . "#23363d")
-
-	  ;; emacs purple dark
-	  ;; ("background-primary" . "#252342")
-	  ;; ("background-off"     . "#151426")
-	  ;; ("background-on"      . "#2d2b51")
-
-	  ;; petrol
-	  ;; ("background-primary" . "#002525")
-	  ;; ("background-off"     . "#002426")
-	  ;; ("background-on"      . "#003435")
-	))
   (load-theme 'immaterial t))
 
 ;; A theme that runs on top of the existing theme to extend/highlight the
