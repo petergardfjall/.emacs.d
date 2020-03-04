@@ -73,25 +73,30 @@ each saved desktop.  For example,
   "Get the elapsed time since start of loading."
   (float-time (time-subtract (current-time) emacs-start-time)))
 
+
 (defun my-untabify-buffer ()
   "Run 'untabify' on the whole buffer."
   (interactive)
   (untabify (point-min) (point-max)))
+
 
 (defun my-untabify-on-save-hook ()
   "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
   ;; note: last argument makes this save-hook local to the buffer
   (add-hook 'before-save-hook 'my-untabify-buffer nil t))
 
+
 (defun my-strip-on-save-hook ()
   "Register a buffer-local 'before-save-hook' to run 'delete-trailing-whitespace'."
   ;; note: last argument makes this save-hook local to the buffer
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t))
 
+
 (defun my-close-all-buffers ()
   "Kill all open buffers."
   (interactive)
   (mapc 'kill-buffer (buffer-list)))
+
 
 (defun my-rename-file-and-buffer ()
   "Rename the current buffer and file it is visiting."
@@ -106,6 +111,7 @@ each saved desktop.  For example,
           (rename-file filename new-name t)
           (set-visited-file-name new-name t t)))))))
 
+
 (defun my-set-default-font-height ()
   "Reset the font height for the selected frame to the default font size."
   (interactive)
@@ -116,10 +122,12 @@ each saved desktop.  For example,
 	 (delta-to-default (- default-font-height font-height)))
     (default-text-scale-increment delta-to-default)))
 
+
 (defun my-vcs-dir-p (path)
   "Determines if the PATH directory is under version control (e.g. 'Git').
 Returns nil for paths not under version control."
   (vc-backend path))
+
 
 (defun my-project-root-or-cwd ()
   "Return the project root of the directory tree where Emacs was opened.
@@ -131,11 +139,13 @@ result will be the current working directory."
 	(vc-call-backend vc-backend 'root my-emacs-start-dir))
     my-emacs-start-dir))
 
+
 (defun my-desktop-save-dir ()
   "Return the save directory to use for `desktop-save-mode`.
 The location is determined from where Emacs was opened."
   (interactive)
   (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
+
 
 (defun my-desktop-save-path ()
   "Return the path where `desktop-save-mode` will store its session.
@@ -143,11 +153,13 @@ The location is determined from where Emacs was opened."
   (interactive)
   (concat (my-desktop-save-dir) my-desktop-save-file))
 
+
 (defun my-desktop-delete ()
   "Deletes the desktop save path (if it exists)."
   (interactive)
   (desktop-save-mode 0)
   (delete-file (my-desktop-save-path)))
+
 
 (defun my-enable-desktop-save-mode ()
   "Enable `desktop-save-mode`.
@@ -191,6 +203,7 @@ already loaded by another Emacs process, a warning is printed."
 	      (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
 	      (desktop-save-mode 0))))
 
+
 (defun my-toggle-treemacs ()
   "Enable or disable the treemacs project explorer.
 When Treemacs is enabled in graphical mode, ensure that the frame
@@ -201,6 +214,28 @@ width is sufficiently large."
     (when (and (eq (treemacs-current-visibility) 'visible)
 	       (< (frame-width) my-treemacs-min-width))
       (set-frame-width (selected-frame) my-treemacs-min-width))))
+
+
+(defun my-color-lighten (hex-color percent)
+  "Determines a brighter/darker shade of a hex color.
+For a HEX-COLOR (such as `#3cb878`) return the hex color that is
+PERCENT percent brighter (or darker if percent value is
+negative)."
+  (interactive "sHex color: \nnPercent brighter/darker (-): ")
+  (let ((color-transform-fn (if (> percent 0)
+				'color-lighten-hsl
+			      'color-darken-hsl))
+	(percent-unsigned (abs percent)))
+    (message "%s"
+     (apply 'color-rgb-to-hex
+	    (append
+	     (apply 'color-hsl-to-rgb
+		    (apply color-transform-fn
+			   (append
+			    (apply 'color-rgb-to-hsl (color-name-to-rgb hex-color))
+			    (list percent-unsigned))))
+	     (list 2))))))
+
 
 ;;
 ;; Start of actual initialization.
