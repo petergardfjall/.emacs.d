@@ -216,6 +216,14 @@ width is sufficiently large."
       (set-frame-width (selected-frame) my-treemacs-min-width))))
 
 
+(defun my-set-treemacs-bg (color)
+  "Set COLOR as background color for the treemacs buffer."
+  (with-current-buffer (treemacs-get-local-buffer)
+    (setq-local face-remapping-alist
+		`((default . (:background ,color))
+		  (fringe  . (:background ,color))))))
+
+
 (defun my-color-lighten (hex-color percent)
   "Determines a brighter/darker shade of a hex color.
 For a HEX-COLOR (such as `#3cb878`) return the hex color that is
@@ -445,7 +453,11 @@ negative)."
   ;; 	  ("modeline-inactive-bg"  . "#d0d0d0")
   ;; 	  ("modeline-inactive-fg"  . "#616161")))
 
-  (load-theme 'immaterial t))
+  (load-theme 'immaterial t)
+  ;; set a different background color for the treemacs buffer
+  (add-hook 'treemacs-mode-hook
+	    (lambda () (my-set-treemacs-bg
+			(immaterial-color "background-off")))))
 
 ;; A theme that runs on top of the existing theme to extend/highlight the
 ;; modeline buffer id with the name of the host. Can be customized via
@@ -719,6 +731,7 @@ negative)."
   (:map global-map
 	;; hide/show treemacs file explorer
 	("<f8>" . my-toggle-treemacs)))
+
 
 ;; Quickly add your projectile projects to the treemacs workspace.
 (use-package treemacs-projectile
