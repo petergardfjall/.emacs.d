@@ -1156,6 +1156,22 @@ if there is one)."
   (setq which-key-idle-delay 1.0)
   (which-key-mode))
 
+;; org-mode
+(use-package org
+  ;; lazily load when a .org file is opened
+  :mode ("\\.org$" . org-mode)
+  ;; set up key-bindings and lazily load package whenever either is called
+  :bind (("C-c o l" . org-store-link)
+	 ("C-c o c" . org-capture)
+	 ("C-c o a" . org-agenda))
+  :config
+  ;; agenda should start with Monday
+  (setq org-agenda-start-on-weekday 1)
+  ;; calendar should start with Monday
+  (setq calendar-week-start-day 1)
+  ;; character(s) to indicate a folded section
+  (setq org-ellipsis "..."))
+
 
 ;;; Finalization
 
