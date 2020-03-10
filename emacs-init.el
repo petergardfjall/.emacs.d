@@ -346,6 +346,10 @@ negative)."
 	kept-new-versions 20   ; how many of the newest versions to keep
 	kept-old-versions 5)   ; and how many of the old
 
+  ;; Show matching paranthesis
+  (setq show-paren-delay 0)
+  (show-paren-mode 1)
+
   ;;
   ;; generic key bindings
   ;;
@@ -364,11 +368,7 @@ negative)."
   (global-set-key (kbd "C-c f r")  'xref-find-references)
   ;; see if documentation can be found for thing at point
   (global-set-key (kbd "C-c C-d")  'describe-symbol)
-  ;; find file (in project)
-  (global-set-key (kbd "C-c f f")  'projectile-find-file)
-  ;; Show matching paranthesis
-  (setq show-paren-delay 0)
-  (show-paren-mode 1)
+
   ;; Move between windows with Shift-<up|down|left|right>
   (windmove-default-keybindings)
   ;; enlarge/shrink current window vertically (on vertical split)
@@ -549,7 +549,7 @@ negative)."
   ;; cherry-pick commands to use (enable all via `(counsel-projectile-mode 1)`)
   ;;
   ;; free-text "search-in-project"
-  (global-set-key (kbd "C-c s p") 'counsel-projectile-ag))
+  (define-key projectile-mode-map (kbd "C-c s p") 'counsel-projectile-ag))
 
 ;; annotates ivy completion candidates with additional descriptions. supports
 ;; ivy-switch-buffer, counsel-M-x, counsel-describe-function and
@@ -609,7 +609,10 @@ negative)."
 (use-package projectile
   ;; defer loading of module until this function is called *and* set up key
   ;; binding to invoke.
-  :bind ([f7] . projectile-mode))
+  :bind ([f7] . projectile-mode)
+  :config
+  ;; find file (in project)
+  (define-key projectile-mode-map (kbd "C-c f f")  'projectile-find-file))
 
 ;; Transparent Remote Access, Multiple Protocols -- edit remote files
 (use-package tramp
@@ -632,8 +635,7 @@ negative)."
   ;; minimum number of letters to type before triggering autocompletion
   (setq company-minimum-prefix-length 2)
   ;; trigger completion
-  (global-set-key (kbd "C-<tab>") 'company-complete)
-  )
+  (define-key company-mode-map (kbd "C-<tab>") 'company-complete))
 
 ;; show auto-completion candidates in popup
 (use-package company-quickhelp
@@ -647,7 +649,7 @@ negative)."
   :diminish ; don't display on modeline
   :config
   ;; show errors in current buffer
-  (global-set-key (kbd "C-c s e") 'list-flycheck-errors))
+  (define-key flycheck-mode-map (kbd "C-c s e") 'list-flycheck-errors))
 
 ;; built-in on-the-fly syntax checking (use flycheck instead)
 (use-package flymake
@@ -800,9 +802,9 @@ if there is one)."
       (error "Cannot generate tags without a project(ile) root dir.")))
 
   ;; "find-tag", "find-type"
-  (global-set-key (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
+  (define-key ggtags-mode-map (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
   ;; "gtags create"
-  (global-set-key (kbd "C-c g c") 'my-ggtags-create))
+  (define-key ggtags-mode-map (kbd "C-c g c") 'my-ggtags-create))
 
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
@@ -860,18 +862,18 @@ if there is one)."
   ;; NOTE: these can be overridden by keymaps for a particular major mode
   ;;       such as "C-c C" in c++-mode. If so, disable the keybinding locally
   ;;       in that mode's keymap.
-  (global-set-key (kbd "<M-down>") 'lsp-find-definition)
-  (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
-  (global-set-key (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
-  (global-set-key (kbd "C-c p r")  'lsp-ui-peek-find-references)
-  (global-set-key (kbd "C-c h")    'lsp-document-highlight)
-  (global-set-key (kbd "C-c f d")  'lsp-find-definition)
-  (global-set-key (kbd "C-c f i")  'lsp-goto-implementation)
-  (global-set-key (kbd "C-c f r")  'lsp-find-references)
-  (global-set-key (kbd "C-c C-r")  'lsp-rename)
-  (global-set-key (kbd "C-c d")    'lsp-ui-doc-show)
-  (global-set-key (kbd "C-c e")    'lsp-ui-doc-hide) ; "end doc show"
-  (global-set-key (kbd "C-c C-d")  'lsp-describe-thing-at-point))
+  (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
+  (define-key lsp-mode-map (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
+  (define-key lsp-mode-map (kbd "C-c p r")  'lsp-ui-peek-find-references)
+  (define-key lsp-mode-map (kbd "C-c h")    'lsp-document-highlight)
+  (define-key lsp-mode-map (kbd "C-c f d")  'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "C-c f i")  'lsp-goto-implementation)
+  (define-key lsp-mode-map (kbd "C-c f r")  'lsp-find-references)
+  (define-key lsp-mode-map (kbd "C-c C-r")  'lsp-rename)
+  (define-key lsp-mode-map (kbd "C-c d")    'lsp-ui-doc-show)
+  (define-key lsp-mode-map (kbd "C-c e")    'lsp-ui-doc-hide) ; "end show"
+  (define-key lsp-mode-map (kbd "C-c C-d")  'lsp-describe-thing-at-point))
 
 (use-package company-lsp
   :ensure t
