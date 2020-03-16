@@ -1163,14 +1163,51 @@ if there is one)."
   ;; set up key-bindings and lazily load package whenever either is called
   :bind (("C-c o l" . org-store-link)
 	 ("C-c o c" . org-capture)
-	 ("C-c o a" . org-agenda))
+	 ("C-c o a" . org-agenda)
+	 ;; x as in "check as done"
+	 ("C-c o x" . org-archive-subtree)
+	 ("C-c o >" . org-clock-in)
+	 ("C-c o <" . org-clock-out)
+	 ("C-c o o" . my-org-open))
   :config
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
   ;; calendar should start with Monday
   (setq calendar-week-start-day 1)
   ;; character(s) to indicate a folded section
-  (setq org-ellipsis "..."))
+  (setq org-ellipsis "...")
+  ;; when entering org files: start in folded `OVERVIEW` state?
+  ;; can also be configured per file with `#+STARTUP`.
+  (setq org-startup-folded nil)
+
+  ;; default location to look for org files.
+  (setq org-directory "~/org")
+  ;; files to include when compiling the agenda.
+  (setq org-agenda-files '("~/org/work.org"))
+  ;; location to store archived entries/subtrees. Items are placed under
+  ;; H1-headlines "From FILE" where `FILE` is the file from where entry was
+  ;; archived.
+  (setq org-archive-location "~/org/archive.org::* %s archive")
+
+  ;; possible workflow states (use S-{left,right} to move throught states)
+  (setq org-todo-keywords '((sequence "TODO" "STARTED" "BLOCKED"
+				      "|" "DONE")))
+  ;; capture timestamp when a TODO changes state to DONE.
+  (setq org-log-done 'time)
+
+  ;; where to place captured notes.
+  (setq org-default-notes-file (concat org-directory "/captured.org"))
+  ;; TODO: org-capture templates:
+  ;; (setq org-capture-templates
+  ;; 	'(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
+  ;;          "* TODO %?\n  %i\n  %a")
+  ;;         ("j" "Journal" entry (file+datetree "~/org/journal.org")
+  ;;          "* %?\nEntered on %U\n  %i\n  %a")))
+
+  (defun my-org-open ()
+    "Interactively open a file in `org-directory`."
+    (interactive)
+    (counsel-find-file org-directory)))
 
 
 ;;; Finalization
