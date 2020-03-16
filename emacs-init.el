@@ -802,9 +802,9 @@ if there is one)."
       (error "Cannot generate tags without a project(ile) root dir.")))
 
   ;; "find-tag", "find-type"
-  (define-key ggtags-mode-map (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
+  (define-key global-map (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
   ;; "gtags create"
-  (define-key ggtags-mode-map (kbd "C-c g c") 'my-ggtags-create))
+  (define-key global-map (kbd "C-c g c") 'my-ggtags-create))
 
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
