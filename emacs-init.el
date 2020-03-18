@@ -1170,6 +1170,7 @@ if there is one)."
 	 ("C-c o <" . org-clock-out)
 	 ("C-c o o" . my-org-open))
   :config
+
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
   ;; calendar should start with Monday
@@ -1188,6 +1189,8 @@ if there is one)."
   ;; H1-headlines "From FILE" where `FILE` is the file from where entry was
   ;; archived.
   (setq org-archive-location "~/org/archive.org::* %s archive")
+  ;; add archived items first under heading
+  (setq org-archive-reversed-order t)
 
   ;; possible workflow states (use S-{left,right} to move throught states)
   (setq org-todo-keywords '((sequence "TODO" "STARTED" "BLOCKED"
