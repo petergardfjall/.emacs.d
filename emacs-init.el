@@ -559,8 +559,8 @@ negative)."
   :after ivy
   :config
   ;; change appearance of `ivy-switch-buffer` colums
-  (setq ivy-rich--display-transformers-list
-	(plist-put ivy-rich--display-transformers-list 'ivy-switch-buffer
+  (setq ivy-rich-display-transformers-list
+	(plist-put ivy-rich-display-transformers-list 'ivy-switch-buffer
 		   '(:columns
 		     ;; candidate itself
 		     ((ivy-rich-candidate (:width 30))
