@@ -1,6 +1,9 @@
 *~
 *.elc
 
+auto-save-list
+backup
+
 desktops/
 .lsp-session-v1
 projectile-bookmarks.eld
