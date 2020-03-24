@@ -3,6 +3,7 @@
 
 auto-save-list
 backup
+transient/
 
 desktops/
 .lsp-session-v1
