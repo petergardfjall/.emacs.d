@@ -28,7 +28,7 @@ are installed via `use-package` and loaded on-demand.")
 
 ;; TODO: should skip this and use use-package without :ensure but with
 ;; :load-path
-(defvar my-modules (file-expand-wildcards "~/dotfiles/emacs.modules/*.el")
+(defvar my-modules (file-expand-wildcards "~/.emacs.d/emacs.modules/*.el")
   "The location of any version-controlled packages to load on init.")
 
 (defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
