@@ -824,7 +824,7 @@ if there is one)."
   :ensure t
   ;;:pin melpa-stable
   :defer t
-  :commands lsp
+  :commands (lsp lsp-deferred)
   :config
   (message "lsp-mode config ...")
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
@@ -901,7 +901,7 @@ if there is one)."
   :ensure t
   :defer t
   :init
-  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp)))
+  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp-deferred)))
   :config
   ;; language server to download
   (setq lsp-python-ms-nupkg-channel "stable")
@@ -944,7 +944,7 @@ if there is one)."
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
   ;; NOTE: relies on gopls lsp server being on the PATH
-  (add-hook 'go-mode-hook 'lsp))
+  (add-hook 'go-mode-hook #'lsp-deferred))
 
 ;; Major mode for json file editing.
 (use-package json-mode
@@ -1079,7 +1079,7 @@ if there is one)."
   (message "rust-mode config ...")
   (setq rust-format-on-save t)
   ;; start rust LSP server.
-  (add-hook 'rust-mode-hook 'lsp))
+  (add-hook 'rust-mode-hook #'lsp-deferred))
 
 ;; LSP server for C/C++17
 (use-package ccls
@@ -1113,7 +1113,7 @@ if there is one)."
   :ensure t
   :defer t
   :init
-  (add-hook 'java-mode-hook (lambda () (require 'lsp-java) (lsp)))
+  (add-hook 'java-mode-hook (lambda () (require 'lsp-java) (lsp-deferred)))
   :config
   (message "lsp-java config ...")
   ;; disable completion cache
