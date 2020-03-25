@@ -837,7 +837,17 @@ if there is one)."
   ;; Set to t to have eldoc display hover info when present.
   (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
-  (setq lsp-response-timeout 5))
+  (setq lsp-response-timeout 5)
+  ;; keybindings for Language Server Protocol features
+  (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
+  (define-key lsp-mode-map (kbd "C-c h")    'lsp-document-highlight)
+  (define-key lsp-mode-map (kbd "C-c f d")  'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "C-c f i")  'lsp-goto-implementation)
+  (define-key lsp-mode-map (kbd "C-c f r")  'lsp-find-references)
+  (define-key lsp-mode-map (kbd "C-c C-r")  'lsp-rename)
+  (define-key lsp-mode-map (kbd "C-c C-d")  'lsp-describe-thing-at-point))
+
 
 (use-package lsp-ui
   :ensure t
@@ -858,22 +868,12 @@ if there is one)."
   (setq lsp-ui-peek-enable t)
   ;; show peek view even if there is only one candidate
   (setq lsp-ui-peek-always-show t)
-  ;; keybindings for Language Server Protocol features
-  ;; NOTE: these can be overridden by keymaps for a particular major mode
-  ;;       such as "C-c C" in c++-mode. If so, disable the keybinding locally
-  ;;       in that mode's keymap.
-  (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
+  ;; lsp-ui specific keybindings
   (define-key lsp-mode-map (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
   (define-key lsp-mode-map (kbd "C-c p r")  'lsp-ui-peek-find-references)
-  (define-key lsp-mode-map (kbd "C-c h")    'lsp-document-highlight)
-  (define-key lsp-mode-map (kbd "C-c f d")  'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "C-c f i")  'lsp-goto-implementation)
-  (define-key lsp-mode-map (kbd "C-c f r")  'lsp-find-references)
-  (define-key lsp-mode-map (kbd "C-c C-r")  'lsp-rename)
   (define-key lsp-mode-map (kbd "C-c d")    'lsp-ui-doc-show)
   (define-key lsp-mode-map (kbd "C-c e")    'lsp-ui-doc-hide) ; "end show"
-  (define-key lsp-mode-map (kbd "C-c C-d")  'lsp-describe-thing-at-point))
+  )
 
 (use-package company-lsp
   :ensure t
