@@ -827,6 +827,8 @@ if there is one)."
   :commands (lsp lsp-deferred)
   :config
   (message "lsp-mode config ...")
+  ;; automatically find detect and configure lsp-ui and company-lsp
+  (setq lsp-auto-configure t)
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
   (setq lsp-log-io nil)
   ;; Define whether all of the returned by document/onHover will be displayed.
