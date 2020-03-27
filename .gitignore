@@ -1,6 +1,7 @@
 *~
 *.elc
 
+.cache
 auto-save-list
 backup
 transient/
