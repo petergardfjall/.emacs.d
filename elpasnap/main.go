@@ -77,7 +77,11 @@ func GitStatusFromString(gitStatus string) (GitStatus, error) {
 	}
 	m := statusRegexp.FindStringSubmatch(gitStatus)
 	state := m[1]
-	path := m[2]
+	// make sure we ignore any leading escape character for paths status
+	// lines such as:
+	//
+	//   D "yasnippet-snippets-20200314.1030/snippets/sh-mode/for loop"
+	path := strings.TrimLeft(m[2], `"`)
 	isDir := strings.HasSuffix(path, "/")
 
 	return GitStatus{
@@ -311,6 +315,15 @@ func pullRemoteChangesAndRebase() {
 	}
 }
 
+func printUpdates(updates []*PkgUpdate) {
+	if len(updates) == 0 {
+		log.Debug().Msg("no updates.")
+	}
+	for _, u := range updates {
+		log.Debug().Msgf("update: %s", u)
+	}
+}
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), fmt.Sprintf("%s\n\nOptions:\n", Description))
@@ -351,6 +364,7 @@ func main() {
 	execOrDie("git", "checkout", "-B", localBranch, "origin/master")
 
 	// record added packages
+	// printUpdates(pkgUpdates)
 	for _, pkg := range added(pkgUpdates) {
 		var commitMsg string
 		existing, ok := existingPkgs[pkg.Name]
@@ -369,6 +383,7 @@ func main() {
 	}
 
 	// record removed packages
+	// printUpdates(pkgUpdates)
 	for _, pkg := range deleted(pkgUpdates) {
 		execOrDie("git", "rm", "-rf", "--ignore-unmatch", pkg.DirName)
 		execOrDie("git", "commit", "-m", fmt.Sprintf("deleted: %s", pkg.DirName))
