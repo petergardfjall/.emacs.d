@@ -913,7 +913,7 @@ if there is one)."
    ("C-c C-r" . lsp-rename)))
 
 (use-package python
-  :mode "\\.py$"
+  :mode (("\\.py\\'" . python-mode))
   ;; note: no :ensure since it is already built into emacs
   :config
   (message "python buffer setup hook ...")
