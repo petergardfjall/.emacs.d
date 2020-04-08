@@ -1182,6 +1182,12 @@ if there is one)."
   ;; when entering org files: start in folded `OVERVIEW` state?
   ;; can also be configured per file with `#+STARTUP`.
   (setq org-startup-folded nil)
+  (setq org-emphasis-alist '(("*" bold)
+			     ("/" italic)
+			     ("_" underline)
+			     ("=" org-verbatim verbatim)
+			     ("~" org-code verbatim)
+			     ("+" (:strike-through t))))
 
   ;; default location to look for org files.
   (setq org-directory "~/org")
