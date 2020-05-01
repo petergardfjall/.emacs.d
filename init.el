@@ -638,7 +638,7 @@ negative)."
   (setq company-echo-delay 0)     ; remove annoying blinking
   (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   ;; minimum number of letters to type before triggering autocompletion
-  (setq company-minimum-prefix-length 2)
+  (setq company-minimum-prefix-length 1)
   ;; trigger completion
   (define-key company-mode-map (kbd "C-<tab>") 'company-complete))
 
