@@ -839,8 +839,11 @@ if there is one)."
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all nil)
-  ;; prefer flymake over lsp-ui if both are present
-  (setq lsp-prefer-flymake t)
+  ;; package used to show diagnostics
+  (setq lsp-diagnostic-package :flymake)
+  ;; prefer lsp-mode's built-in complete-at-point over company-lsp if both are
+  ;; present
+  (setq lsp-prefer-capf t)
   ;; Set to t to have eldoc display hover info when present.
   (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
@@ -881,14 +884,6 @@ if there is one)."
   (define-key lsp-mode-map (kbd "C-c d")    'lsp-ui-doc-show)
   (define-key lsp-mode-map (kbd "C-c e")    'lsp-ui-doc-hide) ; "end show"
   )
-
-(use-package company-lsp
-  :ensure t
-  ;; gets started by lsp-mode
-  :commands company-lsp
-  :config
-  ;; add lsp as company completion engine backend to get completion-at-point
-  (push 'company-lsp company-backends))
 
 ;; treemacs LSP integration. provides a few functions to enable views:
 ;; - (lsp-treemacs-errors-list): tree-like error list.
