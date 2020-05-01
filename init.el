@@ -47,10 +47,15 @@ each saved desktop.  For example,
 ;; Tricks to reduce startup time. These need to be set at an early stage.
 ;;
 
+;;
 ;; avoid GC performance-penalty on startup by temporarily bumping the memory
 ;; threshold for GC. This effectively defers garbage collection.
-(defvar gc-cons-threshold-custom (* (expt 1 1) gc-cons-threshold)) ;; X^Y * default
-(setq gc-cons-threshold 268435456) ;; set high (256 mb) temporarily during init
+;;
+(defvar gc-cons-threshold-custom (* (expt 2 7) gc-cons-threshold)
+  "Garbage collection memory threshold to use after init.")
+;; set high (256 mb) temporarily during init
+(setq gc-cons-threshold 268435456)
+
 ;; don't run (package-initialize)
 (setq package-enable-at-startup nil)
 ;; at startup we don't want emacs to look for a handler for every opened file.
