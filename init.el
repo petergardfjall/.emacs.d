@@ -948,6 +948,10 @@ if there is one)."
   ;; NOTE: relies on gopls lsp server being on the PATH
   (add-hook 'go-mode-hook #'lsp-deferred))
 
+(use-package flycheck-golangci-lint
+  :ensure t
+  :hook (go-mode . flycheck-golangci-lint-setup))
+
 ;; Major mode for json file editing.
 (use-package json-mode
   :ensure t
