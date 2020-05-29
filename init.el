@@ -561,6 +561,7 @@ negative)."
 ;; counsel-describe-variable
 (use-package ivy-rich
   :ensure t
+  :pin melpa-stable
   :after ivy
   :config
   ;; change appearance of `ivy-switch-buffer` colums
