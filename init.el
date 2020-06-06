@@ -436,8 +436,8 @@ negative)."
   :config
   ;; bright mode
   (setq immaterial-color-override-alist
-	'(("background-primary"    . "#fcfcfc")
-	  ("background-off"        . "#fafafa")
+	'(("background-primary"    . "#fafafa")
+	  ("background-off"        . "#f8f8f8")
 	  ("background-on"         . "#e6f7ff")
 	  ("foreground-primary"    . "#102027")
 	  ("foreground-secondary"  . "#37474f")
