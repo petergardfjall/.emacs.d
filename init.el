@@ -41,7 +41,7 @@ each saved desktop.  For example,
   "File name to use for storing desktop state.")
 
 (defvar my-emacs-start-dir default-directory
-  "Directory from which emacs was launched.")
+  "Directory from which Emacs was launched.")
 
 ;;
 ;; Tricks to reduce startup time. These need to be set at an early stage.
