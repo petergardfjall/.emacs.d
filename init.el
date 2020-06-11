@@ -433,33 +433,9 @@ negative)."
 
 (use-package immaterial-theme
   :ensure t
+  ;;:load-path "emacs.modules/immaterial-theme"
   :config
-  ;; bright mode
-  (setq immaterial-color-override-alist
-	'(("background-primary"    . "#fafafa")
-	  ("background-off"        . "#f8f8f8")
-	  ("background-on"         . "#e6f7ff")
-	  ("foreground-primary"    . "#102027")
-	  ("foreground-secondary"  . "#37474f")
-	  ("foreground-tertiary"   . "#62727b")
-	  ("primary"               . "#0288d1")
-	  ("primary-light"         . "#5eb8ff")
-	  ("primary-dark"          . "#005b9f")
-	  ("secondary"             . "#00796b")
-	  ("secondary-light"       . "#48a999")
-	  ("secondary-dark"        . "#004c40")
-	  ("error"                 . "#b0003a")
-	  ("warning"               . "#ff8f00")
-	  ("discrete"              . "#616161")
-	  ("vertical-border"       . "#dddddd")
-	  ("cursor"                . "#64d8cb")
-	  ("modeline-active-bg"    . "#007ac1")
-	  ("modeline-active-fg"    . "#ffffff")
-	  ("modeline-inactive-bg"  . "#e1f5fe")
-	  ("modeline-inactive-fg"  . "#616161")))
-
-
-  (load-theme 'immaterial t)
+  (load-theme 'immaterial-light t)
   ;; set a different background color for the treemacs buffer
   (add-hook 'treemacs-mode-hook
 	    (lambda () (my-set-treemacs-bg
@@ -487,6 +463,7 @@ negative)."
   (beacon-mode t))
 
 (use-package powerline
+  :disabled
   :ensure t
   :if window-system
   :config
@@ -1236,3 +1213,7 @@ if there is one)."
 ;; Output the time at which the loading of all init-hooks completed.
 (add-hook 'after-init-hook
 	  (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time))) t)
+
+(provide 'init)
+
+;;; init.el ends here
