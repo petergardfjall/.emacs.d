@@ -827,6 +827,8 @@ if there is one)."
   (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
   (setq lsp-response-timeout 5)
+  ;; temporary fix for https://github.com/emacs-lsp/lsp-mode/issues/1778
+  (setq lsp-gopls-codelens nil)
   ;; keybindings for Language Server Protocol features
   (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
   (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
