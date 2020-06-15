@@ -1124,7 +1124,9 @@ if there is one)."
 ;; opening .graphql and .gql files)
 (use-package graphql-mode
   :ensure t
-  :defer t)
+  :defer t
+  :config
+  (setq graphql-indent-level 4))
 
 ;; which-key is a minor mode for Emacs that displays the key bindings following
 ;; your currently entered incomplete command (a prefix) in a popup.
