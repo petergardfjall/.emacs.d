@@ -1072,7 +1072,7 @@ if there is one)."
   :ensure t
   :defer t
   :hook ((c-mode c++-mode objc-mode) .
-	 (lambda () (require 'ccls) (lsp)))
+	 (lambda () (require 'ccls) (lsp-deferred)))
   :config
   (message "C/C++ (ccls) config ...")
   (setq ccls-executable "/opt/bin/ccls")
