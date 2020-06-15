@@ -937,8 +937,7 @@ if there is one)."
 (use-package json-mode
   :ensure t
   :defer t
-  :mode (("\\.json\\'" . json-mode)
-	 ("\\.js\\'" . json-mode))
+  :mode (("\\.json\\'" . json-mode))
   :config
   (message "json buffer config ...")
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
@@ -1204,6 +1203,20 @@ if there is one)."
     "Interactively open a file in `org-directory`."
     (interactive)
     (counsel-find-file org-directory)))
+
+
+(use-package web-mode
+  :ensure t
+  :pin melpa-stable
+  :mode (("\\.html?\\'"  . (lambda () (web-mode) (lsp-deferred)))
+	 ("\\.js\\'"     . (lambda () (web-mode) (lsp-deferred)))
+	 ("\\.gotmpl\\'" . web-mode)
+	 ("\\.gohtml\\'" . web-mode))
+  :config
+  (message "web-mode config ...")
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
 
 
 ;;; Finalization
