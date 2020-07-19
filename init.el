@@ -884,6 +884,8 @@ if there is one)."
   :ensure t
   :defer t
   :init
+  (setq lsp-python-ms-executable
+	(executable-find "ms-python-language-server"))
   (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp-deferred)))
   :config
   ;; language server to download
