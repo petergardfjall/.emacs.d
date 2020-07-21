@@ -1113,6 +1113,15 @@ if there is one)."
   (add-hook 'c-mode-hook 'my-c-mode)
   (add-hook 'c++-mode-hook 'my-c++-mode))
 
+;; cmake setup.
+(use-package cmake-mode
+  :ensure t
+  :mode (("CMakeLists.txt\\'" . cmake-mode)
+	 ("\\.cmake\\'" . cmake-mode))
+  :config
+  ;; run cmake language server (installed separately with pip)
+  (lsp-deferred))
+
 
 ;; Java setup.
 (use-package lsp-java
