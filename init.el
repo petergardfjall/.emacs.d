@@ -1036,6 +1036,7 @@ if there is one)."
   (add-hook 'toml-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'toml-mode-hook 'my-strip-on-save-hook))
 
+
 (use-package terraform-mode
   :ensure t
   :defer t
@@ -1046,6 +1047,7 @@ if there is one)."
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'terraform-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'terraform-mode-hook 'my-strip-on-save-hook))
+
 
 (use-package protobuf-mode
   :ensure t
@@ -1058,6 +1060,7 @@ if there is one)."
   (add-hook 'protobuf-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'protobuf-mode-hook 'my-strip-on-save-hook))
 
+
 ;; Rust-mode
 (use-package rust-mode
   :ensure t
@@ -1069,33 +1072,49 @@ if there is one)."
   ;; start rust LSP server.
   (add-hook 'rust-mode-hook #'lsp-deferred))
 
-;; LSP server for C/C++17
-(use-package ccls
-  :ensure t
-  :defer t
-  :hook ((c-mode c++-mode objc-mode) .
-	 (lambda () (require 'ccls) (lsp-deferred)))
-  :config
-  (message "C/C++ (ccls) config ...")
-  (setq ccls-executable "/opt/bin/ccls")
-  ;; disable completion cache
-  (setq company-transformers nil)
-  (setq company-lsp-async t)
-  (setq company-lsp-cache-candidates nil)
-  ;; disable keymap bindings that would override lsp ones.
-  (define-key c++-mode-map (kbd "C-c C-d") nil)
-  (define-key c-mode-map (kbd "C-c C-d") nil)
-  ;; For proper operation, a .ccls or compile_commands.json file is needed in
-  ;; the project root.
-  ;; For CMake projects, a compile_commands.json is created via:
-  ;;   mkdir build
-  ;;   (cd build; cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=YES ...)
-  ;;   ln -s build/compile_commands.json
+
+(defun my-c-mode-common ()
+  "Apply common settings for 'c-mode' and 'c++-mode'."
+  (setq c-basic-offset   4
+        tab-width        4
+        indent-tabs-mode nil)
+  ;; enable use of clang-format
   (use-package clang-format
-    :ensure t)
+    :ensure t
+    :config
+    ;; style to use when calling `clang-format-buffer`
+    (setq clang-format-style "WebKit"))
+
+  ;; clangd is the default LSP server for C/C++
+  (setq lsp-clients-clangd-executable "clangd")
+  ;; extra arguments for clangd
+  (setq lsp-clients-clangd-args '("-background-index" "-log=error"))
+  ;; Note: clangd needs to know your build flags. Generate a
+  ;; compile_commands.json for this purpose using cmake or bear.
+  (lsp-deferred)
+
   ;; add buffer-local save hooks
   (add-hook 'before-save-hook 'clang-format-buffer nil t))
 
+(defun my-c-mode ()
+  "Apply settings for 'c-mode'."
+  (message "c-mode config ...")
+  (my-c-mode-common))
+
+(defun my-c++-mode ()
+  "Apply settings for 'c++-mode'."
+  (message "c++-mode config ...")
+  (my-c-mode-common))
+
+;; C and C++ setup.
+(use-package cc-mode
+  :hook cc-mode
+  :config
+  (add-hook 'c-mode-hook 'my-c-mode)
+  (add-hook 'c++-mode-hook 'my-c++-mode))
+
+
+;; Java setup.
 (use-package lsp-java
   :disabled
   :ensure t
