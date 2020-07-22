@@ -1046,6 +1046,13 @@ if there is one)."
   :config
   (message "terraform-mode config ...")
   (add-hook 'terraform-mode-hook 'display-line-numbers-mode) ; show line numbers
+
+  ;; terraform language server (installed separately).
+  ;; (setq lsp-terraform-server "terraform-lsp")
+  ;; enable terraform-lsp's own logging
+  ;; (setq lsp-terraform-enable-logging t)
+  (lsp-deferred)
+
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'terraform-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'terraform-mode-hook 'my-strip-on-save-hook))
