@@ -1077,6 +1077,8 @@ if there is one)."
   :mode (("\\.rs\\'" . rust-mode))
   :config
   (message "rust-mode config ...")
+  (setq indent-tabs-mode nil)
+  ;; automatic formatting
   (setq rust-format-on-save t)
   ;; start rust LSP server.
   (add-hook 'rust-mode-hook #'lsp-deferred))
