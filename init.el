@@ -56,6 +56,10 @@ each saved desktop.  For example,
 ;; set high (256 mb) temporarily during init
 (setq gc-cons-threshold 268435456)
 
+;; Adjust default setting default (4K) to allow emacs to read larger output
+;; chunks from processes. Language server responses can be in the order of a MB.
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+
 ;; don't run (package-initialize)
 (setq package-enable-at-startup nil)
 ;; at startup we don't want emacs to look for a handler for every opened file.
