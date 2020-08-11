@@ -301,6 +301,11 @@ negative)."
 ;;
 (defun my-general-settings ()
   "Apply appearance and general editor settings."
+
+  ;; title bar: emacs27@miniac:/dir/path
+  (setq frame-title-format
+	(concat invocation-name "@" (system-name) ":" my-emacs-start-dir))
+
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
   (setq inhibit-startup-screen t)
