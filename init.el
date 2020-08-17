@@ -622,7 +622,7 @@ negative)."
   (add-hook 'after-init-hook 'global-company-mode)
   :config
   (setq company-tooltip-limit 20) ; bigger popup window
-  (setq company-idle-delay .1)    ; decrease delay 'til completion popup shows
+  (setq company-idle-delay 0.0)    ; decrease delay 'til completion popup shows
   (setq company-echo-delay 0)     ; remove annoying blinking
   (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   ;; minimum number of letters to type before triggering autocompletion
@@ -830,10 +830,10 @@ if there is one)."
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all nil)
   ;; package used to show diagnostics
-  (setq lsp-diagnostic-package :flymake)
+  (setq lsp-diagnostics-provider :flycheck)
   ;; prefer lsp-mode's built-in complete-at-point over company-lsp if both are
   ;; present
-  (setq lsp-prefer-capf t)
+  (setq lsp-completion-provider :capf)
   ;; Set to t to have eldoc display hover info when present.
   (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
