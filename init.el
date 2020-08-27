@@ -888,19 +888,11 @@ if there is one)."
 	 ("C-c t e" . lsp-treemacs-errors-list))
   :config)
 
-;; Use microsoft's (dotnet-based) language server for python (appears to be
-;; better than the default pyls). Downloads the language server under
-;; ~/.emacs.d/mspyls.
-(use-package lsp-python-ms
+;; Use microsoft's (nodejs-based) language server for python.
+(use-package lsp-pyright
   :ensure t
-  :defer t
-  :init
-  (setq lsp-python-ms-executable
-	(executable-find "ms-python-language-server"))
-  (add-hook 'python-mode-hook (lambda () (require 'lsp-python-ms) (lsp-deferred)))
+  :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
   :config
-  ;; language server to download
-  (setq lsp-python-ms-nupkg-channel "stable")
   ;; override python-mode keybindings
   (bind-keys*
    ("C-c C-d" . lsp-describe-thing-at-point)
