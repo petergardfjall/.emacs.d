@@ -442,7 +442,7 @@ negative)."
 
 (use-package immaterial-theme
   :ensure t
-  ;;:load-path "emacs.modules/immaterial-theme"
+  :load-path "emacs.modules/immaterial-theme"
   :config
   (load-theme 'immaterial-light t)
   ;; set a different background color for the treemacs buffer
@@ -840,6 +840,10 @@ if there is one)."
   (setq lsp-response-timeout 5)
   ;; temporary fix for https://github.com/emacs-lsp/lsp-mode/issues/1778
   (setq lsp-gopls-codelens nil)
+
+  ;; file watcher should ignore any directory/file named _build
+  (push "[/\\\\]_build$" lsp-file-watch-ignored)
+
   ;; keybindings for Language Server Protocol features
   (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
   (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
@@ -888,11 +892,41 @@ if there is one)."
 	 ("C-c t e" . lsp-treemacs-errors-list))
   :config)
 
+;; Client library for Debug Adapter Protocol (DAP). Similar to LSP, but
+;; integrates with debug servers.
+;; Note: enable individual language support via `dap-<language>` packages.
+(use-package dap-mode
+  :ensure t
+  :commands (dap-debug dap-debug-edit-emplate)
+  :config
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  ;; mouse hover support
+  (dap-tooltip-mode 1)
+  ;; tooltips on mouse hover
+  (tooltip-mode 1)
+  ;; display floating panel with debug buttons
+  (dap-ui-controls-mode 1)
+
+  ;; enable/disable output to `*Messages*` buffer
+  (setq dap-print-io t)
+  ;; trigger hydra when a debugged program hits a breakpoint
+  (add-hook 'dap-stopped-hook (lambda (arg)
+				(call-interactively #'dap-hydra))))
+
+;; (use-package dap-ui
+;;   :ensure nil ;; part of dap-mode package
+;;   :after (dap-mode)
+;;   :config
+;;   (dap-ui-mode 1))
+
 ;; Use microsoft's (nodejs-based) language server for python.
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
   :config
+  ;; don't watch files in .venv
+  (push "[/\\\\]\\.venv$" lsp-file-watch-ignored)
   ;; override python-mode keybindings
   (bind-keys*
    ("C-c C-d" . lsp-describe-thing-at-point)
@@ -932,11 +966,18 @@ if there is one)."
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
   ;; NOTE: relies on gopls lsp server being on the PATH
-  (add-hook 'go-mode-hook #'lsp-deferred))
+  (add-hook 'go-mode-hook #'lsp-deferred)
+  (add-hook 'go-mode-hook (lambda () (require 'dap-go) (dap-go-setup))))
 
 (use-package flycheck-golangci-lint
   :ensure t
   :hook (go-mode . flycheck-golangci-lint-setup))
+
+;; (use-package dap-go
+;;   :ensure t
+;;   :after (go-mode)
+;;   :config
+;;   (dap-go-setup))
 
 ;; Major mode for json file editing.
 (use-package json-mode
