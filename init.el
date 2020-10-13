@@ -840,6 +840,9 @@ if there is one)."
   (setq lsp-response-timeout 5)
   ;; temporary fix for https://github.com/emacs-lsp/lsp-mode/issues/1778
   (setq lsp-gopls-codelens nil)
+  ;; do not make references in files clickable. should fix:
+  ;; https://github.com/Alexander-Miller/treemacs/issues/626
+  (setq lsp-enable-links nil)
 
   ;; file watcher should ignore any directory/file named _build
   (push "[/\\\\]_build$" lsp-file-watch-ignored)
