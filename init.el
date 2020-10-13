@@ -1298,7 +1298,6 @@ if there is one)."
   :pin melpa-stable
   :mode (("\\.html?\\'"  . (lambda () (web-mode) (lsp-deferred)))
 	 ("\\.js\\'"     . (lambda () (web-mode) (lsp-deferred)))
-	 ("\\.gotmpl\\'" . web-mode)
 	 ("\\.gohtml\\'" . web-mode))
   :config
   (message "web-mode config ...")
