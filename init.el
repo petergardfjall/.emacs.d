@@ -1250,6 +1250,13 @@ if there is one)."
 
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
+
+  ;; make windmove work in org-mode contexts where S-<arrow> is unused
+  (add-hook 'org-shiftup-final-hook 'windmove-up)
+  (add-hook 'org-shiftleft-final-hook 'windmove-left)
+  (add-hook 'org-shiftdown-final-hook 'windmove-down)
+  (add-hook 'org-shiftright-final-hook 'windmove-right)
+
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
   ;; calendar should start with Monday
