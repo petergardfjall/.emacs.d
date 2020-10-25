@@ -308,6 +308,10 @@ negative)."
 
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
+  ;; system locale for formatting time values -- ensures that weekdays in the
+  ;; org-mode timestamps appear in English.
+  (setq system-time-locale "C")
+
   (setq inhibit-startup-screen t)
   (setq column-number-mode t)
   ;; wrap long lines
@@ -1292,12 +1296,21 @@ if there is one)."
 
   ;; where to place captured notes.
   (setq org-default-notes-file (concat org-directory "/captured.org"))
-  ;; TODO: org-capture templates:
-  ;; (setq org-capture-templates
-  ;; 	'(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
-  ;;          "* TODO %?\n  %i\n  %a")
-  ;;         ("j" "Journal" entry (file+datetree "~/org/journal.org")
-  ;;          "* %?\nEntered on %U\n  %i\n  %a")))
+  ;; templates to select from on org-capture
+  ;; - "%i": initial content (marked region  when capture was called).
+  ;; - "%a": annotation, normally the link created with org-store-link.
+  ;; - "%l": like %a, but only insert literal link.
+  ;; - "%f": file visited by buffer from where org-capture was called.
+  ;; - "%F": like %f but full path.
+  ;; - "%?": after completing template, position point here.
+  (setq org-capture-templates
+	'(("w" "work" entry (file+headline "~/org/work.org" "Inbox")
+           "* TODO %?
+:PROPERTIES:
+:CAPTURED_ON: %U
+:CAPTURED_FROM: %a
+:END:
+")))
 
   (defun my-org-open ()
     "Interactively open a file in `org-directory`."
