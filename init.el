@@ -1248,6 +1248,8 @@ if there is one)."
 	 ("C-c C-d" . org-deadline))
   :config
 
+  ;; always run in org-indent-mode (level by indent rather than asterisks)
+  (setq org-startup-indented t)
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
   ;; calendar should start with Monday
