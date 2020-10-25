@@ -1234,14 +1234,18 @@ if there is one)."
   ;; lazily load when a .org file is opened
   :mode ("\\.org$" . org-mode)
   ;; set up key-bindings and lazily load package whenever either is called
-  :bind (("C-c o l" . org-store-link)
+  :bind (("C-c o o" . my-org-open)
+	 ("C-c o l" . org-store-link)
 	 ("C-c o c" . org-capture)
 	 ("C-c o a" . org-agenda)
+	 ;; key-bindings for org-mode buffers
+	 :map org-mode-map
 	 ;; x as in "check as done"
 	 ("C-c o x" . org-archive-subtree)
 	 ("C-c o >" . org-clock-in)
 	 ("C-c o <" . org-clock-out)
-	 ("C-c o o" . my-org-open))
+	 ("C-c C-s" . org-schedule)
+	 ("C-c C-d" . org-deadline))
   :config
 
   ;; agenda should start with Monday
