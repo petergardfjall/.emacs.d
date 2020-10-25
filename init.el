@@ -927,13 +927,12 @@ if there is one)."
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
+  :bind (:map python-mode-map
+	      ("C-c C-d" . lsp-describe-thing-at-point)
+	      ("C-c C-r" . lsp-rename))
   :config
   ;; don't watch files in .venv
-  (push "[/\\\\]\\.venv$" lsp-file-watch-ignored)
-  ;; override python-mode keybindings
-  (bind-keys*
-   ("C-c C-d" . lsp-describe-thing-at-point)
-   ("C-c C-r" . lsp-rename)))
+  (push "[/\\\\]\\.venv$" lsp-file-watch-ignored))
 
 (use-package python
   :mode (("\\.py\\'" . python-mode))
