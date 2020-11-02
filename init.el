@@ -1305,12 +1305,7 @@ if there is one)."
   ;; - "%?": after completing template, position point here.
   (setq org-capture-templates
 	'(("w" "work" entry (file+headline "~/org/work.org" "Inbox")
-           "* TODO %?
-:PROPERTIES:
-:CAPTURED_ON: %U
-:CAPTURED_FROM: %a
-:END:
-")))
+           "* TODO %?")))
 
   (defun my-org-open ()
     "Interactively open a file in `org-directory`."
