@@ -168,6 +168,9 @@ If this happens to be the current workspace, it is first closed."
 The first project directory to include in workspace can
 optionally be passed as FIRST-PROJECT-DIR.  If it's not passed,
 the user will be prompted."
+  (unless (string-match "^[_.0-9A-Za-z\\-]+$" name)
+    (error "A workspace name may only contain a-z, A-Z, 0-9, underscore (_), dash (-), and dot (.)"))
+
   (message "creating new workspace %s ..." name)
   (make-directory (wsp--workspace-dir name) t)
   (wsp--desktop-init name)
