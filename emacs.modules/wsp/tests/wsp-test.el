@@ -1,12 +1,33 @@
-;;; wsp-test.el --- Functions for a workspace-centric workflow.  -*- lexical-binding: t -*-
+;;; wsp-test.el -- tests for wsp.el -*- lexical-binding: t -*-
+;;
+;; Copyright © 2020 Peter Gardfjäll <peter.gardfjall@gmail.com>
+;;
+;; Author: Peter Gardfjäll <peter.gardfjall@gmail.com>
+;;
+;; Package-Requires: ((cl-lib "0.5") (treemacs "2.8") (projectile "2.2.0"))
+;;
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;;
+;;; Commentary:
+;;
+;; This file is part of wsp.el
+;;
+;;; Code:
 
-;; Package-Requires: ((cl-lib "0.5") (treemacs "2.8") (projectile "2.2.0") (buttercup "1.23"))
-
-;;(require 'buttercup)
 (require 'cl-lib)
 (require 'wsp)
-
-
 
 (defvar wsp-test-dir
   (file-name-as-directory (concat default-directory "tests")))
@@ -364,3 +385,6 @@ switched-to project."
 
   (redisplay)
   (wsp-test-end))
+
+(provide 'wsp-test)
+;;; wsp-test.el ends here

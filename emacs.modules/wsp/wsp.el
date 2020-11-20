@@ -7,8 +7,9 @@
 ;; Keywords: workspace, project
 ;; Package-Requires: ((emacs "25.2") (cl-lib "0.5") (treemacs "2.8") (projectile "2.2.0"))
 ;; Version: 0.0.1
-;; Homepage: https://github.com/petergardfjall/.emacs.d
-
+;; Homepage: https://github.com/petergardfjall/wsp
+;;
+;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -21,8 +22,10 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+;;
+;;
 ;;; Commentary:
+;;
 ;; A collection of functions and interactive commands that coordinate the use of
 ;; `treemacs`, `projectile` and `desktop-save-mode` to support a
 ;; workspace-centric workflow.
@@ -30,7 +33,7 @@
 ;; The user can manage and switch between a collection of workspaces, each of
 ;; which tracks a set of projects (directory roots).  The user can manage and
 ;; switch between projects within the workspace.
-;;
+
 ;;; Code:
 
 (require 'projectile)
