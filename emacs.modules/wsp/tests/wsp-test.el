@@ -70,6 +70,9 @@
 (defun wsp-test-buffers-not-open-p (buffer-names)
   (cl-notany #'get-buffer buffer-names))
 
+(defun wsp-treemacs-open-project-names ()
+  (cl-loop for p in (treemacs-workspace->projects (treemacs-current-workspace))
+	 collect (treemacs-project->name p)))
 
 (defun wsp-test-workspace-create ()
   (wsp-test-init)
@@ -102,6 +105,12 @@
 	     "expected workspace1 to be current workspace")
   (cl-assert (equal (wsp-project-list) '("proj1"))
 	     "expected workspace1 to contain proj1")
+
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1"))
+	     "expected treemacs to display proj1")
+
   ;; TODO: verify treemacs visible and projects in treemacs
   ;; TODO: verify projectile-known-projects
 
