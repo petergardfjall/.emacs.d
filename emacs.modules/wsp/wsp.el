@@ -165,7 +165,6 @@ If this happens to be the current workspace, it is first closed."
   (message "workspace %s loaded." name))
 
 
-
 (defun wsp--workspace-create (name &optional first-project-dir)
   "Create a workspace named NAME.
 The first project directory to include in workspace can

@@ -52,12 +52,12 @@
 
 
 (defun wsp-test-init ()
-  ;; TODO: set up code?
+  "Any code to run before a test function starts."
   )
 
 (defun wsp-test-end ()
-  (message "test done")
-  (print "test done")
+  "Any code to run when a test function ends."
+  (print "test done" #'external-debugging-output)
   (save-buffers-kill-emacs))
 
 
@@ -106,13 +106,16 @@
   (cl-assert (equal (wsp-project-list) '("proj1"))
 	     "expected workspace1 to contain proj1")
 
+  ;; verify treemacs visible
   (cl-assert (equal (treemacs-current-visibility) 'visible)
 	     "expected treemacs to be visible")
+  ;; verify treemacs projects
   (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1"))
 	     "expected treemacs to display proj1")
-
-  ;; TODO: verify treemacs visible and projects in treemacs
-  ;; TODO: verify projectile-known-projects
+  ;; verify projectile-known-projects
+  (let ((proj1-dir (abbreviate-file-name (wsp-test-project-dir "proj1"))))
+    (cl-assert (equal projectile-known-projects (list proj1-dir))
+	       "expected projectile to be aware of proj1"))
 
 
   ;;
@@ -149,6 +152,15 @@
   (cl-assert (file-exists-p (wsp-test-workspace-state-file "workspace2" "treemacs-persist"))
 	     "workspace2: no treemacs-persist at expected path")
 
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj2"))
+	     "expected treemacs to display proj2")
+  (let ((proj2-dir (abbreviate-file-name (wsp-test-project-dir "proj2"))))
+    (cl-assert (equal projectile-known-projects (list proj2-dir))
+	       "expected projectile to be aware of proj2"))
+
+
   ;; open workspace2 file 2b.txt
 
   (find-file (wsp-test-project-file "proj2" "2b.txt"))
@@ -156,9 +168,6 @@
 	     "expected proj2 to be current project")
   (cl-assert (wsp-test-buffers-open-p '("2b.txt"))
 	     "expected proj2 buffer 2b.txt to be open")
-
-  ;; TODO: verify treemacs visible and projects in treemacs
-  ;; TODO: verify projectile-known-projects
 
   (redisplay)
   (wsp-test-end))
@@ -177,6 +186,12 @@
   (cl-assert (equal (wsp-workspace-list) '("workspace1" "workspace2"))
 	     "expected workspace1 and workspace2 to exist")
 
+  (cl-assert (equal (treemacs-current-visibility) 'none)
+	     "expected treemacs to be invisible")
+  (cl-assert (equal projectile-known-projects nil)
+	     "expected projectile to be empty")
+
+
   ;;
   ;; restore workspace1
   ;;
@@ -194,9 +209,14 @@
 	     "expected proj2 buffer 2b.txt to NOT be open")
   ;; last open workspace buffer should be restored
   (cl-assert (string= (buffer-name (window-buffer)) "1a.txt"))
-
-  ;; TODO: verify treemacs visible and projects in treemacs
-  ;; TODO: verify projectile-known-projects
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1"))
+	     "expected treemacs to display proj1")
+  (let ((proj1-dir (abbreviate-file-name (wsp-test-project-dir "proj1"))))
+    (cl-assert (equal projectile-known-projects (list proj1-dir))
+	       "expected projectile to be aware of proj1"))
 
   ;;
   ;; open one more file from proj1 to ensure that saving after loading a
@@ -230,10 +250,14 @@
 	     "expected proj1 buffers 1a.txt, 3a.txt to NOT be open")
   ;; last open workspace buffer should be restored
   (cl-assert (string= (buffer-name (window-buffer)) "2b.txt"))
-
-
-  ;; TODO: verify treemacs visible and projects in treemacs
-  ;; TODO: verify projectile-known-projects
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj2"))
+	     "expected treemacs to display proj2")
+  (let ((proj2-dir (abbreviate-file-name (wsp-test-project-dir "proj2"))))
+    (cl-assert (equal projectile-known-projects (list proj2-dir))
+	       "expected projectile to be aware of proj2"))
 
   (redisplay)
   (wsp-test-end))
@@ -265,10 +289,15 @@ saved and can be restored."
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
   ;; focus should be on last open buffer
   (cl-assert (string= (buffer-name (window-buffer)) "3a.txt"))
-
-  ;; TODO: verify treemacs visible and projects in treemacs
-  ;; TODO: verify projectile-known-projects
-
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1" "proj3"))
+	     "expected treemacs to display proj1 and proj3")
+  (let ((proj1-dir (abbreviate-file-name (wsp-test-project-dir "proj1")))
+	(proj3-dir (abbreviate-file-name (wsp-test-project-dir "proj3"))))
+    (cl-assert (equal projectile-known-projects (list proj3-dir proj1-dir ))
+	       "expected projectile to be aware of proj3 and proj1"))
   (redisplay)
   (wsp-test-end))
 
@@ -284,8 +313,6 @@ saved and can be restored."
   ;; make sure the saved workspaces are detected
   (cl-assert (equal (wsp-workspace-list) '("workspace1" "workspace2"))
 	     "expected workspace1 and workspace2 to exist")
-
-
   ;;
   ;; load a workspace
   ;;
@@ -296,7 +323,15 @@ saved and can be restored."
 	     "expected workspace1 to contain proj1, proj3")
   (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt" "3a.txt"))
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
-
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1" "proj3"))
+	     "expected treemacs to display proj1 and proj3")
+  (let ((proj1-dir (abbreviate-file-name (wsp-test-project-dir "proj1")))
+	(proj3-dir (abbreviate-file-name (wsp-test-project-dir "proj3"))))
+    (cl-assert (equal projectile-known-projects (list proj3-dir proj1-dir ))
+	       "expected projectile to be aware of proj3 and proj1"))
   ;;
   ;; close workspace: should close all open workspace buffers
   ;;
@@ -306,6 +341,13 @@ saved and can be restored."
   (cl-assert (wsp-test-buffers-not-open-p '("1a.txt" "1b.txt" "3a.txt"))
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be closed after workspace close")
 
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'none)
+	     "expected treemacs to be invisible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) nil)
+	     "expected treemacs to display no projects")
+  (cl-assert (equal projectile-mode nil)
+	     "expected projectile to be deactivated")
   (redisplay)
   (wsp-test-end))
 
@@ -314,7 +356,6 @@ saved and can be restored."
   "Switching workspace should restore the new workspace buffers
 and close all buffers in the current workspace."
   (wsp-test-init)
-
   ;;
   ;; load a workspace
   ;;
@@ -325,7 +366,15 @@ and close all buffers in the current workspace."
 	     "expected workspace1 to contain proj1, proj3")
   (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt" "3a.txt"))
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
-
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1" "proj3"))
+	     "expected treemacs to display proj1 and proj3")
+  (let ((proj1-dir (abbreviate-file-name (wsp-test-project-dir "proj1")))
+	(proj3-dir (abbreviate-file-name (wsp-test-project-dir "proj3"))))
+    (cl-assert (equal projectile-known-projects (list proj3-dir proj1-dir ))
+	       "expected projectile to be aware of proj3 and proj1"))
 
   ;; switch (open another), should close all workspace1 buffers
   (wsp-workspace-open "workspace2")
@@ -339,7 +388,14 @@ and close all buffers in the current workspace."
 	     "expected workspace1 buffers to be closed after switch")
   ;; focus should be on last open workspace buffer
   (cl-assert (string= (buffer-name (window-buffer)) "2b.txt"))
-
+  ;; verify treemacs/projectile restored
+  (cl-assert (equal (treemacs-current-visibility) 'visible)
+	     "expected treemacs to be visible")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj2"))
+	     "expected treemacs to display proj2")
+  (let ((proj2-dir (abbreviate-file-name (wsp-test-project-dir "proj2"))))
+    (cl-assert (equal projectile-known-projects (list proj2-dir))
+	       "expected projectile to be aware of proj2"))
   (redisplay)
   (wsp-test-end))
 
@@ -348,7 +404,6 @@ and close all buffers in the current workspace."
   "Switching projects should set the current buffer to one in the
 switched-to project."
   (wsp-test-init)
-
   ;;
   ;; load a workspace
   ;;
@@ -361,7 +416,6 @@ switched-to project."
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
   (cl-assert (string= (buffer-name (window-buffer)) "3a.txt")
 	     "expected current buffer to be 3a.txt")
-  (message "current project: %s" (wsp-project-current))
   (cl-assert (string= (wsp-project-current) "proj3")
 	     "expected current workspace1 project to be proj3")
 
@@ -374,24 +428,70 @@ switched-to project."
   ;; should not have closed any buffers
   (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt" "3a.txt"))
 	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
-
-
   (redisplay)
   (wsp-test-end))
 
 
-;; TODO: defun wsp-test-project-close
+(defun wsp-test-project-close ()
+  "Closing a project should close all open project buffers."
+  (wsp-test-init)
+  ;;
+  ;; load a workspace
+  ;;
+  (wsp-workspace-open "workspace1")
+  (cl-assert (string= (wsp-workspace-current) "workspace1")
+	     "expected workspace1 to be current workspace")
+  (cl-assert (equal (wsp-project-list) '("proj1" "proj3"))
+	     "expected workspace1 to contain proj1, proj3")
+  (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt" "3a.txt"))
+	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
+  (cl-assert (string= (buffer-name (window-buffer)) "3a.txt")
+	     "expected current buffer to be 3a.txt")
+  (cl-assert (string= (wsp-project-current) "proj3")
+	     "expected current workspace1 project to be proj3")
+
+  ;; close the current project (proj3) and all its buffers
+  (wsp-project-close-current)
+  (cl-assert (equal (wsp-project-list) '("proj1" "proj3"))
+	     "expected workspace1 to contain proj1, proj3")
+  (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt"))
+	     "expected only proj1 buffers to be open")
+  (cl-assert (string= (buffer-name (window-buffer)) "1b.txt")
+	     "expected current buffer to be 1b.txt")
+  (cl-assert (string= (wsp-project-current) "proj1")
+	     "expected current workspace1 project to be proj1")
+  (redisplay)
+  (wsp-test-end))
+
 ;; TODO: defun wsp-test-project-close-other
 
 (defun wsp-test-workspace-delete ()
   ""
   (wsp-test-init)
-
-  ;; TODO: open
-  ;; TODO: delete current (closes current workspace)
-  ;; TODO: delete other
-
-
+  ;; open workspace
+  (wsp-workspace-open "workspace1")
+  (cl-assert (string= (wsp-workspace-current) "workspace1")
+	     "expected workspace1 to be current workspace")
+  (cl-assert (equal (wsp-project-list) '("proj1" "proj3"))
+	     "expected workspace1 to contain proj1, proj3")
+  (cl-assert (wsp-test-buffers-open-p '("1a.txt" "1b.txt" "3a.txt"))
+	     "expected buffers proj1/{1a.txt,1b.txt}, proj3/3a.txt to be open")
+  (cl-assert (string= (buffer-name (window-buffer)) "3a.txt")
+	     "expected current buffer to be 3a.txt")
+  (cl-assert (string= (wsp-project-current) "proj3")
+	     "expected current workspace1 project to be proj3")
+  ;; delete the current workspace
+  (wsp-workspace-delete "workspace1")
+  ;; should close all projects
+  (cl-assert (equal (wsp-workspace-current) nil)
+	     "expected no workspace to be open")
+  ;; should close all project buffers
+  (cl-assert (string= (wsp-workspace-current) "workspace1")
+	     "expected workspace1 to be current workspace")
+  (cl-assert (wsp-test-buffers-not-open-p '("1a.txt" "1b.txt" "3a.txt"))
+	     "expected workspace buffers to no longer be open")
+  (cl-assert (string= (buffer-name (window-buffer)) "*scratch*")
+	     "expected current buffer to be *scratch*")
   (redisplay)
   (wsp-test-end))
 
