@@ -495,5 +495,29 @@ switched-to project."
   (redisplay)
   (wsp-test-end))
 
+
+(defun wsp-test-new-workspace-with-multiple-projects ()
+  "Tests an issue where treemacs did not persist additional projects added to a newly created workspace."
+  (wsp-workspace-open "workspace3" (wsp-test-project-dir "proj1"))
+  (wsp-project-add (wsp-test-project-dir "proj3"))
+  (cl-assert (equal (wsp-project-list) '("proj1" "proj3"))
+	     "expected workspace3 to contain proj1 and proj3")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1" "proj3"))
+	     "expected treemacs to display proj1 and proj3")
+  (redisplay)
+  (wsp-test-end))
+
+(defun wsp-test-new-workspace-with-multiple-projects-restore ()
+  "Tests an issue where treemacs did not persist additional projects added to a newly created workspace."
+  (wsp-workspace-open "workspace3")
+  (cl-assert (equal (wsp-project-list) '("proj1" "proj3"))
+	     "expected workspace3 to contain proj1 and proj3")
+  (cl-assert (equal (wsp-treemacs-open-project-names) '("proj1" "proj3"))
+	     "expected treemacs to display proj1 and proj3")
+  (redisplay)
+  (wsp-test-end))
+
+
+
 (provide 'wsp-test)
 ;;; wsp-test.el ends here
