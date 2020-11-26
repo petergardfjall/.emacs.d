@@ -482,12 +482,12 @@ switched-to project."
 	     "expected current workspace1 project to be proj3")
   ;; delete the current workspace
   (wsp-workspace-delete "workspace1")
-  ;; should close all projects
+  ;; should close workspace and all projects
   (cl-assert (equal (wsp-workspace-current) nil)
 	     "expected no workspace to be open")
+  (cl-assert (equal (wsp-project-list) nil)
+	     "expected empty project list")
   ;; should close all project buffers
-  (cl-assert (string= (wsp-workspace-current) "workspace1")
-	     "expected workspace1 to be current workspace")
   (cl-assert (wsp-test-buffers-not-open-p '("1a.txt" "1b.txt" "3a.txt"))
 	     "expected workspace buffers to no longer be open")
   (cl-assert (string= (buffer-name (window-buffer)) "*scratch*")

@@ -289,14 +289,15 @@ the user will be prompted."
 (defun wsp-project-list ()
   "Return the name of each project added to the current workspace."
   (interactive)
-  (wsp--ensure-workspace-open)
 
-  (if (bound-and-true-p projectile-mode)
-      ;; note: may not be unique if we only care about the dirname
-      (let ((projects (mapcar 'file-name-nondirectory
-			      (mapcar 'directory-file-name projectile-known-projects))))
-	(sort projects 'string-lessp))
-    (error "Cannot list projects when not in projectile-mode")))
+  (if (not (wsp-workspace-current))
+      nil ;; no workspace set => empty list
+    (if (bound-and-true-p projectile-mode)
+	;; note: may not be unique if we only care about the dirname
+	(let ((projects (mapcar 'file-name-nondirectory
+				(mapcar 'directory-file-name projectile-known-projects))))
+	  (sort projects 'string-lessp))
+      (error "Cannot list projects when not in projectile-mode"))))
 
 
 (defun wsp-project-current ()
@@ -304,7 +305,8 @@ the user will be prompted."
   (interactive)
   (wsp--ensure-workspace-open)
 
-  (let ((proj-path (cl-find-if (lambda (proj) (string-prefix-p proj (buffer-file-name (current-buffer))))
+  (let ((proj-path (cl-find-if (lambda (proj)
+				 (string-prefix-p proj (buffer-file-name (window-buffer))))
 			       (wsp--projectile-known-projects-expanded))))
     (if proj-path
 	(message "%s" (wsp--basename proj-path))
