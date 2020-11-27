@@ -183,7 +183,8 @@ the user will be prompted."
   ;; prompt for a first directory of project(s) to add?
   (let ((first-proj (or first-project-dir (read-directory-name "Add first workspace project directory:"))))
     (projectile-add-known-project first-proj)
-    (treemacs-add-project-to-workspace first-proj (wsp--basename first-proj))))
+    (treemacs-add-project-to-workspace first-proj (wsp--basename first-proj)))
+  (setq wsp--first-workspace-opened t))
 
 
 (defun wsp--desktop-init (name)

@@ -10,7 +10,6 @@ test:
 	./makem.sh --sandbox=$(SANDBOX_DIR) interactive -vv -- -l tests/wsp-test.el --eval "(wsp-test-workspace-close)"
 	./makem.sh --sandbox=$(SANDBOX_DIR) interactive -vv -- -l tests/wsp-test.el --eval "(wsp-test-workspace-switch)"
 	./makem.sh --sandbox=$(SANDBOX_DIR) interactive -vv -- -l tests/wsp-test.el --eval "(wsp-test-workspace-delete)"
-
 	./makem.sh --sandbox=$(SANDBOX_DIR) interactive -vv -- -l tests/wsp-test.el --eval "(wsp-test-new-workspace-with-multiple-projects)"
 	./makem.sh --sandbox=$(SANDBOX_DIR) interactive -vv -- -l tests/wsp-test.el --eval "(wsp-test-new-workspace-with-multiple-projects-restore)"
 
