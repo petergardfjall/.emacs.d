@@ -53,9 +53,6 @@
 (defvar wsp--current-workspace nil
   "Tracks the name of the workspace currently open.")
 
-(defvar wsp--first-workspace-opened nil
-  "Indiciates if a wsp workspace has been opened during this Emacs session.
-When `t` this means that a `wsp-workspace-open switches workspace.")
 
 ;;
 ;; workspaces
@@ -73,14 +70,44 @@ prompted."
   (when (wsp-workspace-current)
     (wsp-workspace-close))
 
-  ;; TODO: validate name?
+  (unless (wsp-workspace-exists name)
+    (wsp--workspace-create name first-project-dir))
+  (wsp--workspace-init name)
+  (wsp--workspace-load name))
 
-  (if (wsp-workspace-exists name)
-      (wsp--workspace-load name)
-    (wsp--workspace-create name first-project-dir)
-    (wsp--workspace-load name))
 
-  (setq wsp--first-workspace-opened t))
+(defun wsp--workspace-create (name &optional first-project-dir)
+  "Create a workspace named NAME.
+The first project directory to include in workspace can
+optionally be passed as FIRST-PROJECT-DIR.  If it's not passed,
+the user will be prompted."
+  (unless (string-match "^[_.0-9A-Za-z\\-]+$" name)
+    (error "A workspace name may only contain a-z, A-Z, 0-9, underscore (_), dash (-), and dot (.)"))
+
+  (wsp--workspace-init name)
+  (message "creating new workspace '%s' ..." name)
+  (make-directory (wsp--workspace-dir name) t)
+
+  ;; read initial project directory
+  (let* ((proj-path (or first-project-dir
+			 (read-directory-name "Add first workspace project directory:")))
+	 (dir-name (wsp--basename proj-path))
+	 (p1 (treemacs-project->create! :name dir-name :path proj-path :path-status 'local-readable))
+	 (ws (treemacs-workspace->create! :name name :projects (list p1))))
+    ;; add first project to projectile (will also save state)
+    (projectile-add-known-project proj-path)
+    ;; create treemacs state file
+    (setq treemacs--workspaces (list ws))
+    (setf (treemacs-current-workspace) ws)
+    (put 'treemacs :state-is-restored t)
+    (treemacs--persist)))
+
+
+(defun wsp--workspace-init (name)
+  "Reset and prime libraries for being used with workspace named NAME."
+  (wsp--desktop-init name)
+  (wsp--projectile-init name)
+  (wsp--treemacs-init name))
 
 
 (defun wsp-workspace-close ()
@@ -162,33 +189,12 @@ If this happens to be the current workspace, it is first closed."
   (wsp--treemacs-activate name)
 
   (setq wsp--current-workspace name)
-  (message "workspace %s loaded." name))
-
-
-(defun wsp--workspace-create (name &optional first-project-dir)
-  "Create a workspace named NAME.
-The first project directory to include in workspace can
-optionally be passed as FIRST-PROJECT-DIR.  If it's not passed,
-the user will be prompted."
-  (unless (string-match "^[_.0-9A-Za-z\\-]+$" name)
-    (error "A workspace name may only contain a-z, A-Z, 0-9, underscore (_), dash (-), and dot (.)"))
-
-  (message "creating new workspace %s ..." name)
-  (make-directory (wsp--workspace-dir name) t)
-  (wsp--desktop-init name)
-  (wsp--projectile-init name)
-  (wsp--treemacs-init name)
-  (message "all init functions called")
-
-  ;; prompt for a first directory of project(s) to add?
-  (let ((first-proj (or first-project-dir (read-directory-name "Add first workspace project directory:"))))
-    (projectile-add-known-project first-proj)
-    (treemacs-add-project-to-workspace first-proj (wsp--basename first-proj)))
-  (setq wsp--first-workspace-opened t))
+  (message "workspace '%s' loaded." name))
 
 
 (defun wsp--desktop-init (name)
-  "Configure `desktop-save-mode` for use in workspace NAME."
+  "Disable and prepare `desktop-save-mode` for use in workspace NAME."
+  (desktop-save-mode 0)
   ;; save settings
   (let ((save-path (wsp--desktop-save-path name)))
     ;; state dir
@@ -205,29 +211,39 @@ the user will be prompted."
 
 
 (defun wsp--treemacs-init (name)
-  "Configure `treemacs` for use in workspace NAME."
-  (setq treemacs-persist-file (wsp--treemacs-statefile name)))
+  "Close any existing treemacs session and prepare `treemacs` for use in workspace NAME."
+  ;; close any existing open treemacs
+  (when (equal (treemacs-current-visibility) 'visible)
+    (delete-window (treemacs-get-local-window))
+    (kill-buffer (treemacs-get-local-buffer))
+    (treemacs--invalidate-buffer-project-cache))
+  ;; set state file
+  (setq treemacs-persist-file (wsp--treemacs-statefile name))
+  ;; mark that treemacs state has not yet been loaded
+  (put 'treemacs :state-is-restored nil))
 
 
 (defun wsp--projectile-init (name)
-  "Configure `projectile` for use in workspace NAME."
+  "Disable and prepare `projectile` for use in workspace NAME."
+  (projectile-mode 0)
   ;; projectile shouldn't automatically register known projects
   (setq projectile-track-known-projects-automatically nil)
-  ;; TODO: create a projectile file?
-  (setq projectile-known-projects-file (wsp--projectile-projects-file name)))
+  (setq projectile-known-projects-file
+	(wsp--projectile-projects-file name)))
 
 
+(defun wsp--desktop-load-hook ()
+  "To be called when a desktop is successsfully loaded."
+  (message "desktop loaded: %s" desktop-path))
 
 (defun wsp--desktop-activate (name)
-  "Enable `desktop-save-mode` in workspace NAME."
-  (wsp--desktop-init name)
+  "Activate/load `desktop-save-mode` in workspace NAME."
   (desktop-save-mode +1)
 
   ;; on successsful desktop-read
-  (add-hook 'desktop-after-read-hook
-	    (lambda () (message "desktop loaded: %s" (wsp--desktop-save-path name))))
-   ;; on unsuccesssful desktop-read: disable desktop-save-mode, since we want to
-  ;; dsiable automatic saving of desktop on exit in this case.
+  (add-hook 'desktop-after-read-hook #'wsp--desktop-load-hook)
+  ;; on failed desktop-read: disable desktop-save-mode, since we want to
+  ;; disable automatic saving of desktop on exit in this case.
   (add-hook 'desktop-not-loaded-hook
 	    (lambda ()
 	      (display-warning :warning "couldn't load desktop. disabling desktop-save-mode ...")
@@ -239,29 +255,19 @@ the user will be prompted."
 
 
 (defun wsp--projectile-activate (name)
-  "Enable `projectile` in workspace NAME."
-  (wsp--projectile-init name)
-  ;; TODO: necessary?
+  "Activate/load `projectile` in workspace NAME."
   (projectile-mode +1))
 
 
 (defun wsp--treemacs-activate (name)
-  "Enable `treemacs` in workspace NAME."
-  (wsp--treemacs-init name)
-
-  ;; restore and set treemacs' state from `treemacs-persist-file' before
-  ;; displaying `(treemacs)`.
-  (treemacs--restore)
-
-  ;; unclear why, but when switching from another workspace we appear to need to
-  ;; set the `(treemacs-current-workspace)` form.
-  (when wsp--first-workspace-opened
-    ;;(setf treemacs--workspaces (treemacs--restore))
-    (setf (treemacs-current-workspace) (car treemacs--workspaces))
-    (treemacs--invalidate-buffer-project-cache))
+  "Activate/load `treemacs` in workspace NAME."
 
   ;; move point back to current buffer after displaying treemacs
   (save-selected-window
+    ;; restore treemacs state from saved workspace file
+    (setf (treemacs-current-workspace) (car (treemacs--restore)))
+    ;; tells treemacs that state has already been restored
+    (put 'treemacs :state-is-restored t)
     (treemacs)))
 
 
@@ -320,6 +326,7 @@ the user will be prompted."
   (let (project-name (wsp--basename dir-path))
     (projectile-add-known-project dir-path)
     (treemacs-add-project-to-workspace dir-path project-name)
+    ;;(put 'treemacs :state-is-restored t)
     (treemacs--persist))
   (message "project added: %s" dir-path))
 
