@@ -72,7 +72,6 @@ prompted."
 
   (unless (wsp-workspace-exists name)
     (wsp--workspace-create name first-project-dir))
-  (wsp--workspace-init name)
   (wsp--workspace-load name))
 
 
@@ -127,19 +126,18 @@ the user will be prompted."
   ;; save treemacs state
   (treemacs--persist)
   ;; disable/close treemacs
-  (delete-window (treemacs-get-local-window))
-  (kill-buffer (treemacs-get-local-buffer))
+  (wsp--treemacs-close)
   ;; reset the treemacs workspace state
   (setq treemacs-persist-file wsp--default-treemacs-file)
-  (setf treemacs--workspaces (list (treemacs-workspace->create! :name "Default"))
-        (treemacs-current-workspace) (car treemacs--workspaces))
+  (let* ((empty-ws (treemacs-workspace->create! :name "Default")))
+    (setf treemacs--workspaces (list empty-ws))
+    (setf (treemacs-current-workspace) empty-ws))
 
   ;; disable projectile
   (projectile-mode 0)
 
   ;; set no current workspace
   (setq wsp--current-workspace nil))
-
 
 
 (defun wsp-workspace-current ()
@@ -184,6 +182,10 @@ If this happens to be the current workspace, it is first closed."
 (defun wsp--workspace-load (name)
   "Load workspace named NAME."
   (message "loading workspace %s ..." name)
+
+  ;; set up all libraries for use with workspace NAME
+  (wsp--workspace-init name)
+
   (wsp--projectile-activate name)
   (wsp--desktop-activate name)
   (wsp--treemacs-activate name)
@@ -210,13 +212,19 @@ If this happens to be the current workspace, it is first closed."
   (setq desktop-save t))
 
 
+(defun wsp--treemacs-close ()
+  "Close any existing open treemacs window."
+  (when (treemacs-get-local-window)
+    (delete-window (treemacs-get-local-window)))
+  (when (treemacs-get-local-buffer)
+    (kill-buffer (treemacs-get-local-buffer)))
+  (treemacs--invalidate-buffer-project-cache))
+
+
 (defun wsp--treemacs-init (name)
   "Close any existing treemacs session and prepare `treemacs` for use in workspace NAME."
-  ;; close any existing open treemacs
-  (when (equal (treemacs-current-visibility) 'visible)
-    (delete-window (treemacs-get-local-window))
-    (kill-buffer (treemacs-get-local-buffer))
-    (treemacs--invalidate-buffer-project-cache))
+  (wsp--treemacs-close)
+
   ;; set state file
   (setq treemacs-persist-file (wsp--treemacs-statefile name))
   ;; mark that treemacs state has not yet been loaded
