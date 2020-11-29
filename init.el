@@ -1331,6 +1331,19 @@ if there is one)."
   ;; use ruby language server (installed as a separate gem)
   (lsp-deferred))
 
+(use-package vterm
+  :ensure t
+  ;; set up key-bindings and lazily load package whenever either is called
+  :bind (("C-c t" . vterm-other-window)
+         ;; key-bindings for vterm-mode buffers
+         :map vterm-mode-map
+         ;; toggle from term input to emacs buffer (search/copy) mode
+         ("C-c C-t" . vterm-copy-mode)
+         ("C-c C-l" . vterm-clear-scrollback))
+  :config
+  (setq vterm-kill-buffer-on-exit t))
+
+
 ;;; Finalization
 
 
