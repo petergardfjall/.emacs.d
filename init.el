@@ -850,6 +850,7 @@ if there is one)."
 
   ;; file watcher should ignore any directory/file named _build
   (push "[/\\\\]_build$" lsp-file-watch-ignored)
+  (push "[/\\\\].venv$" lsp-file-watch-ignored)
 
   ;; keybindings for Language Server Protocol features
   (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
