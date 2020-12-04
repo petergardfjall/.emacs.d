@@ -448,11 +448,7 @@ negative)."
   :ensure t
   :load-path "emacs.modules/immaterial-theme"
   :config
-  (load-theme 'immaterial-light t)
-  ;; set a different background color for the treemacs buffer
-  (add-hook 'treemacs-mode-hook
-	    (lambda () (my-set-treemacs-bg
-			(immaterial-color "background-off")))))
+  (load-theme 'immaterial-light t))
 
 ;; A theme that runs on top of the existing theme to extend/highlight the
 ;; modeline buffer id with the name of the host. Can be customized via
