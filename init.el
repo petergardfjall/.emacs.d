@@ -92,13 +92,13 @@ each saved desktop.  For example,
 (defun my-untabify-on-save-hook ()
   "Register a buffer-local 'before-save-hook' to run 'generic-fmt-buffer'."
   ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'my-untabify-buffer nil t))
+  (add-hook 'before-save-hook #'my-untabify-buffer nil t))
 
 
 (defun my-strip-on-save-hook ()
   "Register a buffer-local 'before-save-hook' to run 'delete-trailing-whitespace'."
   ;; note: last argument makes this save-hook local to the buffer
-  (add-hook 'before-save-hook 'delete-trailing-whitespace nil t))
+  (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
 
 
 (defun my-close-all-buffers ()
@@ -324,7 +324,7 @@ negative)."
   ;; Allow copy/paste to/from system clipboard
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
-  (global-set-key (kbd "<mouse-2>") 'x-clipboard-yank)
+  (global-set-key (kbd "<mouse-2>") #'x-clipboard-yank)
   ;; Hide vertical scrollbar on right
   (scroll-bar-mode -1)
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
@@ -377,24 +377,24 @@ negative)."
   (global-set-key (kbd "M-t") nil) ;; transpose words
 
   ;; Comment line(s)
-  (global-set-key (kbd "C-c c") 'comment-line)
-  (global-set-key (kbd "C-c w") 'delete-trailing-whitespace)
+  (global-set-key (kbd "C-c c") #'comment-line)
+  (global-set-key (kbd "C-c w") #'delete-trailing-whitespace)
   ;; find definition of thing at point (if supported by mode)
-  (global-set-key (kbd "<M-down>") 'xref-find-definitions)
-  (global-set-key (kbd "<M-up>")   'xref-pop-marker-stack)
-  (global-set-key (kbd "C-c f d")  'xref-find-definitions)
-  (global-set-key (kbd "C-c f r")  'xref-find-references)
+  (global-set-key (kbd "<M-down>") #'xref-find-definitions)
+  (global-set-key (kbd "<M-up>")   #'xref-pop-marker-stack)
+  (global-set-key (kbd "C-c f d")  #'xref-find-definitions)
+  (global-set-key (kbd "C-c f r")  #'xref-find-references)
   ;; see if documentation can be found for thing at point
-  (global-set-key (kbd "C-c C-d")  'describe-symbol)
+  (global-set-key (kbd "C-c C-d")  #'describe-symbol)
 
   ;; Move between windows with Shift-<up|down|left|right>
   (windmove-default-keybindings)
   ;; enlarge/shrink current window vertically (on vertical split)
-  (global-set-key (kbd "C-S-<up>")    'enlarge-window)
-  (global-set-key (kbd "C-S-<down>")  'shrink-window)
+  (global-set-key (kbd "C-S-<up>")    #'enlarge-window)
+  (global-set-key (kbd "C-S-<down>")  #'shrink-window)
   ;; enlarge/shrink current window horizontally (on horizontal split)
-  (global-set-key (kbd "C-S-<right>") 'enlarge-window-horizontally)
-  (global-set-key (kbd "C-S-<left>")  'shrink-window-horizontally))
+  (global-set-key (kbd "C-S-<right>") #'enlarge-window-horizontally)
+  (global-set-key (kbd "C-S-<left>")  #'shrink-window-horizontally))
 
 (my-general-settings)
 
@@ -440,9 +440,9 @@ negative)."
   :config
   ;; increment delta (in tenths of points), so needs to be divisible by 10.
   (setq default-text-scale-amount 10)
-  (global-set-key (kbd "C-x C-+") 'default-text-scale-increase)
-  (global-set-key (kbd "C-x C--") 'default-text-scale-decrease)
-  (global-set-key (kbd "C-x C-0") 'my-set-default-font-height))
+  (global-set-key (kbd "C-x C-+") #'default-text-scale-increase)
+  (global-set-key (kbd "C-x C--") #'default-text-scale-decrease)
+  (global-set-key (kbd "C-x C-0") #'my-set-default-font-height))
 
 (use-package immaterial-theme
   :ensure t
@@ -506,9 +506,9 @@ negative)."
   ;; find-file-in-project will use ivy by default
   (setq projectile-completion-system 'ivy)
   (ivy-mode 1)
-  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+  (define-key minibuffer-local-map (kbd "C-r") #'counsel-minibuffer-history)
   ;; during search, make ivy complete to the greatest common denominator on TAB.
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial))
+  (define-key ivy-minibuffer-map (kbd "TAB") #'ivy-partial))
 
 ;; ivy-enhanced version of isearch
 (use-package swiper
@@ -537,11 +537,14 @@ negative)."
   :pin melpa-stable
   :after projectile
   :config
-  ;;
-  ;; cherry-pick commands to use (enable all via `(counsel-projectile-mode 1)`)
-  ;;
+
+  ;; ensure searches include hidden files (with a leading dot)
+  (defun my-counsel-projectile-ag ()
+    (interactive)
+    (counsel-projectile-ag "--hidden"))
+
   ;; free-text "search-in-project"
-  (define-key projectile-mode-map (kbd "C-c s p") 'counsel-projectile-ag))
+  (define-key projectile-mode-map (kbd "C-c s p") #'my-counsel-projectile-ag))
 
 ;; annotates ivy completion candidates with additional descriptions. supports
 ;; ivy-switch-buffer, counsel-M-x, counsel-describe-function and
@@ -600,12 +603,14 @@ negative)."
   )
 
 (use-package projectile
+  :ensure t
   ;; defer loading of module until this function is called *and* set up key
   ;; binding to invoke.
   :bind ([f7] . projectile-mode)
   :config
   ;; find file (in project)
-  (define-key projectile-mode-map (kbd "C-c f f")  'projectile-find-file))
+  (define-key projectile-mode-map (kbd "C-c f f") #'projectile-find-file))
+
 
 (use-package wsp
   ;;:ensure t
@@ -643,7 +648,7 @@ negative)."
   ;; minimum number of letters to type before triggering autocompletion
   (setq company-minimum-prefix-length 1)
   ;; trigger completion
-  (define-key company-mode-map (kbd "C-<tab>") 'company-complete))
+  (define-key company-mode-map (kbd "C-<tab>") #'company-complete))
 
 ;; show auto-completion candidates in popup
 (use-package company-quickhelp
@@ -657,7 +662,7 @@ negative)."
   :diminish ; don't display on modeline
   :config
   ;; show errors in current buffer
-  (define-key flycheck-mode-map (kbd "C-c s e") 'list-flycheck-errors))
+  (define-key flycheck-mode-map (kbd "C-c s e") #'list-flycheck-errors))
 
 ;; built-in on-the-fly syntax checking (use flycheck instead)
 (use-package flymake
@@ -781,7 +786,7 @@ negative)."
   ;; reuse the same *ag* buffer for all searches
   (setq ag-reuse-buffers t)
   ;; free-text "search-in-project"
-  (global-set-key (kbd "C-c s p") 'ag-project))
+  (global-set-key (kbd "C-c s p") #'ag-project))
 
 ;; Emacs frontend for GNU global/gtags to search code tags.
 ;; On a soure tree run gtags from the root. Then e.g. use
@@ -810,9 +815,9 @@ if there is one)."
       (error "Cannot generate tags without a project(ile) root dir.")))
 
   ;; "find-tag", "find-type"
-  (define-key global-map (kbd "C-c f t") 'my-ggtags-find-definition-interactive)
+  (define-key global-map (kbd "C-c f t") #'my-ggtags-find-definition-interactive)
   ;; "gtags create"
-  (define-key global-map (kbd "C-c g c") 'my-ggtags-create))
+  (define-key global-map (kbd "C-c g c") #'my-ggtags-create))
 
 ;; Enable display-line-numbers-mode whenever we are in prog-mode
 (use-package linum
@@ -867,14 +872,14 @@ if there is one)."
   (push "[/\\\\].venv$" lsp-file-watch-ignored)
 
   ;; keybindings for Language Server Protocol features
-  (define-key lsp-mode-map (kbd "<M-down>") 'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "<M-up>")   'xref-pop-marker-stack)
-  (define-key lsp-mode-map (kbd "C-c h")    'lsp-document-highlight)
-  (define-key lsp-mode-map (kbd "C-c f d")  'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "C-c f i")  'lsp-goto-implementation)
-  (define-key lsp-mode-map (kbd "C-c f r")  'lsp-find-references)
-  (define-key lsp-mode-map (kbd "C-c C-r")  'lsp-rename)
-  (define-key lsp-mode-map (kbd "C-c C-d")  'lsp-describe-thing-at-point))
+  (define-key lsp-mode-map (kbd "<M-down>") #'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "<M-up>")   #'xref-pop-marker-stack)
+  (define-key lsp-mode-map (kbd "C-c h")    #'lsp-document-highlight)
+  (define-key lsp-mode-map (kbd "C-c f d")  #'lsp-find-definition)
+  (define-key lsp-mode-map (kbd "C-c f i")  #'lsp-goto-implementation)
+  (define-key lsp-mode-map (kbd "C-c f r")  #'lsp-find-references)
+  (define-key lsp-mode-map (kbd "C-c C-r")  #'lsp-rename)
+  (define-key lsp-mode-map (kbd "C-c C-d")  #'lsp-describe-thing-at-point))
 
 
 (use-package lsp-ui
@@ -897,10 +902,10 @@ if there is one)."
   ;; show peek view even if there is only one candidate
   (setq lsp-ui-peek-always-show t)
   ;; lsp-ui specific keybindings
-  (define-key lsp-mode-map (kbd "C-c p d")  'lsp-ui-peek-find-definitions)
-  (define-key lsp-mode-map (kbd "C-c p r")  'lsp-ui-peek-find-references)
-  (define-key lsp-mode-map (kbd "C-c d")    'lsp-ui-doc-show)
-  (define-key lsp-mode-map (kbd "C-c e")    'lsp-ui-doc-hide) ; "end show"
+  (define-key lsp-mode-map (kbd "C-c p d") #'lsp-ui-peek-find-definitions)
+  (define-key lsp-mode-map (kbd "C-c p r") #'lsp-ui-peek-find-references)
+  (define-key lsp-mode-map (kbd "C-c d")   #'lsp-ui-doc-show)
+  (define-key lsp-mode-map (kbd "C-c e")   #'lsp-ui-doc-hide) ; "end show"
   )
 
 ;; treemacs LSP integration. provides a few functions to enable views:
@@ -1051,7 +1056,7 @@ if there is one)."
   :ensure t
   :after markdown-mode
   :config
-  (global-set-key (kbd "C-c p m")  'markdown-preview-mode)
+  (global-set-key (kbd "C-c p m")  #'markdown-preview-mode)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-preview-stylesheets
 	(list
