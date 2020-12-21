@@ -166,21 +166,26 @@ The location is determined from where Emacs was opened."
 (defun my-desktop-delete ()
   "Deletes the desktop save path (if it exists)."
   (interactive)
-  (desktop-save-mode 0)
-  (delete-file (my-desktop-save-path)))
+  ;; if desktop-save mode is set, remove the save path.
+  (if (bound-and-true-p desktop-save)
+    (let ((save-path (concat desktop-dirname desktop-base-file-name )))
+      (delete-file save-path)
+      (desktop-save-mode 0))
+    (error "Not in desktop-save mode")))
 
 
-(defun my-enable-desktop-save-mode ()
-  "Enable `desktop-save-mode`.
+(defun my-enable-desktop-save-mode (save-dir)
+  "Enable `desktop-save-mode` using the given SAVE-DIR as state store.
 This will load the saved desktop if one exsists, or create a new
 desktop state file if one does not exist.  If the desktop is
 already loaded by another Emacs process, a warning is printed."
-  (interactive)
-  (message "using desktop save directory: %s" (my-desktop-save-dir))
+  (interactive (list (read-directory-name "Desktop save directory: "
+					  (my-desktop-save-dir))))
+  (message "using desktop save directory: %s" save-dir)
   ;;
   ;; Save settings
   ;;
-  (setq desktop-dirname (my-desktop-save-dir)) ;; state directory
+  (setq desktop-dirname save-dir) ;; state directory
   (setq desktop-base-file-name my-desktop-save-file)  ;; state file
   (setq desktop-save t) ;; always save on exit (without prompting)
   (setq desktop-auto-save-timeout 30) ;; in seconds
@@ -422,8 +427,8 @@ negative)."
   :init
   (when (file-exists-p (my-desktop-save-path))
     (message "discovered saved desktop, enabling desktop-save-mode ...")
-    (my-enable-desktop-save-mode))
-  (global-set-key (kbd "<f6>") 'my-enable-desktop-save-mode))
+    (my-enable-desktop-save-mode (my-desktop-save-dir)))
+  (global-set-key (kbd "<f6>") (lambda () (interactive) (my-enable-desktop-save-mode (my-desktop-save-dir)))))
 
 ;;
 ;; Theme-related settings
@@ -560,6 +565,8 @@ negative)."
 		   '(:columns
 		     ;; candidate itself
 		     ((ivy-rich-candidate (:width 30))
+		      ;; show projectile project
+		      (ivy-rich-switch-buffer-project (:width 15 :face font-lock-builtin-face))
 		      ;; path relative to project root (or default-directory)
 		      (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
 		     :predicate
@@ -608,6 +615,8 @@ negative)."
   ;; binding to invoke.
   :bind ([f7] . projectile-mode)
   :config
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-mode-line-function '(lambda () (format " Proj[%s]" (projectile-project-name))))
   ;; find file (in project)
   (define-key projectile-mode-map (kbd "C-c f f") #'projectile-find-file))
 
