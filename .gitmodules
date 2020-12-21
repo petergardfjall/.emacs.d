@@ -1,3 +1,6 @@
 [submodule "elpa"]
 	path = elpa
 	url = https://github.com/petergardfjall/elpa
+[submodule "emacs.modules/emacs-wsp"]
+       path = emacs.modules/emacs-wsp
+       url = https://github.com/petergardfjall/emacs-wsp.git

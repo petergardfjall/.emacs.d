@@ -607,6 +607,21 @@ negative)."
   ;; find file (in project)
   (define-key projectile-mode-map (kbd "C-c f f")  'projectile-find-file))
 
+(use-package wsp
+  ;;:ensure t
+  :load-path "emacs.modules/emacs-wsp"
+  :bind (("C-x w o" . wsp-workspace-open))
+  :config
+  (define-key global-map (kbd "C-x w d") #'wsp-workspace-delete)
+  (define-key global-map (kbd "C-x w k") #'wsp-workspace-close)
+  (define-key global-map (kbd "C-x w c") #'wsp-workspace-current)
+  (define-key global-map (kbd "C-x p a") #'wsp-project-add)
+  (define-key global-map (kbd "C-x p d") #'wsp-project-delete)
+  (define-key global-map (kbd "C-x p s") #'wsp-project-switch)
+  (define-key global-map (kbd "C-x p c") #'wsp-project-close)
+  (define-key global-map (kbd "C-x p k") #'wsp-project-close-current)
+  (define-key global-map (kbd "C-x p K") #'wsp-project-close-other))
+
 ;; Transparent Remote Access, Multiple Protocols -- edit remote files
 (use-package tramp
   :defer 5 ;; wait 5 seconds before loading
@@ -824,6 +839,9 @@ if there is one)."
   (message "lsp-mode config ...")
   ;; automatically find detect and configure lsp-ui and company-lsp
   (setq lsp-auto-configure t)
+  ;; kill an LSP server when there are no open buffers
+  (setq lsp-keep-workspace-alive nil)
+
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
   (setq lsp-log-io nil)
   ;; Define whether all of the returned by document/onHover will be displayed.
