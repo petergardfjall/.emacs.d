@@ -875,6 +875,8 @@ if there is one)."
   ;; do not make references in files clickable. should fix:
   ;; https://github.com/Alexander-Miller/treemacs/issues/626
   (setq lsp-enable-links nil)
+  ;; don't show file path breadcrumb at top of window
+  (setq lsp-headerline-breadcrumb-enable nil)
 
   ;; file watcher should ignore any directory/file named _build
   (push "[/\\\\]_build$" lsp-file-watch-ignored)
