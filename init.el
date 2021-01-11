@@ -334,8 +334,8 @@ negative)."
   (scroll-bar-mode -1)
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
   (tool-bar-mode -1)
-  ;; Display line numbers (toggle with M-x display-line-numbers-mode)
-  (global-display-line-numbers-mode -1)
+  ;; Toggle line numbers with M-x display-line-numbers-mode
+  (global-display-line-numbers-mode 1)
 
   ;; highlight the current line
   (global-hl-line-mode t)
@@ -1060,6 +1060,8 @@ if there is one)."
   :config
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
+  ; show line numbers
+  (add-hook 'markdown-mode-hook 'display-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
 
