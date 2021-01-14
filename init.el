@@ -733,8 +733,8 @@ negative)."
   (setq treemacs-missing-project-action 'ask)
   ;; use textual icons
   (setq treemacs-no-png-images t)
-  ;; keep only the current project expanded and all others closed.
-  (setq treemacs-project-follow-cleanup t)
+  ;; if true: keep only the current project expanded and all others closed.
+  (setq treemacs-project-follow-cleanup nil)
   ;; path where workspace state (all added projects) is saved (a separate
   ;; treemacs state file is kept for each location where emacs is opened --
   ;; assumed to be project root most of the time):
