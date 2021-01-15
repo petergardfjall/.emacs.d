@@ -335,7 +335,7 @@ negative)."
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
   (tool-bar-mode -1)
   ;; Toggle line numbers with M-x display-line-numbers-mode
-  (global-display-line-numbers-mode 1)
+  (global-display-line-numbers-mode -1)
 
   ;; highlight the current line
   (global-hl-line-mode t)
