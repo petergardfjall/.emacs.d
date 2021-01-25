@@ -69,10 +69,10 @@ each saved desktop.  For example,
 ;; re-set temporarily disabled features once init is complete.
 (add-hook 'after-init-hook
           (lambda ()
-	    ;; set sensible GC threshold.
+            ;; set sensible GC threshold.
             (setq gc-cons-threshold gc-cons-threshold-custom)
-	    ;; re-enable file handler associations.
-	    (setq file-name-handler-alist file-name-handler-alist-default)))
+            ;; re-enable file handler associations.
+            (setq file-name-handler-alist file-name-handler-alist-default)))
 
 ;;
 ;; Utility functions
@@ -127,8 +127,8 @@ each saved desktop.  For example,
   ;; calculate delta between current face height and default font height and
   ;; apply difference.
   (let* ((font-height (face-attribute 'default :height))
-	 (default-font-height (truncate (* 10 my-font-size)))
-	 (delta-to-default (- default-font-height font-height)))
+         (default-font-height (truncate (* 10 my-font-size)))
+         (delta-to-default (- default-font-height font-height)))
     (default-text-scale-increment delta-to-default)))
 
 
@@ -145,7 +145,7 @@ result will be the current working directory."
   (if (my-vcs-dir-p my-emacs-start-dir)
       ;; determine project root
       (let ((vc-backend (vc-responsible-backend my-emacs-start-dir)))
-	(vc-call-backend vc-backend 'root my-emacs-start-dir))
+        (vc-call-backend vc-backend 'root my-emacs-start-dir))
     my-emacs-start-dir))
 
 
@@ -180,7 +180,7 @@ This will load the saved desktop if one exsists, or create a new
 desktop state file if one does not exist.  If the desktop is
 already loaded by another Emacs process, a warning is printed."
   (interactive (list (read-directory-name "Desktop save directory: "
-					  (my-desktop-save-dir))))
+                                          (my-desktop-save-dir))))
   (message "using desktop save directory: %s" save-dir)
   ;;
   ;; Save settings
@@ -213,9 +213,9 @@ already loaded by another Emacs process, a warning is printed."
   ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
   ;; another process)
   (add-hook 'desktop-not-loaded-hook
-	    (lambda ()
-	      (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
-	      (desktop-save-mode 0))))
+            (lambda ()
+              (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
+              (desktop-save-mode 0))))
 
 
 (defun my-toggle-treemacs ()
@@ -226,7 +226,7 @@ width is sufficiently large."
   (treemacs)
   (when (display-graphic-p)
     (when (and (eq (treemacs-current-visibility) 'visible)
-	       (< (frame-width) my-treemacs-min-width))
+               (< (frame-width) my-treemacs-min-width))
       (set-frame-width (selected-frame) my-treemacs-min-width))))
 
 
@@ -234,8 +234,8 @@ width is sufficiently large."
   "Set COLOR as background color for the treemacs buffer."
   (with-current-buffer (treemacs-get-local-buffer)
     (setq-local face-remapping-alist
-		`((default . (:background ,color))
-		  (fringe  . (:background ,color))))))
+                `((default . (:background ,color))
+                  (fringe  . (:background ,color))))))
 
 
 (defun my-color-lighten (hex-color percent)
@@ -245,18 +245,18 @@ PERCENT percent brighter (or darker if percent value is
 negative)."
   (interactive "sHex color: \nnPercent brighter/darker (-): ")
   (let ((color-transform-fn (if (> percent 0)
-				'color-lighten-hsl
-			      'color-darken-hsl))
-	(percent-unsigned (abs percent)))
+                                'color-lighten-hsl
+                              'color-darken-hsl))
+        (percent-unsigned (abs percent)))
     (message "%s"
      (apply 'color-rgb-to-hex
-	    (append
-	     (apply 'color-hsl-to-rgb
-		    (apply color-transform-fn
-			   (append
-			    (apply 'color-rgb-to-hsl (color-name-to-rgb hex-color))
-			    (list percent-unsigned))))
-	     (list 2))))))
+            (append
+             (apply 'color-hsl-to-rgb
+                    (apply color-transform-fn
+                           (append
+                            (apply 'color-rgb-to-hsl (color-name-to-rgb hex-color))
+                            (list percent-unsigned))))
+             (list 2))))))
 
 
 ;;
@@ -273,17 +273,17 @@ negative)."
 ;; Note that packages will always be picked from melpa unless specifically
 ;; pinned to use melpa-stable due to versioning schemes (20190101-1200 > 2.4).
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
-	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives
-	     '("org" . "http://orgmode.org/elpa/") t)
+             '("org" . "http://orgmode.org/elpa/") t)
 
 ;; Install any uninstalled "base" packages.
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
-	   when (not (package-installed-p p)) do (cl-return nil)
-	   finally (cl-return t)))
+           when (not (package-installed-p p)) do (cl-return nil)
+           finally (cl-return t)))
 
 (unless (my-packages-installed-p)
   ;; check for new package versions
@@ -309,7 +309,7 @@ negative)."
 
   ;; title bar: emacs27@miniac:/dir/path
   (setq frame-title-format
-	(concat invocation-name "@" (system-name) ":" my-emacs-start-dir))
+        (concat invocation-name "@" (system-name) ":" my-emacs-start-dir))
 
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
@@ -362,12 +362,12 @@ negative)."
 
   ;; centralize emacs backups (avoid littering with files ending in `~`).
   (setq make-backup-files t    ; yes, we want backups
-	backup-directory-alist '(("." . "~/.emacs.d/backup"))
-	backup-by-copying t    ; Don't delink hardlinks
-	version-control t      ; Use version numbers on backups
-	delete-old-versions t  ; Automatically delete excess backups
-	kept-new-versions 20   ; how many of the newest versions to keep
-	kept-old-versions 5)   ; and how many of the old
+        backup-directory-alist '(("." . "~/.emacs.d/backup"))
+        backup-by-copying t    ; Don't delink hardlinks
+        version-control t      ; Use version numbers on backups
+        delete-old-versions t  ; Automatically delete excess backups
+        kept-new-versions 20   ; how many of the newest versions to keep
+        kept-old-versions 5)   ; and how many of the old
 
   ;; Show matching paranthesis
   (setq show-paren-delay 0)
@@ -529,11 +529,11 @@ negative)."
   ;; cherry-pick commands to use (rather than applying all with `counsel-mode`).
   ;;
   :bind (("M-x"     . counsel-M-x)
-	 ("C-x C-f" . counsel-find-file)
-	 ;; list faces
-	 ("C-c l f" . counsel-faces)
-	 ("C-h v"   . counsel-describe-variable)
-	 ("C-h f"   . counsel-describe-function)))
+         ("C-x C-f" . counsel-find-file)
+         ;; list faces
+         ("C-c l f" . counsel-faces)
+         ("C-h v"   . counsel-describe-variable)
+         ("C-h f"   . counsel-describe-function)))
 
 ;; uses ivy to improve projectile. For example, freetext search in project via
 ;; `counsel-projectile-ag`.
@@ -561,16 +561,16 @@ negative)."
   :config
   ;; change appearance of `ivy-switch-buffer` colums
   (setq ivy-rich-display-transformers-list
-	(plist-put ivy-rich-display-transformers-list 'ivy-switch-buffer
-		   '(:columns
-		     ;; candidate itself
-		     ((ivy-rich-candidate (:width 30))
-		      ;; show projectile project
-		      (ivy-rich-switch-buffer-project (:width 15 :face font-lock-builtin-face))
-		      ;; path relative to project root (or default-directory)
-		      (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
-		     :predicate
-		     (lambda (cand) (get-buffer cand)))))
+        (plist-put ivy-rich-display-transformers-list 'ivy-switch-buffer
+                   '(:columns
+                     ;; candidate itself
+                     ((ivy-rich-candidate (:width 30))
+                      ;; show projectile project
+                      (ivy-rich-switch-buffer-project (:width 15 :face font-lock-builtin-face))
+                      ;; path relative to project root (or default-directory)
+                      (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
+                     :predicate
+                     (lambda (cand) (get-buffer cand)))))
 
   (ivy-rich-mode 1))
 
@@ -602,11 +602,11 @@ negative)."
   (global-undo-tree-mode)
   :bind
   (:map undo-tree-map
-	("C-x u" . undo)
-	("C-z" . undo-tree-undo)
-	("C-Z" . undo-tree-redo)
-	;; show undo tree (can select state and press 'q')
-	("C-c u t" . undo-tree-visualize))
+        ("C-x u" . undo)
+        ("C-z" . undo-tree-undo)
+        ("C-Z" . undo-tree-redo)
+        ;; show undo tree (can select state and press 'q')
+        ("C-c u t" . undo-tree-visualize))
   )
 
 (use-package projectile
@@ -683,7 +683,7 @@ negative)."
   :disabled
   :diminish
   :hook ((prog-mode . flyspell-prog-mode)
-	 (text-mode . flyspell-mode)))
+         (text-mode . flyspell-mode)))
 
 ;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
@@ -746,15 +746,15 @@ negative)."
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode t)
   (pcase (cons (not (null (executable-find "git")))
-	       (not (null (executable-find "python3"))))
+               (not (null (executable-find "python3"))))
     (`(t . t)
      (treemacs-git-mode 'deferred))
     (`(t . _)
      (treemacs-git-mode 'simple)))
   :bind
   (:map global-map
-	;; hide/show treemacs file explorer
-	("<f8>" . my-toggle-treemacs)))
+        ;; hide/show treemacs file explorer
+        ("<f8>" . my-toggle-treemacs)))
 
 
 ;; Quickly add your projectile projects to the treemacs workspace.
@@ -837,7 +837,7 @@ if there is one)."
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
 (use-package sh-script
   :mode (("\\.sh\\'" . sh-mode)
-	 ("\\.env\\'" . sh-mode))
+         ("\\.env\\'" . sh-mode))
   :config
   ;; use bash-language-server (installed separately via npm)
   (lsp-deferred)
@@ -927,7 +927,7 @@ if there is one)."
   ;; defer loading of module until any of these functions are called *and* set
   ;; up key bindings to invoke them.
   :bind (("C-c t s" . lsp-treemacs-symbols)
-	 ("C-c t e" . lsp-treemacs-errors-list))
+         ("C-c t e" . lsp-treemacs-errors-list))
   :config)
 
 ;; Client library for Debug Adapter Protocol (DAP). Similar to LSP, but
@@ -950,7 +950,7 @@ if there is one)."
   (setq dap-print-io t)
   ;; trigger hydra when a debugged program hits a breakpoint
   (add-hook 'dap-stopped-hook (lambda (arg)
-				(call-interactively #'dap-hydra))))
+                                (call-interactively #'dap-hydra))))
 
 ;; (use-package dap-ui
 ;;   :ensure nil ;; part of dap-mode package
@@ -963,8 +963,8 @@ if there is one)."
   :ensure t
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
   :bind (:map python-mode-map
-	      ("C-c C-d" . lsp-describe-thing-at-point)
-	      ("C-c C-r" . lsp-rename))
+              ("C-c C-d" . lsp-describe-thing-at-point)
+              ("C-c C-r" . lsp-rename))
   :config
   ;; don't watch files in .venv
   (push "[/\\\\]\\.venv$" lsp-file-watch-ignored))
@@ -1036,7 +1036,7 @@ if there is one)."
   :ensure t
   :defer t
   :mode (("\\.yaml\\'" . yaml-mode)
-	 ("\\.yml\\'" . yaml-mode))
+         ("\\.yml\\'" . yaml-mode))
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
@@ -1054,8 +1054,8 @@ if there is one)."
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . gfm-mode)
-	 ;; cheat sheets under ~/dotfiles/cheat/sheets
-	 ("\\.cheat\\'" . markdown-mode))
+         ;; cheat sheets under ~/dotfiles/cheat/sheets
+         ("\\.cheat\\'" . markdown-mode))
   :init (setq markdown-command "pandoc")
   :config
   ;; no tabs for indentation
@@ -1072,19 +1072,19 @@ if there is one)."
   (global-set-key (kbd "C-c p m")  #'markdown-preview-mode)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-preview-stylesheets
-	(list
-	 ;; style very similar to github's for markdown rendering
-	 "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
-	 ;; style that adds some margins
-	 "https://petergardfjall.github.io/css/emacs-markdown/github-markdown-body.css"
-	 ;; style for syntax highlighting of fenced codeblocks
-	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"))
+        (list
+         ;; style very similar to github's for markdown rendering
+         "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css"
+         ;; style that adds some margins
+         "https://petergardfjall.github.io/css/emacs-markdown/github-markdown-body.css"
+         ;; style for syntax highlighting of fenced codeblocks
+         "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"))
   (setq markdown-preview-javascript
-	(list
-	 ;; javascript lib for syntax highlighting of fenced code blocks
-	 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
-	 ;; javascript that applies the highlight js lib to the doc
-	 "https://petergardfjall.github.io/js/emacs-markdown/github-markdown-block-highlight.js")))
+        (list
+         ;; javascript lib for syntax highlighting of fenced code blocks
+         "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
+         ;; javascript that applies the highlight js lib to the doc
+         "https://petergardfjall.github.io/js/emacs-markdown/github-markdown-block-highlight.js")))
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
@@ -1209,7 +1209,7 @@ if there is one)."
 (use-package cmake-mode
   :ensure t
   :mode (("CMakeLists.txt\\'" . cmake-mode)
-	 ("\\.cmake\\'" . cmake-mode))
+         ("\\.cmake\\'" . cmake-mode))
   :config
   ;; run cmake language server (installed separately with pip)
   (lsp-deferred))
@@ -1304,11 +1304,11 @@ if there is one)."
   ;; can also be configured per file with `#+STARTUP`.
   (setq org-startup-folded nil)
   (setq org-emphasis-alist '(("*" bold)
-			     ("/" italic)
-			     ("_" underline)
-			     ("=" org-verbatim verbatim)
-			     ("~" org-code verbatim)
-			     ("+" (:strike-through t))))
+                             ("/" italic)
+                             ("_" underline)
+                             ("=" org-verbatim verbatim)
+                             ("~" org-code verbatim)
+                             ("+" (:strike-through t))))
 
   ;; default location to look for org files.
   (setq org-directory "~/org")
@@ -1323,7 +1323,7 @@ if there is one)."
 
   ;; possible workflow states (use S-{left,right} to move throught states)
   (setq org-todo-keywords '((sequence "TODO" "STARTED" "BLOCKED"
-				      "|" "DONE")))
+                                      "|" "DONE")))
   ;; capture timestamp when a TODO changes state to DONE.
   (setq org-log-done 'time)
 
@@ -1337,7 +1337,7 @@ if there is one)."
   ;; - "%F": like %f but full path.
   ;; - "%?": after completing template, position point here.
   (setq org-capture-templates
-	'(("w" "work" entry (file+headline "~/org/work.org" "Inbox")
+        '(("w" "work" entry (file+headline "~/org/work.org" "Inbox")
            "* TODO %?")))
 
   (defun my-org-open ()
@@ -1350,8 +1350,8 @@ if there is one)."
   :ensure t
   :pin melpa-stable
   :mode (("\\.html?\\'"  . (lambda () (web-mode) (lsp-deferred)))
-	 ("\\.js\\'"     . (lambda () (web-mode) (lsp-deferred)))
-	 ("\\.gohtml\\'" . web-mode))
+         ("\\.js\\'"     . (lambda () (web-mode) (lsp-deferred)))
+         ("\\.gohtml\\'" . web-mode))
   :config
   (message "web-mode config ...")
   (setq web-mode-markup-indent-offset 2)
@@ -1385,7 +1385,7 @@ if there is one)."
 
 ;; Output the time at which the loading of all init-hooks completed.
 (add-hook 'after-init-hook
-	  (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time))) t)
+          (lambda () (message "init-hooks done after %.3fs." (my-elapsed-time))) t)
 
 (provide 'init)
 
