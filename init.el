@@ -1321,7 +1321,7 @@ if there is one)."
   ;; default location to look for org files.
   (setq org-directory "~/org")
   ;; files to include when compiling the agenda.
-  (setq org-agenda-files '("~/org/work.org"))
+  (setq org-agenda-files '("~/org/work.org" "~/org/archive.org"))
   ;; location to store archived entries/subtrees. Items are placed under
   ;; H1-headlines "From FILE" where `FILE` is the file from where entry was
   ;; archived.
