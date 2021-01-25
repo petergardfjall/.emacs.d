@@ -1272,27 +1272,35 @@ if there is one)."
   :mode ("\\.org$" . org-mode)
   ;; set up key-bindings and lazily load package whenever either is called
   :bind (("C-c o o" . my-org-open)
-	 ("C-c o l" . org-store-link)
-	 ("C-c o c" . org-capture)
-	 ("C-c o a" . org-agenda)
-	 ;; key-bindings for org-mode buffers
-	 :map org-mode-map
-	 ;; x as in "check as done"
-	 ("C-c o x" . org-archive-subtree)
-	 ("C-c o >" . org-clock-in)
-	 ("C-c o <" . org-clock-out)
-	 ("C-c C-s" . org-schedule)
-	 ("C-c C-d" . org-deadline))
-  :config
+         ("C-c o l" . org-store-link)
+         ("C-c o c" . org-capture)
+         ("C-c o a" . org-agenda)
+         ;; key-bindings for org-mode buffers
+         :map org-mode-map
+         ;; x as in "check as done"
+         ("C-c o x" . org-archive-subtree)
+         ("C-c o >" . org-clock-in)
+         ("C-c o <" . org-clock-out)
+         ("C-c C-s" . org-schedule)
+         ("C-c C-d" . org-deadline)
+	 :map org-read-date-minibuffer-local-map
+	 ;; keep shift-<cursor> mappings when seleting a date
+	 ("<S-right>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-forward-day 1))))
+	 ("<S-left>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-backward-day 1))))
+	 ("<S-up>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-backward-week 1))))
+	 ("<S-down>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-forward-week 1)))))
+  :init
+  ;; disable S-<cursor> shortcuts to prevent conflicts with windmove.
+  ;; see https://orgmode.org/manual/Conflicts.html
+  (setq org-replace-disputed-keys t)
+  (setq org-disputed-keys   '(([(shift up)]    . [(meta +)])   ;; prio up
+                              ([(shift down)]  . [(meta -)])   ;; prio down
+                              ([(shift left)]  . [(meta <)])   ;; prev TODO
+                              ([(shift right)] . [(meta >)]))) ;; next TODO
 
+  :config
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
-
-  ;; make windmove work in org-mode contexts where S-<arrow> is unused
-  (add-hook 'org-shiftup-final-hook 'windmove-up)
-  (add-hook 'org-shiftleft-final-hook 'windmove-left)
-  (add-hook 'org-shiftdown-final-hook 'windmove-down)
-  (add-hook 'org-shiftright-final-hook 'windmove-right)
 
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
