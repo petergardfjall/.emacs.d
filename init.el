@@ -1294,6 +1294,11 @@ if there is one)."
          ("C-c o <" . org-clock-out)
          ("C-c C-s" . org-schedule)
          ("C-c C-d" . org-deadline))
+  :init
+  ;; extend the org-mode markup by having text surrounded by backticks "`"
+  ;; display with verbatim face
+  (font-lock-add-keywords 'org-mode
+    '(("`[^\n\r\t]+`" 0 'org-verbatim prepend)) 'append)
   :config
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
