@@ -258,6 +258,13 @@ negative)."
                             (list percent-unsigned))))
              (list 2))))))
 
+(defun my-enable-line-numbers-mode ()
+  "Enable display-line-numbers-mode in buffer."
+  (display-line-numbers-mode 1))
+
+(defun my-disable-line-numbers-mode ()
+  "Disable display-line-numbers-mode in buffer."
+  (display-line-numbers-mode -1))
 
 ;;
 ;; Start of actual initialization.
@@ -334,8 +341,12 @@ negative)."
   (scroll-bar-mode -1)
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
   (tool-bar-mode -1)
-  ;; Toggle line numbers with M-x display-line-numbers-mode
-  (global-display-line-numbers-mode -1)
+
+  ;; enable line numbers in all text-mode/prog-mode buffers
+  (add-hook 'text-mode-hook    #'my-enable-line-numbers-mode)
+  (add-hook 'prog-mode-hook    #'my-enable-line-numbers-mode)
+  ;; disable line numbers in special mode buffers (magit, treemacs)
+  (add-hook 'special-mode-hook #'my-disable-line-numbers-mode)
 
   ;; highlight the current line
   (global-hl-line-mode t)
@@ -833,11 +844,6 @@ if there is one)."
   ;; "gtags create"
   (define-key global-map (kbd "C-c g c") #'my-ggtags-create))
 
-;; Enable display-line-numbers-mode whenever we are in prog-mode
-(use-package linum
-  :ensure t
-  :defer t
-  :hook ((prog-mode) . display-line-numbers-mode))
 
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
 (use-package sh-script
@@ -1030,8 +1036,6 @@ if there is one)."
   (message "json buffer config ...")
   (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (add-hook 'json-mode-hook 'display-line-numbers-mode) ; show line numbers
-
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'json-mode-hook 'my-strip-on-save-hook))
@@ -1045,7 +1049,6 @@ if there is one)."
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
-  (add-hook 'yaml-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'yaml-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'yaml-mode-hook 'my-strip-on-save-hook))
@@ -1065,8 +1068,6 @@ if there is one)."
   :config
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
-  ; show line numbers
-  (add-hook 'markdown-mode-hook 'display-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
 
@@ -1097,7 +1098,6 @@ if there is one)."
   :defer t
   :mode (("\\.vcl\\'" . vcl-mode))
   :config
-  (add-hook 'vcl-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'vcl-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'vcl-mode-hook 'my-strip-on-save-hook))
@@ -1108,7 +1108,6 @@ if there is one)."
   :defer t
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
-  (add-hook 'dockerfile-mode-hook 'display-line-numbers-mode) ; show line numbers
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'dockerfile-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'dockerfile-mode-hook 'my-strip-on-save-hook))
@@ -1119,7 +1118,7 @@ if there is one)."
   :defer t
   :mode (("\\.toml\\'" . toml-mode))
   :config
-  (add-hook 'toml-mode-hook 'display-line-numbers-mode) ; show line numbers
+  (add-hook 'toml-mode-hook #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'toml-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'toml-mode-hook 'my-strip-on-save-hook))
@@ -1131,8 +1130,6 @@ if there is one)."
   :mode (("\\.tf\\'" . terraform-mode))
   :config
   (message "terraform-mode config ...")
-  (add-hook 'terraform-mode-hook 'display-line-numbers-mode) ; show line numbers
-
   ;; terraform language server (installed separately).
   ;; (setq lsp-terraform-server "terraform-lsp")
   ;; enable terraform-lsp's own logging
@@ -1150,7 +1147,7 @@ if there is one)."
   :mode (("\\.proto\\'" . protobuf-mode))
   :config
   (message "protobuf-mode config ...")
-  (add-hook 'protobuf-mode-hook 'display-line-numbers-mode) ; show line numbers
+  (add-hook 'protobuf-mode-hook  #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'protobuf-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'protobuf-mode-hook 'my-strip-on-save-hook))
