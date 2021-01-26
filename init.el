@@ -408,14 +408,19 @@ negative)."
   (global-set-key (kbd "C-x w <up>")    #'windmove-up)
   (global-set-key (kbd "C-x w <down>")  #'windmove-down)
   (global-set-key (kbd "C-x w <right>") #'windmove-right)
-  (global-set-key (kbd "C-x w <left>")  #'windmove-left))
+  (global-set-key (kbd "C-x w <left>")  #'windmove-left)
 
+  ;; TODO: hydra for enlarge-window
   ;; enlarge/shrink current window vertically (on vertical split)
-  (global-set-key (kbd "C-S-<up>")    #'enlarge-window)
-  (global-set-key (kbd "C-S-<down>")  #'shrink-window)
+  ;; (global-set-key (kbd "C-S-<up>")    #'enlarge-window)
+  ;; (global-set-key (kbd "C-S-<down>")  #'shrink-window)
   ;; enlarge/shrink current window horizontally (on horizontal split)
-  (global-set-key (kbd "C-S-<right>") #'enlarge-window-horizontally)
-  (global-set-key (kbd "C-S-<left>")  #'shrink-window-horizontally))
+  ;; (global-set-key (kbd "C-S-<right>") #'enlarge-window-horizontally)
+  ;; (global-set-key (kbd "C-S-<left>")  #'shrink-window-horizontally))
+  )
+
+
+
 
 (my-general-settings)
 
@@ -1004,6 +1009,10 @@ if there is one)."
   :ensure t
   :defer t
   :mode (("\\.go\\'" . go-mode))
+  :init
+  ;; any comment with a leading TODO is displayed with warning face
+  (font-lock-add-keywords 'go-mode
+    '(("// +\\(TODO\\)" 1 'font-lock-negation-char-face prepend)) 'append)
   :config
   (message "go-mode config ...")
   ;; run gofmt (or actually, goimports) on save
