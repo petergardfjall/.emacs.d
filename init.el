@@ -380,6 +380,7 @@ negative)."
   ;; unbind unneeded/disturbing keybindings
   (global-set-key (kbd "C-t") nil) ;; transpose characters
   (global-set-key (kbd "M-t") nil) ;; transpose words
+  (global-set-key (kbd "M-h") nil) ;; mark-paragraph
 
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") #'comment-line)
@@ -392,8 +393,12 @@ negative)."
   ;; see if documentation can be found for thing at point
   (global-set-key (kbd "C-c C-d")  #'describe-symbol)
 
-  ;; Move between windows with Shift-<up|down|left|right>
-  (windmove-default-keybindings)
+  ;; Move between windows with C-x w <up|down|left|right>
+  (global-set-key (kbd "C-x w <up>")    #'windmove-up)
+  (global-set-key (kbd "C-x w <down>")  #'windmove-down)
+  (global-set-key (kbd "C-x w <right>") #'windmove-right)
+  (global-set-key (kbd "C-x w <left>")  #'windmove-left))
+
   ;; enlarge/shrink current window vertically (on vertical split)
   (global-set-key (kbd "C-S-<up>")    #'enlarge-window)
   (global-set-key (kbd "C-S-<down>")  #'shrink-window)
@@ -1282,22 +1287,7 @@ if there is one)."
          ("C-c o >" . org-clock-in)
          ("C-c o <" . org-clock-out)
          ("C-c C-s" . org-schedule)
-         ("C-c C-d" . org-deadline)
-	 :map org-read-date-minibuffer-local-map
-	 ;; keep shift-<cursor> mappings when seleting a date
-	 ("<S-right>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-forward-day 1))))
-	 ("<S-left>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-backward-day 1))))
-	 ("<S-up>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-backward-week 1))))
-	 ("<S-down>" . (lambda () (interactive) (org-eval-in-calendar '(calendar-forward-week 1)))))
-  :init
-  ;; disable S-<cursor> shortcuts to prevent conflicts with windmove.
-  ;; see https://orgmode.org/manual/Conflicts.html
-  (setq org-replace-disputed-keys t)
-  (setq org-disputed-keys   '(([(shift up)]    . [(meta +)])   ;; prio up
-                              ([(shift down)]  . [(meta -)])   ;; prio down
-                              ([(shift left)]  . [(meta <)])   ;; prev TODO
-                              ([(shift right)] . [(meta >)]))) ;; next TODO
-
+         ("C-c C-d" . org-deadline))
   :config
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
