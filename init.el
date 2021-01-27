@@ -761,6 +761,9 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   :ensure t
   :defer t
   :config
+  ;; disable treemacs workspace keymap (C-c C-w ..): conflicts with hydra
+  (setq treemacs-mode-map (make-sparse-keymap))
+
   (setq treemacs-indentation 2)
   (setq treemacs-indentation-string " ")
   (setq treemacs-missing-project-action 'ask)
