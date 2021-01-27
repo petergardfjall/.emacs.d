@@ -1310,7 +1310,7 @@ if there is one)."
   ;; extend the org-mode markup by having text surrounded by backticks "`"
   ;; display with verbatim face
   (font-lock-add-keywords 'org-mode
-    '(("`[^\n\r\t]+`" 0 'org-verbatim prepend)) 'append)
+    '(("`[^`\n\r\t]+`" 0 'org-verbatim prepend)) 'append)
   :config
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
