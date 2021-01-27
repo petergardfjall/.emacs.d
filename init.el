@@ -408,16 +408,7 @@ negative)."
   (global-set-key (kbd "C-x w <up>")    #'windmove-up)
   (global-set-key (kbd "C-x w <down>")  #'windmove-down)
   (global-set-key (kbd "C-x w <right>") #'windmove-right)
-  (global-set-key (kbd "C-x w <left>")  #'windmove-left)
-
-  ;; TODO: hydra for enlarge-window
-  ;; enlarge/shrink current window vertically (on vertical split)
-  ;; (global-set-key (kbd "C-S-<up>")    #'enlarge-window)
-  ;; (global-set-key (kbd "C-S-<down>")  #'shrink-window)
-  ;; enlarge/shrink current window horizontally (on horizontal split)
-  ;; (global-set-key (kbd "C-S-<right>") #'enlarge-window-horizontally)
-  ;; (global-set-key (kbd "C-S-<left>")  #'shrink-window-horizontally))
-  )
+  (global-set-key (kbd "C-x w <left>")  #'windmove-left))
 
 
 
@@ -656,6 +647,27 @@ negative)."
   (define-key global-map (kbd "C-x p c") #'wsp-project-close)
   (define-key global-map (kbd "C-x p k") #'wsp-project-close-current)
   (define-key global-map (kbd "C-x p K") #'wsp-project-close-other))
+
+
+;; allows definition of hydras - families of commands with a common prefix
+(use-package hydra
+  :ensure t
+  :config
+
+  ;; window navigation/resizing hydra
+  (defhydra hydra-windows (:hint nil)
+    "
+windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
+    ("<left>"    windmove-left)
+    ("<right>"   windmove-right)
+    ("<up>"      windmove-up)
+    ("<down>"    windmove-down)
+    ("S-<left>"  shrink-window-horizontally)
+    ("S-<right>" enlarge-window-horizontally)
+    ("S-<up>"    enlarge-window)
+    ("S-<down>"  shrink-window)
+    ("q"         nil))
+  (define-key global-map (kbd "C-c C-w") 'hydra-windows/body))
 
 ;; Transparent Remote Access, Multiple Protocols -- edit remote files
 (use-package tramp
