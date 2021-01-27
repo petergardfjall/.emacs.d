@@ -1243,13 +1243,13 @@ if there is one)."
 
 ;; Java setup.
 (use-package lsp-java
-  :disabled
   :ensure t
   :defer t
-  :init
-  (add-hook 'java-mode-hook (lambda () (require 'lsp-java) (lsp-deferred)))
+  :hook (java-mode . (lambda () (require 'lsp-java) (lsp-deferred)))
+  :bind (:map java-mode-map
+	      ;; conflicts with hydra-windows
+              ("C-c C-w" . nil))
   :config
-  (message "lsp-java config ...")
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil)
   ;; disable keymap bindings that would override lsp ones.
