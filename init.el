@@ -760,10 +760,11 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 (use-package treemacs
   :ensure t
   :defer t
+  :bind (:map treemacs-mode-map
+	      ;; disable treemacs workspace keymap (C-c C-w ..), since it
+	      ;; conflicts with hydra-windows
+	      ("C-c C-w" . nil))
   :config
-  ;; disable treemacs workspace keymap (C-c C-w ..): conflicts with hydra
-  (setq treemacs-mode-map (make-sparse-keymap))
-
   (setq treemacs-indentation 2)
   (setq treemacs-indentation-string " ")
   (setq treemacs-missing-project-action 'ask)
@@ -1248,12 +1249,12 @@ if there is one)."
   :hook (java-mode . (lambda () (require 'lsp-java) (lsp-deferred)))
   :bind (:map java-mode-map
 	      ;; conflicts with hydra-windows
-              ("C-c C-w" . nil))
+              ("C-c C-w" . nil)
+	      ;; conflicts with describe-symbol/lsp-describe-thing-at-point
+	      ("C-c C-d" . nil))
   :config
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil)
-  ;; disable keymap bindings that would override lsp ones.
-  (define-key java-mode-map (kbd "C-c C-d") nil)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'java-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'java-mode-hook 'my-strip-on-save-hook))
