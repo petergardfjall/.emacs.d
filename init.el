@@ -266,6 +266,12 @@ negative)."
   "Disable display-line-numbers-mode in buffer."
   (display-line-numbers-mode -1))
 
+(defun my-enable-orgtbl-mode ()
+  "Enable orgtbl-mode. orgtbl-mode is a minor mode that makes
+Org-modes table editor commands available."
+  (require 'org)
+  (orgtbl-mode 1))
+
 ;;
 ;; Start of actual initialization.
 ;;
@@ -1311,6 +1317,8 @@ if there is one)."
          ("C-c C-s" . org-schedule)
          ("C-c C-d" . org-deadline))
   :init
+  ;; make org-mode table editor available in text-mode (or derived modes)
+  (add-hook 'text-mode-hook #'my-enable-orgtbl-mode)
   ;; extend the org-mode markup by having text surrounded by backticks "`"
   ;; display with verbatim face
   (font-lock-add-keywords 'org-mode
