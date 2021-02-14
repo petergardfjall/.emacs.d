@@ -1071,6 +1071,14 @@ if there is one)."
   (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'json-mode-hook 'my-strip-on-save-hook))
 
+;; Major mode for JavaScript and React/JSX (built-into Emacs).
+;; `js-mode` comes with syntax highlighting/indent support for JSX.
+(use-package js
+  :mode (("\\.js\\'" . (lambda () (js-mode) (lsp-deferred)))
+	 ("\\.jsx\\'" . (lambda () (js-mode) (lsp-deferred))))
+  :config
+  (setq js-indent-level 2))
+
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
   :ensure t
@@ -1379,17 +1387,6 @@ if there is one)."
     (counsel-find-file org-directory)))
 
 
-(use-package web-mode
-  :ensure t
-  :pin melpa-stable
-  :mode (("\\.html?\\'"  . (lambda () (web-mode) (lsp-deferred)))
-         ("\\.js\\'"     . (lambda () (web-mode) (lsp-deferred)))
-         ("\\.gohtml\\'" . web-mode))
-  :config
-  (message "web-mode config ...")
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
 
 (use-package ruby-mode
   :mode (("\\.rb\\'"  . ruby-mode))
