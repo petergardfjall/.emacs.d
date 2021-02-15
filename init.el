@@ -1069,7 +1069,9 @@ if there is one)."
   :mode (("\\.json\\'" . json-mode))
   :config
   (message "json buffer config ...")
-  (setq indent-tabs-mode nil js-indent-level 4) ; use 4 space indentation
+  (setq
+   indent-tabs-mode nil
+   js-indent-level 2) ; use 2 space indentation
   (setq indent-tabs-mode nil) ; no tabs for indentation
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
@@ -1081,7 +1083,10 @@ if there is one)."
   :mode (("\\.js\\'" . (lambda () (js-mode) (lsp-deferred)))
 	 ("\\.jsx\\'" . (lambda () (js-mode) (lsp-deferred))))
   :config
-  (setq js-indent-level 2))
+  (message "js buffer config ...")
+  (setq
+   indent-tabs-mode nil
+   js-indent-level 2))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
