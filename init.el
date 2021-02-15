@@ -386,6 +386,10 @@ Org-modes table editor commands available."
         kept-new-versions 20   ; how many of the newest versions to keep
         kept-old-versions 5)   ; and how many of the old
 
+  ;; don't create lockfiles for buffers being edited (`.#<file>`) as it
+  ;; interferes with hot reloading in reactjs.
+  (setq create-lockfiles nil)
+
   ;; Show matching paranthesis
   (setq show-paren-delay 0)
   (show-paren-mode 1)
