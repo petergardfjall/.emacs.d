@@ -1088,6 +1088,12 @@ if there is one)."
    indent-tabs-mode nil
    js-indent-level 2))
 
+;; Enable the Prettier code-formatter's minor mode to format on save whenever we
+;; edit JavaSciprt/JSX.  https://prettier.io/.
+(use-package prettier
+  :ensure t
+  :hook ((js-mode . prettier-mode)))
+
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
   :ensure t
