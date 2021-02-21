@@ -1302,9 +1302,9 @@ if there is one)."
 ;; opening .graphql and .gql files)
 (use-package graphql-mode
   :ensure t
-  :defer t
-  :config
-  (setq graphql-indent-level 4))
+  :mode (("\\.gql\\'" . graphql-mode)
+         ("\\.graphql\\'" . graphql-mode))
+  :hook ((graphql-mode . prettier-mode)))
 
 ;; which-key is a minor mode for Emacs that displays the key bindings following
 ;; your currently entered incomplete command (a prefix) in a popup.
