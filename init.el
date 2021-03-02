@@ -272,6 +272,11 @@ Org-modes table editor commands available."
   (require 'org)
   (orgtbl-mode 1))
 
+(defun my-highlight-todos ()
+  "Mark occurences of TODO with warning face."
+  (font-lock-add-keywords nil
+    '(("\\(TODO\\)" 1 'font-lock-warning-face prepend)) 'append))
+
 ;;
 ;; Start of actual initialization.
 ;;
@@ -353,6 +358,8 @@ Org-modes table editor commands available."
   (add-hook 'prog-mode-hook    #'my-enable-line-numbers-mode)
   ;; disable line numbers in special mode buffers (magit, treemacs)
   (add-hook 'special-mode-hook #'my-disable-line-numbers-mode)
+
+  (add-hook 'prog-mode-hook #'my-highlight-todos)
 
   ;; highlight the current line
   (global-hl-line-mode t)
@@ -1034,10 +1041,6 @@ if there is one)."
   :ensure t
   :defer t
   :mode (("\\.go\\'" . go-mode))
-  :init
-  ;; any comment with a leading TODO is displayed with warning face
-  (font-lock-add-keywords 'go-mode
-    '(("// +\\(TODO\\)" 1 'font-lock-negation-char-face prepend)) 'append)
   :config
   (message "go-mode config ...")
   ;; run gofmt (or actually, goimports) on save
