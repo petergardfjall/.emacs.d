@@ -14,6 +14,8 @@
 ;; Declarations
 ;;
 
+(defvar my-frame-width 85
+  "Initial width of Emacs frame.")
 (defvar my-treemacs-min-width 120
   "Minimum frame width when treemacs is enabled (in characters).")
 (defvar my-font "DejaVu Sans Mono"
@@ -375,7 +377,7 @@ Org-modes table editor commands available."
   (blink-cursor-mode 0)
   ;; set initial frame width (in characters)
   (if (display-graphic-p)
-      (setq initial-frame-alist '((width . normal-width) )))
+      (setq initial-frame-alist `((width . ,my-frame-width))))
   ;; automatically revert current buffer when visited file changes on disk
   (global-auto-revert-mode)
 
