@@ -893,7 +893,7 @@ if there is one)."
          ("\\.env\\'" . sh-mode))
   :config
   ;; use bash-language-server (installed separately via npm)
-  (lsp-deferred)
+  ;; (lsp-deferred)
   (add-hook 'sh-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
 
