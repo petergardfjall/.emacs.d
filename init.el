@@ -1208,7 +1208,7 @@ if there is one)."
   :mode (("\\.proto\\'" . protobuf-mode))
   :config
   (message "protobuf-mode config ...")
-  (add-hook 'protobuf-mode-hook  #'my-enable-line-numbers-mode)
+  (add-hook 'protobuf-mode-hook #'my-highlight-todos)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'protobuf-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'protobuf-mode-hook 'my-strip-on-save-hook))
