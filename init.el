@@ -1160,8 +1160,8 @@ if there is one)."
   :mode (("\\.vcl\\'" . vcl-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'vcl-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'vcl-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'vcl-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'vcl-mode-hook #'my-strip-on-save-hook))
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
@@ -1170,8 +1170,8 @@ if there is one)."
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'dockerfile-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'dockerfile-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'dockerfile-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'dockerfile-mode-hook #'my-strip-on-save-hook))
 
 ;; TOML editing
 (use-package toml-mode
@@ -1181,8 +1181,8 @@ if there is one)."
   :config
   (add-hook 'toml-mode-hook #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'toml-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'toml-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'toml-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'toml-mode-hook #'my-strip-on-save-hook))
 
 
 (use-package terraform-mode
@@ -1198,8 +1198,8 @@ if there is one)."
   (lsp-deferred)
 
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'terraform-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'terraform-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'terraform-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'terraform-mode-hook #'my-strip-on-save-hook))
 
 
 (use-package protobuf-mode
@@ -1209,9 +1209,10 @@ if there is one)."
   :config
   (message "protobuf-mode config ...")
   (add-hook 'protobuf-mode-hook #'my-highlight-todos)
+  (add-hook 'protobuf-mode-hook #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'protobuf-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'protobuf-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'protobuf-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'protobuf-mode-hook #'my-strip-on-save-hook))
 
 
 ;; Rust-mode
@@ -1249,7 +1250,7 @@ if there is one)."
   (lsp-deferred)
 
   ;; add buffer-local save hooks
-  (add-hook 'before-save-hook 'clang-format-buffer nil t))
+  (add-hook 'before-save-hook #'clang-format-buffer nil t))
 
 (defun my-c-mode ()
   "Apply settings for 'c-mode'."
@@ -1265,8 +1266,8 @@ if there is one)."
 (use-package cc-mode
   :hook cc-mode
   :config
-  (add-hook 'c-mode-hook 'my-c-mode)
-  (add-hook 'c++-mode-hook 'my-c++-mode))
+  (add-hook 'c-mode-hook   #'my-c-mode)
+  (add-hook 'c++-mode-hook #'my-c++-mode))
 
 ;; cmake setup.
 (use-package cmake-mode
@@ -1292,8 +1293,8 @@ if there is one)."
   ;; disable completion cache
   (setq company-lsp-cache-candidates nil)
   ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'java-mode-hook 'my-untabify-on-save-hook)
-  (add-hook 'java-mode-hook 'my-strip-on-save-hook))
+  (add-hook 'java-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'java-mode-hook #'my-strip-on-save-hook))
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
