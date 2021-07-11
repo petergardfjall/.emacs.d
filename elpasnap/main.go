@@ -370,7 +370,7 @@ func main() {
 		existing, ok := existingPkgs[pkg.Name]
 		if ok {
 			// if an earlier version of the package existed: upgrade
-			execOrDie("git", "rm", "-rf", existing.DirName)
+			execOrDie("git", "rm", "-rf", "--ignore-unmatch", existing.DirName)
 			commitMsg += existing.DirName + " -> "
 			// if also among deleted packages, we can ignore that
 			pkgUpdates = filterOut(pkgUpdates, pkg.Name)
