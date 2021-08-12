@@ -49,7 +49,7 @@ func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 
 	flag.StringVar(&packageDir, "package-dir", DefaultPackageDir, "The emacs package.el installation directory.")
-	flag.BoolVar(&pullUpdates, "pull-updates", DefaultPullUpdates, "If true, pull remote changes before recordinglocal changes as commits.")
+	flag.BoolVar(&pullUpdates, "pull-updates", DefaultPullUpdates, "If true, pull remote changes before recording local changes as commits.")
 }
 
 // GitStatus represents an output line from 'git status --porcelain'.
@@ -57,6 +57,14 @@ type GitStatus struct {
 	State string `json:"State"`
 	Path  string `json:"Path"`
 	IsDir bool   `json:"IsDir"`
+}
+
+func (s GitStatus) Added() bool {
+	return s.State == "??"
+}
+
+func (s GitStatus) Deleted() bool {
+	return s.State == "D"
 }
 
 func (s GitStatus) String() string {
@@ -137,14 +145,22 @@ func NewPkgUpdate(p Pkg) *PkgUpdate {
 }
 
 func (p *PkgUpdate) WithStatus(s GitStatus) *PkgUpdate {
-	switch s.State {
-	case "??":
+	if s.Added() {
 		p.Added = true
-	case "D":
+	}
+	if s.Deleted() {
 		p.Deleted = true
 	}
 
 	return p
+}
+
+func (p PkgUpdate) String() string {
+	data, err := json.Marshal(p)
+	if err != nil {
+		return fmt.Sprintf("%#v", p)
+	}
+	return string(data)
 }
 
 func (p Pkg) String() string {
@@ -155,11 +171,13 @@ func (p Pkg) String() string {
 	return string(data)
 }
 
-// determines the existing (version-controlled) list of packages in the package
+// Determines the existing (version-controlled) packages in the package
 // directory, by finding all root-level directories that are valid package
-// names.
-func listExistingPackages() (map[PkgName]Pkg, error) {
-	pkgs := make(map[PkgName]Pkg)
+// names. Although unusual, there has been cases where there are multiple
+// directories for a package. For example, there could be both
+// `company-20210618.2105` and `company-20210709.1110` for `company`.
+func listExistingPackages() (map[PkgName][]Pkg, error) {
+	pkgs := make(map[PkgName][]Pkg)
 
 	trackedPaths, err := exec("git", "ls-tree", "-r", "--name-only", "HEAD")
 	if err != nil {
@@ -167,18 +185,44 @@ func listExistingPackages() (map[PkgName]Pkg, error) {
 	}
 
 	// only care for root-level directories with valid package names
-	for _, path := range trackedPaths {
-		if !hasRootDir(path) {
-			continue
-		}
-		pkg, err := PkgFromDirName(rootDir(path))
+	for _, dir := range uniqueRootDirs(trackedPaths) {
+		pkg, err := PkgFromDirName(dir)
 		if err != nil {
+			// ignore invalid package names
 			continue
 		}
-		pkgs[PkgName(pkg.Name)] = pkg
+		pkgVersions := pkgs[pkg.Name]
+		pkgVersions = append(pkgVersions, pkg)
+		pkgs[pkg.Name] = pkgVersions
 	}
 
 	return pkgs, nil
+}
+
+// from a list of paths, return all unique root dirs. For example,
+// calling with
+//
+//    a/1.txt
+//    a/b/2.txt
+//    c/d/3.txt
+//    c/d/e/4.txt
+//
+// would yield ["a", "c"].
+func uniqueRootDirs(paths []string) (dirs []string) {
+	seen := make(map[string]bool)
+
+	for _, path := range paths {
+		if !hasRootDir(path) {
+			continue
+		}
+		rootDir := rootDir(path)
+		if _, ok := seen[rootDir]; ok {
+			continue
+		}
+		dirs = append(dirs, rootDir)
+		seen[rootDir] = true
+	}
+	return dirs
 }
 
 // returns true if the path has a top-level directory, such as
@@ -315,6 +359,11 @@ func pullRemoteChangesAndRebase() {
 	}
 }
 
+func prettyJSON(v interface{}) string {
+	data, _ := json.MarshalIndent(v, "", "   ")
+	return string(data)
+}
+
 func printUpdates(updates []*PkgUpdate) {
 	if len(updates) == 0 {
 		log.Debug().Msg("no updates.")
@@ -345,6 +394,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Msgf("failed to list existing package dirs: %v", err)
 	}
+	log.Debug().Msgf("existing packages:\n%s", prettyJSON(existingPkgs))
 
 	pkgUpdates := getPkgUpdates()
 	numUpdates := len(pkgUpdates)
@@ -361,6 +411,7 @@ func main() {
 		log.Fatal().Msgf("failed to use hostname as branch name: %v", err)
 	}
 
+	// create/reset master branch
 	execOrDie("git", "checkout", "-B", localBranch, "origin/master")
 
 	// record added packages
@@ -369,12 +420,16 @@ func main() {
 		var commitMsg string
 		existing, ok := existingPkgs[pkg.Name]
 		if ok {
-			// if an earlier version of the package existed: upgrade
-			execOrDie("git", "rm", "-rf", "--ignore-unmatch", existing.DirName)
-			commitMsg += existing.DirName + " -> "
-			// if also among deleted packages, we can ignore that
-			pkgUpdates = filterOut(pkgUpdates, pkg.Name)
+			// earlier version(s) of the package exists: upgrade
+			for _, old := range existing {
+				execOrDie("git", "rm", "-rf", "--ignore-unmatch", old.DirName)
+				commitMsg += old.DirName + " "
+				// if also among deleted packages, we can ignore that
+				pkgUpdates = filterOut(pkgUpdates, pkg.Name)
+			}
+			commitMsg += "-> "
 		} else {
+			// new package introduced
 			commitMsg += "new: "
 		}
 		execOrDie("git", "add", pkg.DirName)
