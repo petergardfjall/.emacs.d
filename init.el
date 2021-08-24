@@ -18,8 +18,9 @@
   "Initial width of Emacs frame.")
 (defvar my-treemacs-min-width 120
   "Minimum frame width when treemacs is enabled (in characters).")
-(defvar my-font "DejaVu Sans Mono"
-  "Text font to use (for example, `Ubuntu Mono`).")
+(defvar my-font "Roboto Mono"
+  "Text font to use.
+For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
 (defvar my-font-size 10.5 "Font size to use in points (for example, 10.5).")
 
 (defvar my-packages
