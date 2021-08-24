@@ -1100,7 +1100,8 @@ if there is one)."
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
 (use-package prettier
   :ensure t
-  :hook ((js-mode . prettier-mode)))
+  :hook ((js-mode . prettier-mode)
+	 (yaml-mode . prettier-mode)))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
