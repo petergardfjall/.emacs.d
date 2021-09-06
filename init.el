@@ -909,6 +909,7 @@ if there is one)."
   (setq lsp-keep-workspace-alive nil)
 
   ;; If non-nil, print all messages to/from lang server in *lsp-log*.
+  ;; Note: comes at a high performance cost.
   (setq lsp-log-io nil)
   ;; Define whether all of the returned by document/onHover will be displayed.
   ;; If set to nil eldoc will show only the symbol information.
@@ -918,6 +919,9 @@ if there is one)."
   ;; prefer lsp-mode's built-in complete-at-point over company-lsp if both are
   ;; present
   (setq lsp-completion-provider :capf)
+  (setq lsp-completion-show-detail t)
+  (setq lsp-completion-use-last-result t)
+  (setq lsp-completion-no-cache nil)
   ;; Set to t to have eldoc display hover info when present.
   (setq lsp-eldoc-enable-hover nil)
   ;; Seconds to wait for a response from the language server before timing out.
@@ -930,9 +934,9 @@ if there is one)."
   ;; don't show file path breadcrumb at top of window
   (setq lsp-headerline-breadcrumb-enable nil)
 
-  ;; file watcher should ignore any directory/file named _build
-  (push "[/\\\\]_build$" lsp-file-watch-ignored)
-  (push "[/\\\\].venv$" lsp-file-watch-ignored)
+  ;; file-watcher ignored directories
+  (push "[/\\\\]_build$" lsp-file-watch-ignored-directories)
+  (push "[/\\\\].venv$" lsp-file-watch-ignored-directories)
 
   ;; keybindings for Language Server Protocol features
   (define-key lsp-mode-map (kbd "<M-down>") #'lsp-find-definition)
