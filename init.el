@@ -705,19 +705,17 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   :init
   (add-hook 'after-init-hook 'global-company-mode)
   :config
-  (setq company-tooltip-limit 20) ; bigger popup window
-  (setq company-idle-delay 0.0)    ; decrease delay 'til completion popup shows
+  (setq company-tooltip-limit 15) ; bigger popup window
+  (setq company-idle-delay 0)     ; decrease delay 'til completion popup shows
   (setq company-echo-delay 0)     ; remove annoying blinking
   (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   ;; minimum number of letters to type before triggering autocompletion
   (setq company-minimum-prefix-length 1)
+  ;; align annotations (e.g. function signatures) to the right tooltip border
+  (setq company-tooltip-align-annotations t)
   ;; trigger completion
   (define-key company-mode-map (kbd "C-<tab>") #'company-complete))
 
-;; show auto-completion candidates in popup
-(use-package company-quickhelp
-  :ensure t
-  :hook (company-quickhelp-mode))
 
 ;; On-the-fly syntax checking (support for different languages)
 (use-package flycheck
