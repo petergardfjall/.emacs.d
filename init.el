@@ -883,7 +883,11 @@ if there is one)."
   ;; "find-tag", "find-type"
   (define-key global-map (kbd "C-c f t") #'my-ggtags-find-definition-interactive)
   ;; "gtags create"
-  (define-key global-map (kbd "C-c g c") #'my-ggtags-create))
+  (define-key global-map (kbd "C-c g c") #'my-ggtags-create)
+
+  ;; interferes with beginning/end of buffer key bindings
+  (define-key ggtags-navigation-map (kbd "M->") nil)
+  (define-key ggtags-navigation-map (kbd "M-<") nil))
 
 
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
