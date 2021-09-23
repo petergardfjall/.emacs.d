@@ -6,6 +6,9 @@
 func Test$0(t *testing.T) {
 	tests := []struct {
 		name string
+
+		wantErr bool
+		expectedErr error
 	}{
 		{
 			name: "TODO",

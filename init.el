@@ -488,7 +488,7 @@ Org-modes table editor commands available."
   :ensure t
   :load-path "emacs.modules/immaterial-theme"
   :config
-  (load-theme 'immaterial-light t))
+  (load-theme 'immaterial-dark t))
 
 ;; A theme that runs on top of the existing theme to extend/highlight the
 ;; modeline buffer id with the name of the host. Can be customized via
@@ -741,7 +741,8 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
 ;; associated with yas-expand (TAB by default) to have the snippet expanded. To
-;; see available snippets: M-x yas-describe-tables
+;; see available snippets: M-x yas-describe-tables.
+;; Custom (per-mode) snippets can be placed under ~/.emacs.d/snippets/.
 (use-package yasnippet
   :ensure t
   :defer 2
