@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: tt
+# key: tt
+# contributor : @petergardfjall
+# --
+func Test$0(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "TODO",
+		},
+	}
+
+	for _, test := range tests {
+		tc := test // don't close over loop variable
+		t.Run(tc.name, func(t *testing.T) {
+
+		})
+	}
+}
