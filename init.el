@@ -78,7 +78,7 @@ each saved desktop.  For example,
             (setq file-name-handler-alist file-name-handler-alist-default)))
 
 ;; suppress warnings from asynchronous native compilation
-(setq comp-async-report-warnings-errors nil)
+(setq native-comp-async-report-warnings-errors nil)
 
 ;;
 ;; Utility functions
