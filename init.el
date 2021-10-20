@@ -1438,6 +1438,22 @@ if there is one)."
   :config
   (setq vterm-kill-buffer-on-exit t))
 
+;; a package for making screencasts within Emacs.
+(use-package gif-screencast
+  :ensure t
+  :bind (("C-c s s" . gif-screencast-start-or-stop)
+	 ("C-c s p" . gif-screencast-toggle-pause))
+  :config
+  (setq gif-screencast-program "scrot")
+  (setq gif-screencast-output-directory (expand-file-name "~/.emacs.d/screencasts")))
+
+;; enable through `keycast-mode` or `keycast-log-mode`
+(use-package keycast
+  :ensure t
+  :defer t)
+
+
+
 
 ;;; Finalization
 
