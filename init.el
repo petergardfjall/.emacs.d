@@ -1025,7 +1025,12 @@ if there is one)."
   (add-hook 'dap-stopped-hook
 	    (lambda (arg) (call-interactively #'dap-hydra)))
 
-  (require 'dap-python))
+  (require 'dap-python)
+  ;; seems to be required in order for dap-mode to find pyenv-provided python
+  ;; executable. see:
+  ;; https://github.com/emacs-lsp/dap-mode/issues/126#issuecomment-754282754
+  (defun dap-python--pyenv-executable-find (command)
+    (executable-find command)))
 
 
 ;; (use-package dap-ui
