@@ -1030,7 +1030,11 @@ if there is one)."
   ;; executable. see:
   ;; https://github.com/emacs-lsp/dap-mode/issues/126#issuecomment-754282754
   (defun dap-python--pyenv-executable-find (command)
-    (executable-find command)))
+    (executable-find command))
+
+  ;; Note: if debugging test files: use "Go Launch File Configuration"
+  ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
+  (require 'dap-go))
 
 
 ;; (use-package dap-ui
