@@ -283,6 +283,11 @@ Org-modes table editor commands available."
   (font-lock-add-keywords nil
     '(("\\(TODO\\)" 1 'font-lock-warning-face prepend)) 'append))
 
+(defun my-byte-offset ()
+  "Report the byte offset (0-indexed) at point (cursor position)."
+  (interactive)
+  (message "byte offset: %d" (1- (position-bytes (point)))))
+
 ;;
 ;; Start of actual initialization.
 ;;
