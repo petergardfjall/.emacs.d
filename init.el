@@ -675,6 +675,12 @@ Org-modes table editor commands available."
   (define-key global-map (kbd "C-x p k") #'wsp-project-close-current)
   (define-key global-map (kbd "C-x p K") #'wsp-project-close-other))
 
+(use-package postrace
+  ;;:ensure t
+  :load-path "emacs.modules/postrace"
+  :bind (("C-c p p" . postrace-push)
+	 ("C-c p b" . postrace-browse)))
+
 
 ;; allows definition of hydras - families of commands with a common prefix
 (use-package hydra
@@ -1008,6 +1014,7 @@ if there is one)."
   ;; mouse hover support
   (dap-tooltip-mode 1)
   ;; tooltips on mouse hover
+  ;; if it is not enabled `dap-mode` will use the minibuffer.
   (tooltip-mode 1)
   ;; display floating panel with debug buttons
   (dap-ui-controls-mode 1)
@@ -1015,8 +1022,11 @@ if there is one)."
   ;; enable/disable output to `*Messages*` buffer
   (setq dap-print-io t)
   ;; trigger hydra when a debugged program hits a breakpoint
-  (add-hook 'dap-stopped-hook (lambda (arg)
-                                (call-interactively #'dap-hydra))))
+  (add-hook 'dap-stopped-hook
+	    (lambda (arg) (call-interactively #'dap-hydra)))
+
+  (require 'dap-python))
+
 
 ;; (use-package dap-ui
 ;;   :ensure nil ;; part of dap-mode package
@@ -1024,7 +1034,7 @@ if there is one)."
 ;;   :config
 ;;   (dap-ui-mode 1))
 
-;; Use microsoft's (nodejs-based) language server for python.
+;; Use microsoft's (nodejs-based) `pyright` language server for python.
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
