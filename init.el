@@ -364,6 +364,11 @@ Org-modes table editor commands available."
   ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
   (tool-bar-mode -1)
 
+  ;; No sudden jumps when cursor moves off top/bottom of screen. If the value is
+  ;; greater than 100, redisplay will never recenter point, but will always
+  ;; scroll just enough text to bring point into view
+  ;; (setq scroll-conservatively 101)
+
   ;; enable line numbers in all text-mode/prog-mode buffers
   (add-hook 'text-mode-hook    #'my-enable-line-numbers-mode)
   (add-hook 'prog-mode-hook    #'my-enable-line-numbers-mode)
