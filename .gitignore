@@ -11,3 +11,8 @@ desktops/
 projectile-bookmarks.eld
 treemacs/
 wsp/
+
+# straight.el: installed packages
+straight/build
+straight/build-cache.el
+straight/repos

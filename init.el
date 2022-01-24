@@ -7,6 +7,8 @@
 
 ;;; Code:
 
+(message "Loaded early-init.el after %.3fs." my-early-init-duration)
+
 ;; Time for starting to load this file.
 (defconst emacs-start-time (current-time))
 
@@ -22,26 +24,6 @@
   "Text font to use.
 For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
 (defvar my-font-size 10.5 "Font size to use in points (for example, 10.5).")
-
-(defvar my-packages
-  '(use-package)
-  "A list of packages that will be installed at launch (unless present).
-This list is intentionally kept to a bare minimum.  Most packages
-are installed via `use-package` and loaded on-demand.")
-
-;; TODO: should skip this and use use-package without :ensure but with
-;; :load-path
-(defvar my-modules (file-expand-wildcards "~/.emacs.d/emacs.modules/*.el")
-  "The location of any version-controlled packages to load on init.")
-
-(defvar my-desktops-dir (expand-file-name (concat user-emacs-directory "desktops"))
-  "A directory where desktops are to be stored.
-A separate directory will be created under this directory for
-each saved desktop.  For example,
-`<my-desktops-dir>/home/peterg/some/project/dir/.emacs.desktop`.")
-
-(defvar my-desktop-save-file ".emacs.desktop"
-  "File name to use for storing desktop state.")
 
 (defvar my-emacs-start-dir default-directory
   "Directory from which Emacs was launched.")
@@ -84,10 +66,42 @@ each saved desktop.  For example,
 ;; Utility functions
 ;;
 
+(defun my-bootstrap-straight-el ()
+  "Ensures straight.el is installed and loaded."
+  (message "bootstrapping straight.el ...")
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (message "loading straight.el bootstrapper ...")
+    (load bootstrap-file nil 'nomessage)))
+
+(defun my-find-project-root (path)
+  "Return the project root directory for PATH.
+If PATH is not in a version-controlled directory, nil is returned."
+  (let* ((proj (project-try-vc path)))
+    (if proj
+	(project-root proj)
+      nil)))
+
+(defun my-project-root ()
+  "Return the project root directory of the current buffer.
+If the buffer is visiting a file not in a project directory, the
+buffer's directory is returned."
+  (if (project-current)
+      (project-root (project-current))
+    default-directory))
+
 (defun my-elapsed-time ()
   "Get the elapsed time since start of loading."
   (float-time (time-subtract (current-time) emacs-start-time)))
-
 
 (defun my-untabify-buffer ()
   "Run 'untabify' on the whole buffer."
@@ -138,92 +152,6 @@ each saved desktop.  For example,
     (default-text-scale-increment delta-to-default)))
 
 
-(defun my-vcs-dir-p (path)
-  "Determines if the PATH directory is under version control (e.g. 'Git').
-Returns nil for paths not under version control."
-  (vc-backend path))
-
-
-(defun my-project-root-or-cwd ()
-  "Return the project root of the directory tree where Emacs was opened.
-If Emacs wasn't opened in a version-controlled directory, the
-result will be the current working directory."
-  (if (my-vcs-dir-p my-emacs-start-dir)
-      ;; determine project root
-      (let ((vc-backend (vc-responsible-backend my-emacs-start-dir)))
-        (vc-call-backend vc-backend 'root my-emacs-start-dir))
-    my-emacs-start-dir))
-
-
-(defun my-desktop-save-dir ()
-  "Return the save directory to use for `desktop-save-mode`.
-The location is determined from where Emacs was opened."
-  (interactive)
-  (concat my-desktops-dir (expand-file-name (my-project-root-or-cwd))))
-
-
-(defun my-desktop-save-path ()
-  "Return the path where `desktop-save-mode` will store its session.
-The location is determined from where Emacs was opened."
-  (interactive)
-  (concat (my-desktop-save-dir) my-desktop-save-file))
-
-
-(defun my-desktop-delete ()
-  "Deletes the desktop save path (if it exists)."
-  (interactive)
-  ;; if desktop-save mode is set, remove the save path.
-  (if (bound-and-true-p desktop-save)
-    (let ((save-path (concat desktop-dirname desktop-base-file-name )))
-      (delete-file save-path)
-      (desktop-save-mode 0))
-    (error "Not in desktop-save mode")))
-
-
-(defun my-enable-desktop-save-mode (save-dir)
-  "Enable `desktop-save-mode` using the given SAVE-DIR as state store.
-This will load the saved desktop if one exsists, or create a new
-desktop state file if one does not exist.  If the desktop is
-already loaded by another Emacs process, a warning is printed."
-  (interactive (list (read-directory-name "Desktop save directory: "
-                                          (my-desktop-save-dir))))
-  (message "using desktop save directory: %s" save-dir)
-  ;;
-  ;; Save settings
-  ;;
-  (setq desktop-dirname save-dir) ;; state directory
-  (setq desktop-base-file-name my-desktop-save-file)  ;; state file
-  (setq desktop-save t) ;; always save on exit (without prompting)
-  (setq desktop-auto-save-timeout 30) ;; in seconds
-  ;;
-  ;; Desktop load settings.
-  ;;
-  ;; directory where desktop state is to be loaded from.
-  (setq desktop-path (list desktop-dirname))
-  ;; max buffers to restore immediately (the rest are lazily loaded)
-  (setq desktop-restore-eager 10)
-  ;; load the desktop if locked?
-  (setq desktop-load-locked-desktop 'ask)
-
-  ;; create the desktop file if it doesn't already exist
-  (when (not (file-exists-p (my-desktop-save-path)))
-    (make-directory desktop-dirname t)
-    (desktop-save desktop-dirname t)
-    ;; appears necessary to create desktop lock after save
-    (desktop-read))
-
-  ;; enable desktop-save-mode
-  (desktop-save-mode 1)
-  (desktop-auto-save-set-timer)
-
-  ;; disable desktop-save-mode if desktop cannot be loaded (e.g. when locked by
-  ;; another process)
-  (add-hook 'desktop-not-loaded-hook
-            (lambda ()
-              (display-warning :warning "couldn't load desktop (is it locked by a different process?). disabling desktop-save-mode ...")
-              (desktop-save-mode 0))))
-
-
 (defun my-toggle-treemacs ()
   "Enable or disable the treemacs project explorer.
 When Treemacs is enabled in graphical mode, ensure that the frame
@@ -236,16 +164,8 @@ width is sufficiently large."
       (set-frame-width (selected-frame) my-treemacs-min-width))))
 
 
-(defun my-set-treemacs-bg (color)
-  "Set COLOR as background color for the treemacs buffer."
-  (with-current-buffer (treemacs-get-local-buffer)
-    (setq-local face-remapping-alist
-                `((default . (:background ,color))
-                  (fringe  . (:background ,color))))))
-
-
 (defun my-color-lighten (hex-color percent)
-  "Determines a brighter/darker shade of a hex color.
+  "Determine a brighter/darker shade of a hex color.
 For a HEX-COLOR (such as `#3cb878`) return the hex color that is
 PERCENT percent brighter (or darker if percent value is
 negative)."
@@ -292,43 +212,21 @@ Org-modes table editor commands available."
 ;; Start of actual initialization.
 ;;
 
-(message "Loading emacs-init.el ...")
+(message "Loading %s ..." load-file-name)
 
-;; Use the package.el package manager that comes bundled with Emacs24
-(require 'package)
-(package-initialize)
+;; Ensure that straight.el is installed and loaded.  Instead of the package.el
+;; package manager that comes bundled with Emacs, we use straight.el to manage
+;; packages with better control over package versions.
+;;
+;; To get a consistent and repeatable configuration across multiple machines,
+;; one can create a "lockfile" (pinning each package to a specific commit) with
+;; the `M-x straight-freeze-versions` command. It generates
+;; `straight/versions/default.el` which can then be version controlled.
+(my-bootstrap-straight-el)
 
-;; Add package archives:
-;; Note that packages will always be picked from melpa unless specifically
-;; pinned to use melpa-stable due to versioning schemes (20190101-1200 > 2.4).
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives
-             '("org" . "http://orgmode.org/elpa/") t)
-
-;; Install any uninstalled "base" packages.
-(defun my-packages-installed-p ()
-  (cl-loop for p in my-packages
-           when (not (package-installed-p p)) do (cl-return nil)
-           finally (cl-return t)))
-
-(unless (my-packages-installed-p)
-  ;; check for new package versions
-  (message "%s" "refreshing package database ...")
-  (package-refresh-contents)
-  ;; install the missing packages
-  (dolist (p my-packages)
-    (when (not (package-installed-p p))
-      (package-install p))))
-
-;; Load any local modules from module directory in lexicographical order.
-(setq sortedmodules (sort (copy-sequence my-modules) #'string-lessp))
-;; Note: messages are logged in *Messages* buffer
-(message "Loading local modules: %s" sortedmodules)
-(dolist (module sortedmodules)
-  (load-file module))
+;; Install and load use-package.
+(straight-use-package 'use-package)
+(setq use-package-verbose nil) ;; set to t to see when packages are loaded
 
 ;;
 ;; General settings
@@ -336,17 +234,12 @@ Org-modes table editor commands available."
 (defun my-general-settings ()
   "Apply appearance and general editor settings."
 
-  ;; title bar: emacs27@miniac:/dir/path
-  (setq frame-title-format
-        (concat invocation-name "@" (system-name) ":" my-emacs-start-dir))
-
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
   ;; system locale for formatting time values -- ensures that weekdays in the
   ;; org-mode timestamps appear in English.
   (setq system-time-locale "C")
 
-  (setq inhibit-startup-screen t)
   (setq column-number-mode t)
   ;; wrap long lines
   (set-default 'truncate-lines nil)
@@ -359,10 +252,6 @@ Org-modes table editor commands available."
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary)
   (global-set-key (kbd "<mouse-2>") #'x-clipboard-yank)
-  ;; Hide vertical scrollbar on right
-  (scroll-bar-mode -1)
-  ;; Hide tool-bar (icons, such as open file, cut, paste, etc)
-  (tool-bar-mode -1)
 
   ;; No sudden jumps when cursor moves off top/bottom of screen. If the value is
   ;; greater than 100, redisplay will never recenter point, but will always
@@ -453,39 +342,19 @@ Org-modes table editor commands available."
 ;; Start of custom package installation/configuration.
 ;;
 
-(require 'use-package)
-(setq use-package-verbose nil) ;; set to t to see when packages are loaded
-
-
-;; F6 enables desktop-save-mode (the desktop state directory becomes the VCS
-;; root, or the current working directory if not in a version-controlled file
-;; tree. In this mode the desktop is saved periodically and on exit.
-;;
-;; If, on load of this init file, an existing desktop state directory is found
-;; it gets loaded and desktop-save-mode is enabled. If the desktop is already in
-;; use by another emacs process (locked), a warning is printed and
-;; desktop-save-mode stays disabled.
-(use-package desktop
-  ;; defers loading of package until command is invoked
-  :commands my-enable-desktop-save-mode
-  :defer t
-  :init
-  (when (file-exists-p (my-desktop-save-path))
-    (message "discovered saved desktop, enabling desktop-save-mode ...")
-    (my-enable-desktop-save-mode (my-desktop-save-dir)))
-  (global-set-key (kbd "<f6>") (lambda () (interactive) (my-enable-desktop-save-mode (my-desktop-save-dir)))))
-
 ;;
 ;; Theme-related settings
 ;;
 
+;; Used to selectively hide mode-line display of certain minor modes. For
+;; example: (use-package :diminish).
 (use-package diminish
-  :ensure t
+  :straight t
   :demand t)
 
 ;; make font larger/smaller globally (entire frame, not just per buffer)
 (use-package default-text-scale
-  :ensure t
+  :straight t
   :demand t
   :config
   ;; increment delta (in tenths of points), so needs to be divisible by 10.
@@ -495,144 +364,124 @@ Org-modes table editor commands available."
   (global-set-key (kbd "C-x C-0") #'my-set-default-font-height))
 
 (use-package immaterial-theme
-  :ensure t
-  :load-path "emacs.modules/immaterial-theme"
+  :straight (immaterial-theme
+	     :type git :host github
+	     :repo "petergardfjall/emacs-immaterial-theme"
+	     :branch "master")
   :config
   (load-theme 'immaterial-dark t))
 
-;; A theme that runs on top of the existing theme to extend/highlight the
-;; modeline buffer id with the name of the host. Can be customized via
-;; `tramp-theme-face-remapping-alist`.
-;; (use-package tramp-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'tramp t))
-
-;; beacon shows a brief light flash at the cursor to help keep track
-(use-package beacon
-  :disabled
-  :ensure t
+;;
+;; completing-read setup: vertico + consult + orderless + marginalia
+;;
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode)
   :config
-  (setq beacon-blink-when-buffer-changes t)   ;; on buffer switch
-  (setq beacon-blink-when-window-scrolls nil) ;; on scrolling
-  (setq beacon-blink-when-window-changes t)   ;; change window (on splits)
-  (setq beacon-blink-when-focused nil)        ;; when emacs gains focus
-  (setq beacon-blink-duration 0.3)
-  (setq beacon-blink-delay 0.3)
-  (beacon-mode t))
-
-(use-package powerline
-  :disabled
-  :ensure t
-  :if window-system
-  :config
-  (powerline-default-theme)
-  (setq powerline-default-separator 'contour))
-
-;; ido is a completion engine that is activated on calls to `switch-to-buffer`
-;; (C-x b) and `find-file` (C-x C-f). It can be used as an alternative to ivy
-;; (and counsel), which offers a superset of ido's functionality.
-(use-package ido
-  :disabled
-  :config
-  ;; any item that contains all entered characters will match
-  (setq ido-enable-flex-matching t)
-  (ido-mode t))
-
-;; ivy ensures that any Emacs command using `completing-read-function` uses ivy
-;; for completion. Can be complemented with (1) swiper for ivy-enhanced isearch
-;; and (2) counsel for versions of common Emacs commands customised to make use
-;; of ivy.
-(use-package ivy
-  :ensure t
-  :pin melpa-stable
-  :diminish ivy-mode
-  :config
-  ;; add recent files and bookmarks to ivy-switch-buffer?
-  (setq ivy-use-virtual-buffers nil)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-display-style 'fancy)
+  ;; enable recursive minibuffers
   (setq enable-recursive-minibuffers t)
-  ;; find-file-in-project will use ivy by default
-  (setq projectile-completion-system 'ivy)
-  (ivy-mode 1)
-  (define-key minibuffer-local-map (kbd "C-r") #'counsel-minibuffer-history)
-  ;; during search, make ivy complete to the greatest common denominator on TAB.
-  (define-key ivy-minibuffer-map (kbd "TAB") #'ivy-partial))
+  ;; use page-up/down to move one page up/down among completion candidates
+  (define-key vertico-map (kbd "<next>") #'scroll-up-command)
+  (define-key vertico-map (kbd "<prior>") #'scroll-down-command)
+  (define-key vertico-map "?" #'minibuffer-completion-help)
+  (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
 
-;; ivy-enhanced version of isearch
-(use-package swiper
-  :ensure t
-  :pin melpa-stable
-  :bind (("C-s" . swiper)))
-
-;; a collection of ivy-enhanced versions of common Emacs commands.
-(use-package counsel
-  :ensure t
-  :pin melpa-stable
-  ;;
-  ;; cherry-pick commands to use (rather than applying all with `counsel-mode`).
-  ;;
-  :bind (("M-x"     . counsel-M-x)
-         ("C-x C-f" . counsel-find-file)
-         ;; list faces
-         ("C-c l f" . counsel-faces)
-         ("C-h v"   . counsel-describe-variable)
-         ("C-h f"   . counsel-describe-function)))
-
-;; uses ivy to improve projectile. For example, freetext search in project via
-;; `counsel-projectile-ag`.
-(use-package counsel-projectile
-  :ensure t
-  :pin melpa-stable
-  :after projectile
+;; This package provides an orderless completion style that divides the pattern
+;; into space-separated components, and matches candidates that match all of the
+;; components in any order. Each component can match in any one of several ways:
+;; literally, as a regexp, as an initialism, in the flex style, or as multiple
+;; word prefixes. By default, regexp and literal matches are enabled. Works with
+;; the built-in icomplete package or with some third party minibuffer completion
+;; frameworks such as Vertico and Selectrum.
+(use-package orderless
+  :straight t
+  :init
+  (setq
+   completion-styles '(partial-completion orderless))
   :config
+  ;; use orderless for lsp completion. See
+  ;; https://github.com/minad/corfu/issues/41#issuecomment-974724805
+  (add-hook 'lsp-completion-mode-hook
+	    (lambda ()
+	      (setf (alist-get 'styles
+			       (alist-get 'lsp-capf completion-category-defaults))
+		    '(orderless)))))
 
-  ;; ensure searches include hidden files (with a leading dot)
-  (defun my-counsel-projectile-ag ()
-    (interactive)
-    (counsel-projectile-ag "--hidden"))
 
-  ;; free-text "search-in-project"
-  (define-key projectile-mode-map (kbd "C-c s p") #'my-counsel-projectile-ag))
-
-;; annotates ivy completion candidates with additional descriptions. supports
-;; ivy-switch-buffer, counsel-M-x, counsel-describe-function and
-;; counsel-describe-variable
-(use-package ivy-rich
-  :ensure t
-  :after ivy
+(use-package consult
+  :straight t
+  :bind (("C-x b"   . consult-buffer)    ;; switch-to-buffer
+	 ("M-g g"   . consult-goto-line) ;; goto-line
+	 ("C-s"     . consult-line)      ;; isearch
+	 ;; "search git": free-text search in version-controlled files
+	 ("C-c s g" . consult-git-grep)
+	 ;; "search project": free-text search in all project files
+	 ("C-c s p" . consult-ripgrep))
+  :init
+  ;; Use Consult to select xref locations with preview.
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
   :config
-  ;; change appearance of `ivy-switch-buffer` colums
-  (setq ivy-rich-display-transformers-list
-        (plist-put ivy-rich-display-transformers-list 'ivy-switch-buffer
-                   '(:columns
-                     ;; candidate itself
-                     ((ivy-rich-candidate (:width 30))
-                      ;; show projectile project
-                      (ivy-rich-switch-buffer-project (:width 15 :face font-lock-builtin-face))
-                      ;; path relative to project root (or default-directory)
-                      (ivy-rich-switch-buffer-path (:width 50 :face font-lock-doc-face)))
-                     :predicate
-                     (lambda (cand) (get-buffer cand)))))
+  ;; Needed to make consult project-aware (for example for `consult-grep`).
+  (setq consult-project-root-function #'my-project-root)
 
-  (ivy-rich-mode 1))
+  ;; Some consult commands support live previews. Here we disable them for cases
+  ;; where we don't want automatic live preview of a selected
+  ;; candidate. Instead, make this preview manually triggered by M-.
+  (consult-customize
+   consult-buffer ;; can add more space-separated commands here
+   :preview-key (kbd "M-.")))
 
-;; display ivy searches elsewhere than in the minibuffer
-(use-package ivy-posframe
-  :disabled
-  :ensure t
-  :diminish
-  :after ivy
+;; uses consult to display/select lsp-provided symbols and diagnostics.
+(use-package consult-lsp
+  :straight t
+  :after lsp-mode
   :config
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-window-center)))
-  (ivy-posframe-mode 1))
+  ;; additional decorations for candidates
+  (consult-lsp-marginalia-mode +1)
+  ;; select diagnostics from the current lsp workspace
+  (define-key lsp-mode-map (kbd "C-c l d") #'consult-lsp-diagnostics)
+  ;; select symbols from the current lsp workspace
+  (define-key lsp-mode-map (kbd "C-c l w") #'consult-lsp-symbols)
+  ;; select symbols from the current lsp file
+  (define-key lsp-mode-map (kbd "C-c l s") #'consult-lsp-file-symbols))
+
+;;
+;; Adds richer annotations for minibuffer completions for any completing-read
+;; compatible framework (such as selectrum or vertico). Similar to ivy-rich.
+(use-package marginalia
+  :straight t
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  ;; The :init configuration is always executed (Not lazy!)
+  :init
+  (marginalia-mode)
+
+  (defun my-project-buffer-annotator (cand)
+    (let* ((buffer (get-buffer cand)))
+      (when-let (buffer-file (buffer-file-name buffer))
+	(when-let ((project-dir (my-find-project-root buffer-file)))
+	  (let* ((project-short (file-name-base (directory-file-name project-dir)))
+		 (project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
+	    (marginalia--fields
+	     (project-short :truncate 0.4 :face 'marginalia-value)
+	     (project-rel-dir :truncate 0.4 :face 'marginalia-documentation)))))))
+
+  ;; update annotator-registry to use my custom annotator for buffers
+  (add-to-list 'marginalia-annotator-registry
+               '(buffer my-project-buffer-annotator none))
+  )
+
+
 
 ;; highlights occurences of colors (in text) with a background of that
 ;; color. For example, "#aaaaaa" will be displayed with a gray background.
 ;; Activate via M-x rainbow-mode
 (use-package rainbow-mode
-  :ensure t
+  :straight t
   :defer 5
   :diminish
   :config
@@ -640,7 +489,7 @@ Org-modes table editor commands available."
   (setq rainbow-x-colors nil))
 
 (use-package undo-tree
-  :ensure t
+  :straight t
   :diminish undo-tree-mode ; don't display on modeline
   :init
   (global-undo-tree-mode)
@@ -653,43 +502,36 @@ Org-modes table editor commands available."
         ("C-c u t" . undo-tree-visualize))
   )
 
-(use-package projectile
-  :ensure t
-  ;; defer loading of module until this function is called *and* set up key
-  ;; binding to invoke.
-  :bind ([f7] . projectile-mode)
+;; built-in project.el
+(use-package project
   :config
-  (setq projectile-completion-system 'ivy)
-  (setq projectile-mode-line-function '(lambda () (format " Proj[%s]" (projectile-project-name))))
-  ;; find file (in project)
-  (define-key projectile-mode-map (kbd "C-c f f") #'projectile-find-file))
-
+  (define-key global-map (kbd "C-c f f") #'project-find-file))
 
 (use-package wsp
-  ;;:ensure t
-  :load-path "emacs.modules/emacs-wsp"
-  :bind (("C-x w o" . wsp-workspace-open))
-  :config
-  (define-key global-map (kbd "C-x w d") #'wsp-workspace-delete)
-  (define-key global-map (kbd "C-x w k") #'wsp-workspace-close)
-  (define-key global-map (kbd "C-x w c") #'wsp-workspace-current)
-  (define-key global-map (kbd "C-x p a") #'wsp-project-add)
-  (define-key global-map (kbd "C-x p d") #'wsp-project-delete)
-  (define-key global-map (kbd "C-x p s") #'wsp-project-switch)
-  (define-key global-map (kbd "C-x p c") #'wsp-project-close)
-  (define-key global-map (kbd "C-x p k") #'wsp-project-close-current)
-  (define-key global-map (kbd "C-x p K") #'wsp-project-close-other))
+  :straight (emacs-wsp :type git :host github
+		       :repo "petergardfjall/emacs-wsp")
+  :bind (("C-x w o"   . wsp-workspace-open)
+	 ("C-x w k"   . wsp-workspace-close)
+	 ("C-x w c"   . wsp-workspace-current)
+	 ("C-x w d"   . wsp-workspace-delete)
+	 ("C-x w p a" . wsp-project-add)
+	 ("C-x w p d" . wsp-project-delete)
+	 ("C-x w p s" . wsp-project-switch)
+	 ("C-x w p c" . wsp-project-close)
+	 ("C-x w p k" . wsp-project-close-current)
+	 ("C-x w p K" . wsp-project-close-other)))
 
 (use-package postrace
-  ;;:ensure t
-  :load-path "emacs.modules/postrace"
+  :straight (postrace :type git :host github
+		      :repo "petergardfjall/emacs-postrace"
+		      :branch "initial-version")
   :bind (("C-c p p" . postrace-push)
 	 ("C-c p b" . postrace-browse)))
 
 
 ;; allows definition of hydras - families of commands with a common prefix
 (use-package hydra
-  :ensure t
+  :straight t
   :config
 
   ;; window navigation/resizing hydra
@@ -714,38 +556,58 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   ;; default method for transferring files (scp, ssh)
   (customize-set-variable 'tramp-default-method "ssh"))
 
-;; generic auto-completion functionality
-(use-package company
-  :ensure t
-  :diminish ; don't display on modeline
+
+;; completion-at-point UI. Candidates are shown in a popup frame. Completions
+;; are provided by commands like `dabbrev-completion' or
+;; `completion-at-point-functions' (capf).
+(use-package corfu
+  :straight t
   :init
-  (add-hook 'after-init-hook 'global-company-mode)
+  (corfu-global-mode)
   :config
-  (setq company-tooltip-limit 15) ; bigger popup window
-  (setq company-idle-delay 0)     ; decrease delay 'til completion popup shows
-  (setq company-echo-delay 0)     ; remove annoying blinking
-  (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
-  ;; minimum number of letters to type before triggering autocompletion
-  (setq company-minimum-prefix-length 1)
-  ;; align annotations (e.g. function signatures) to the right tooltip border
-  (setq company-tooltip-align-annotations t)
+  (setq
+   ;; enable auto-completion
+   corfu-auto t
+   ;; minimum prefix length before triggering auto-completion
+   corfu-auto-prefix 1
+   ;; delay in seconds after typing until popup appears
+   corfu-auto-delay 0.0
+   ;; show candidate documentation in echo area
+   corfu-echo-documentation t
+   ;; quit when no remaining candidates
+   corfu-quit-no-match t
+   ;; maximum number of candidates to display
+   corfu-count 15
+   ;; miniumum popup width (in characters)
+   corfu-min-width 20)
+
   ;; trigger completion
-  (define-key company-mode-map (kbd "C-<tab>") #'company-complete))
+  (define-key global-map (kbd "C-<tab>") #'completion-at-point))
 
+(use-package dabbrev)
 
-;; On-the-fly syntax checking (support for different languages)
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode)
-  :diminish ; don't display on modeline
-  :config
-  ;; show errors in current buffer
-  (define-key flycheck-mode-map (kbd "C-c s e") #'list-flycheck-errors))
+;; adds `completion-at-point-functions', used by `completion-at-point'.
+(use-package cape
+  :straight t
+  :init
+  ;; complete word from current buffers
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
 
-;; built-in on-the-fly syntax checking (use flycheck instead)
+;; built-in on-the-fly syntax checking, which highlights erroneous lines.
 (use-package flymake
-  :diminish ; don't display on modeline
-  )
+  :diminish ;; don't display on modeline
+  :hook ((prog-mode text-mode) . flymake-mode)
+  :config
+  ;; "show errors in project"
+  (define-key flymake-mode-map (kbd "C-c s e p")
+	      #'flymake-show-project-diagnostics)
+  ;; "show show errors in file"
+  (if (fboundp #'consult-flymake)
+      (define-key flymake-mode-map (kbd "C-c s e f")
+	      #'consult-flymake)
+    (define-key flymake-mode-map (kbd "C-c s e f")
+		#'flymake-show-buffer-diagnostics)))
+
 
 ;; built-in on-the-fly spell checking for text or code comments.
 (use-package flyspell
@@ -760,7 +622,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; see available snippets: M-x yas-describe-tables.
 ;; Custom (per-mode) snippets can be placed under ~/.emacs.d/snippets/.
 (use-package yasnippet
-  :ensure t
+  :straight t
   :defer 2
   :diminish yas-minor-mode ; don't display on modeline
   :config
@@ -771,20 +633,20 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; A collection of snippets for many languages.
 (use-package yasnippet-snippets
-  :ensure t
+  :straight t
   :after yasnippet)
 
 
 ;; A Git porcelain inside Emacs.
 (use-package magit
-  :ensure t
+  :straight t
   ;; defer loading of module until any of these functions are called *and* set
   ;; up key bindings to invoke them.
   :bind (("C-x g" . magit-status)))
 
 ;; Highlight diffs (in the fringe) for version-controlled buffers.
 (use-package diff-hl
-  :ensure t
+  :straight t
   :defer 5
   :diminish
   :hook ((prog-mode text-mode) . diff-hl-mode)
@@ -795,7 +657,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; File navigator
 ;; Pressing '?' will show help hydra.
 (use-package treemacs
-  :ensure t
+  :straight t
   :defer t
   :bind (:map treemacs-mode-map
 	      ;; disable treemacs workspace keymap (C-c C-w ..), since it
@@ -833,15 +695,15 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; Quickly add your projectile projects to the treemacs workspace.
 (use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
+  :straight t
+  :after treemacs projectile)
 
 ;; A small utility package to fill the small gaps left by using filewatch-mode
 ;; and git-mode in conjunction with magit: it will inform treemacs about
 ;; (un)staging of files and commits happening in magit.
 (use-package treemacs-magit
-  :after treemacs magit
-  :ensure t)
+  :straight t
+  :after treemacs magit)
 
 ;; transparently open compressed files
 (use-package auto-compression-mode
@@ -853,55 +715,44 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;;; Development/coding
 ;;;
 
-;; ag is an Emacs frontend to the silver searcher (ag) command-line tool.
-;; The following M-x commands are available
-;;   ag|ag-files|ag-regexp|ag-project|ag-project-files|ag-project-regexp
-;; *-project commands detects the git root.
-;; *-regexp allows PCRE patterns for the search term.
-;; see: https://agel.readthedocs.io/en/latest/usage.html
-;;
-(use-package ag
-  :disabled
-  :ensure t
-  :defer 2
-  :config
-  (setq ag-highlight-search t)
-  ;; reuse the same *ag* buffer for all searches
-  (setq ag-reuse-buffers t)
-  ;; free-text "search-in-project"
-  (global-set-key (kbd "C-c s p") #'ag-project))
+(defun my-ggtags-find-definition  ()
+  "Prompting replacement for `ggtags-find-definition`.
+This function always prompts (default behavior is to just search
+for symbol at point if there is one)."
+  (interactive)
+  ;; can read 'definition, 'symbol, 'reference, 'id, 'path
+  (let ((tag (ggtags-read-tag 'definition t "Find definition [GTAGS]")))
+    (ggtags-find-definition tag)))
 
-;; Emacs frontend for GNU global/gtags to search code tags.
-;; On a soure tree run gtags from the root. Then e.g. use
-;; M-x ggtags-find-definition to find a certain symbol
-;; On multiple hits use M-n/M-p to navigate hits.
+(defun my-ggtags-find-reference  ()
+  "Prompting replacement for `ggtags-find-reference`.
+This function always prompts (default behavior is to just search
+for symbol at point if there is one)."
+  (interactive)
+  ;; can read 'definition, 'symbol, 'reference, 'id, 'path
+  (let ((ref (ggtags-read-tag 'reference t "Find reference [GTAGS]")))
+    (ggtags-find-reference ref)))
+
+(defun my-ggtags-create ()
+  "Create GTAGS in the root directory of the current buffer's project."
+  (interactive)
+  (if-let (proj-root (my-project-root))
+      (progn
+        (message "Generating tags in %s ..." proj-root)
+        (ggtags-create-tags proj-root))
+    (error "Did not find a project root dir in which to generate tags")))
+
+;; Emacs frontend for GNU global/gtags to generate and search code tags.
+;; Wraps the 'gtags' and 'global' command-line tools.
 (use-package ggtags
-  :ensure t
-  :defer 2
+  :straight t
+  ;; add ggtags as a xref backend in emacs-lisp-mode (xref-find-definitions)
+  :hook ((emacs-lisp-mode . ggtags-mode))
+  ;; set up keybindings to generate and search GTAGS
+  :bind (("C-c t c"   . my-ggtags-create)
+	 ("C-c t f d" . my-ggtags-find-definition)
+	 ("C-c t f r" . my-ggtags-find-reference))
   :config
-
-  (defun my-ggtags-find-definition-interactive  ()
-    "Replacement for ggtags-find-definition that always
-prompts (default behavior is to just search for symbol at point
-if there is one)."
-    (interactive)
-    ;; can read 'definition, 'symbol, 'reference, 'id, 'path
-    (let ((tag (ggtags-read-tag 'definition t "Find definition")))
-      (ggtags-find-definition tag)))
-  (defun my-ggtags-create ()
-    "Creates gtags in the project root directory."
-    (interactive)
-    (if (fboundp 'projectile-project-root)
-        (progn
-          (message "Generating tags in %s ..." (projectile-project-root))
-          (ggtags-create-tags (projectile-project-root)))
-      (error "Cannot generate tags without a project(ile) root dir.")))
-
-  ;; "find-tag", "find-type"
-  (define-key global-map (kbd "C-c f t") #'my-ggtags-find-definition-interactive)
-  ;; "gtags create"
-  (define-key global-map (kbd "C-c g c") #'my-ggtags-create)
-
   ;; interferes with beginning/end of buffer key bindings
   (define-key ggtags-navigation-map (kbd "M->") nil)
   (define-key ggtags-navigation-map (kbd "M-<") nil))
@@ -918,8 +769,7 @@ if there is one)."
   (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
 
 (use-package lsp-mode
-  :ensure t
-  ;;:pin melpa-stable
+  :straight t
   :defer t
   :commands (lsp lsp-deferred)
   :config
@@ -936,10 +786,9 @@ if there is one)."
   ;; If set to nil eldoc will show only the symbol information.
   (setq lsp-eldoc-render-all nil)
   ;; package used to show diagnostics
-  (setq lsp-diagnostics-provider :flycheck)
-  ;; prefer lsp-mode's built-in complete-at-point over company-lsp if both are
-  ;; present
-  (setq lsp-completion-provider :capf)
+  (setq lsp-diagnostics-provider :flymake)
+  ;; do not autoconfigure company-mode for completions (use capf/corfu)
+  (setq lsp-completion-provider :none)
   (setq lsp-completion-show-detail t)
   (setq lsp-completion-use-last-result t)
   (setq lsp-completion-no-cache nil)
@@ -971,7 +820,7 @@ if there is one)."
 
 
 (use-package lsp-ui
-  :ensure t
+  :straight t
   ;; gets started by lsp-mode
   :commands lsp-ui-mode
   :config
@@ -1000,7 +849,7 @@ if there is one)."
 ;; - (lsp-treemacs-errors-list): tree-like error list.
 ;; - (lsp-treemacs-symbols): open a view that shows symbols declared in buffer
 (use-package lsp-treemacs
-  :ensure t
+  :straight t
   ;; defer loading of module until any of these functions are called *and* set
   ;; up key bindings to invoke them.
   :bind (("C-c t s" . lsp-treemacs-symbols)
@@ -1011,8 +860,13 @@ if there is one)."
 ;; integrates with debug servers.
 ;; Note: enable individual language support via `dap-<language>` packages.
 (use-package dap-mode
-  :ensure t
+  :straight t
   :commands (dap-debug dap-debug-edit-emplate)
+  :hook (
+	 ;; Note: if debugging test files: use "Go Launch File Configuration"
+	 ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
+	 (go-mode . (lambda () (require 'dap-go) (dap-go-setup)))
+	 (python-mode . (lambda () (require 'dap-python))))
   :config
   (dap-mode 1)
   (dap-ui-mode 1)
@@ -1030,27 +884,16 @@ if there is one)."
   (add-hook 'dap-stopped-hook
 	    (lambda (arg) (call-interactively #'dap-hydra)))
 
-  (require 'dap-python)
-  ;; seems to be required in order for dap-mode to find pyenv-provided python
-  ;; executable. see:
+  ;; dap-python: seems required in order for dap-mode to find pyenv-provided
+  ;; python executable. see:
   ;; https://github.com/emacs-lsp/dap-mode/issues/126#issuecomment-754282754
   (defun dap-python--pyenv-executable-find (command)
-    (executable-find command))
+    (executable-find command)))
 
-  ;; Note: if debugging test files: use "Go Launch File Configuration"
-  ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
-  (require 'dap-go))
-
-
-;; (use-package dap-ui
-;;   :ensure nil ;; part of dap-mode package
-;;   :after (dap-mode)
-;;   :config
-;;   (dap-ui-mode 1))
 
 ;; Use microsoft's (nodejs-based) `pyright` language server for python.
 (use-package lsp-pyright
-  :ensure t
+  :straight t
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
   :config
   ;; don't watch files in .venv
@@ -1071,13 +914,13 @@ if there is one)."
 ;; Use sphinx-doc when python-mode is activated. Gives a templated docstring
 ;; when pressing C-c M-d in function head.
 (use-package sphinx-doc
-  :ensure t
+  :straight t
   :commands python-mode
   :config
   (sphinx-doc-mode))
 
 (use-package go-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.go\\'" . go-mode))
   :config
@@ -1090,22 +933,17 @@ if there is one)."
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; start lsp-mode
   ;; NOTE: relies on gopls lsp server being on the PATH
-  (add-hook 'go-mode-hook #'lsp-deferred)
-  (add-hook 'go-mode-hook (lambda () (require 'dap-go) (dap-go-setup))))
+  (add-hook 'go-mode-hook #'lsp-deferred))
 
-(use-package flycheck-golangci-lint
-  :ensure t
-  :hook (go-mode . flycheck-golangci-lint-setup))
+;; golangci-lint support via flymake
+(use-package flymake-golangci
+  :straight t
+  :hook (go-mode . flymake-golangci-load))
 
-;; (use-package dap-go
-;;   :ensure t
-;;   :after (go-mode)
-;;   :config
-;;   (dap-go-setup))
 
 ;; Major mode for json file editing.
 (use-package json-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.json\\'" . json-mode))
   :config
@@ -1132,13 +970,13 @@ if there is one)."
 ;; Enable the Prettier code-formatter's minor mode to format on save whenever we
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
 (use-package prettier
-  :ensure t
+  :straight t
   :hook ((js-mode . prettier-mode)
 	 (yaml-mode . prettier-mode)))
 
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.yaml\\'" . yaml-mode)
          ("\\.yml\\'" . yaml-mode))
@@ -1151,8 +989,7 @@ if there is one)."
 
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
-  :ensure t
-  :pin melpa-stable
+  :straight t
   :defer t
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
@@ -1168,7 +1005,7 @@ if there is one)."
   (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
 
 (use-package markdown-preview-mode
-  :ensure t
+  :straight t
   :after markdown-mode
   :config
   (global-set-key (kbd "C-c p m")  #'markdown-preview-mode)
@@ -1190,7 +1027,7 @@ if there is one)."
 
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.vcl\\'" . vcl-mode))
   :config
@@ -1200,7 +1037,7 @@ if there is one)."
 
 ;; Dockerfile editing
 (use-package dockerfile-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\Dockerfile\\'" . dockerfile-mode))
   :config
@@ -1210,7 +1047,7 @@ if there is one)."
 
 ;; TOML editing
 (use-package toml-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.toml\\'" . toml-mode))
   :config
@@ -1221,7 +1058,7 @@ if there is one)."
 
 
 (use-package terraform-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.tf\\'" . terraform-mode))
   :config
@@ -1238,7 +1075,7 @@ if there is one)."
 
 
 (use-package protobuf-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.proto\\'" . protobuf-mode))
   :config
@@ -1252,7 +1089,7 @@ if there is one)."
 
 ;; Rust-mode
 (use-package rust-mode
-  :ensure t
+  :straight t
   :defer t
   :mode (("\\.rs\\'" . rust-mode))
   :config
@@ -1271,7 +1108,7 @@ if there is one)."
         indent-tabs-mode nil)
   ;; enable use of clang-format
   (use-package clang-format
-    :ensure t
+    :straight t
     :config
     ;; style to use when calling `clang-format-buffer`
     (setq clang-format-style "WebKit"))
@@ -1306,7 +1143,8 @@ if there is one)."
 
 ;; cmake setup.
 (use-package cmake-mode
-  :ensure t
+  :disabled
+  :straight t
   :mode (("CMakeLists.txt\\'" . cmake-mode)
          ("\\.cmake\\'" . cmake-mode))
   :config
@@ -1316,7 +1154,7 @@ if there is one)."
 
 ;; Java setup.
 (use-package lsp-java
-  :ensure t
+  :straight t
   :defer t
   :hook (java-mode . (lambda () (require 'lsp-java) (lsp-deferred)))
   :bind (:map java-mode-map
@@ -1337,14 +1175,14 @@ if there is one)."
 
 ;; can be used for working with .groovy and Jenkinsfile
 (use-package groovy-mode
-  :ensure t
+  :straight t
   :defer t
   :commands (groovy-mode))
 
 ;; emacs mode to edit GraphQL schemas and queries (automtically enabled when
 ;; opening .graphql and .gql files)
 (use-package graphql-mode
-  :ensure t
+  :straight t
   :mode (("\\.gql\\'" . graphql-mode)
          ("\\.graphql\\'" . graphql-mode))
   :hook ((graphql-mode . prettier-mode)))
@@ -1352,8 +1190,7 @@ if there is one)."
 ;; which-key is a minor mode for Emacs that displays the key bindings following
 ;; your currently entered incomplete command (a prefix) in a popup.
 (use-package which-key
-  :ensure t
-  :pin melpa-stable
+  :straight t
   :defer 5 ;; load after 5s
   :diminish
   :config
@@ -1381,7 +1218,9 @@ if there is one)."
          ("C-c o >" . org-clock-in)
          ("C-c o <" . org-clock-out)
          ("C-c C-s" . org-schedule)
-         ("C-c C-d" . org-deadline))
+         ("C-c C-d" . org-deadline)
+	 ;; jump to heading with live preview
+	 ("C-c o h" . consult-outline))
   :init
   ;; make org-mode table editor available in text-mode (or derived modes)
   (add-hook 'text-mode-hook #'my-enable-orgtbl-mode)
@@ -1442,8 +1281,10 @@ if there is one)."
   (defun my-org-open ()
     "Interactively open a file in `org-directory`."
     (interactive)
-    (counsel-find-file org-directory)))
-
+    ;; using temp buffer avoids changing `default-directory` in current buffer
+    (with-temp-buffer
+      (let ((default-directory (format "%s/" org-directory)))
+	(call-interactively #'find-file)))))
 
 
 (use-package ruby-mode
@@ -1453,9 +1294,9 @@ if there is one)."
   (lsp-deferred))
 
 (use-package vterm
-  :ensure t
+  :straight t
   ;; set up key-bindings and lazily load package whenever either is called
-  :bind (("C-c t" . vterm-other-window)
+  :bind (("C-c v t" . vterm-other-window)
          ;; key-bindings for vterm-mode buffers
          :map vterm-mode-map
          ;; toggle from term input to emacs buffer (search/copy) mode
@@ -1466,19 +1307,17 @@ if there is one)."
 
 ;; a package for making screencasts within Emacs.
 (use-package gif-screencast
-  :ensure t
-  :bind (("C-c s s" . gif-screencast-start-or-stop)
-	 ("C-c s p" . gif-screencast-toggle-pause))
+  :straight t
+  :bind (("C-c C-s s" . gif-screencast-start-or-stop)
+	 ("C-c C-s p" . gif-screencast-toggle-pause))
   :config
   (setq gif-screencast-program "scrot")
   (setq gif-screencast-output-directory (expand-file-name "~/.emacs.d/screencasts")))
 
 ;; enable through `keycast-mode` or `keycast-log-mode`
 (use-package keycast
-  :ensure t
+  :straight t
   :defer t)
-
-
 
 
 ;;; Finalization
