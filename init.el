@@ -482,7 +482,7 @@ Org-modes table editor commands available."
 ;; Activate via M-x rainbow-mode
 (use-package rainbow-mode
   :straight t
-  :defer 5
+  :commands (rainbow-mode)
   :diminish
   :config
   ;; don't highlight color words such as "white", "blue"
