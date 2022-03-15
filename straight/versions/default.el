@@ -39,7 +39,7 @@
  ("json-snatcher" . "b28d1c0670636da6db508d03872d96ffddbc10f2")
  ("keycast" . "a94f9839addabc2d491ee5c8927453ae2c5ce0fb")
  ("lsp-java" . "ce03cb6574566e334c3ce5735458cc3ec1989486")
- ("lsp-mode" . "fc5c06c562cea739e2a969f261aa8670120a4c82")
+ ("lsp-mode" . "0147f98a9c5747f4ea318a3b74e78d43ed1e5e8e")
  ("lsp-pyright" . "d428dbcf1802fbe147271c8dc74b073bd9cd7403")
  ("lsp-treemacs" . "72d367757a89453a712f6ba1df9b6e789ece2bbd")
  ("lsp-ui" . "21ce926eedd41ef305c2d89412506ce59b1a7eac")
