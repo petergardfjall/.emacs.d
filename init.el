@@ -983,6 +983,7 @@ for symbol at point if there is one)."
   :config
   (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
+  (add-hook 'yaml-mode-hook #'my-highlight-todos)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'yaml-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'yaml-mode-hook 'my-strip-on-save-hook))
