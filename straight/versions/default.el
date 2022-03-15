@@ -32,6 +32,7 @@
  ("go-mode.el" . "3273fcece5d9ab7edd4f15b2d6bce61f4e5a0666")
  ("graphql-mode" . "9740e4027bd9313697d5cac5caaa5b15626ab1da")
  ("groovy-emacs-modes" . "bf732d367b16887f81d404481c11ed1a58671d4e")
+ ("highlight-indent-guides" . "cf352c85cd15dd18aa096ba9d9ab9b7ab493e8f6")
  ("ht.el" . "c4c1be487d6ecb353d07881526db05d7fc90ea87")
  ("hydra" . "9e9e00cb240ea1903ffd36a54956b3902c379d29")
  ("iter2" . "077684feec98ce6d5e283a13f056c083986628a2")

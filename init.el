@@ -1288,6 +1288,13 @@ for symbol at point if there is one)."
 	(call-interactively #'find-file)))))
 
 
+(use-package highlight-indent-guides
+  :straight t
+  :hook ((emacs-lisp-mode . highlight-indent-guides-mode))
+  :config
+  (setq highlight-indent-guides-method 'character))
+
+
 (use-package ruby-mode
   :mode (("\\.rb\\'"  . ruby-mode))
   :config
