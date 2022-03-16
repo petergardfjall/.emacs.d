@@ -1065,7 +1065,7 @@ for symbol at point if there is one)."
   :config
   (message "terraform-mode config ...")
   ;; terraform language server (installed separately).
-  ;; (setq lsp-terraform-server "terraform-lsp")
+  (setq lsp-terraform-server '("terraform-ls" "serve"))
   ;; enable terraform-lsp's own logging
   ;; (setq lsp-terraform-enable-logging t)
   (lsp-deferred)
