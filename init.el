@@ -500,7 +500,8 @@ Org-modes table editor commands available."
         ("C-Z" . undo-tree-redo)
         ;; show undo tree (can select state and press 'q')
         ("C-c u t" . undo-tree-visualize))
-  )
+  :config
+  (setq undo-tree-auto-save-history nil))
 
 ;; built-in project.el
 (use-package project
