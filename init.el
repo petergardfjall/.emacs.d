@@ -438,8 +438,6 @@ Org-modes table editor commands available."
   :straight t
   :after lsp-mode
   :config
-  ;; additional decorations for candidates
-  (consult-lsp-marginalia-mode +1)
   ;; select diagnostics from the current lsp workspace
   (define-key lsp-mode-map (kbd "C-c l d") #'consult-lsp-diagnostics)
   ;; select symbols from the current lsp workspace
@@ -564,7 +562,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 (use-package corfu
   :straight t
   :init
-  (corfu-global-mode)
+  (global-corfu-mode)
   :config
   (setq
    ;; enable auto-completion
