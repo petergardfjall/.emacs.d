@@ -663,46 +663,52 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 	      ;; conflicts with hydra-windows
 	      ("C-c C-w" . nil))
   :config
-  (setq treemacs-indentation 2)
-  (setq treemacs-indentation-string " ")
-  (setq treemacs-missing-project-action 'ask)
-  ;; use textual icons
-  (setq treemacs-no-png-images t)
-  ;; if true: keep only the current project expanded and all others closed.
-  (setq treemacs-project-follow-cleanup nil)
-  ;; path where workspace state (all added projects) is saved (a separate
-  ;; treemacs state file is kept for each location where emacs is opened --
-  ;; assumed to be project root most of the time):
-  ;; ~/.emacs.d/treemacs-persist/<working-dir>
-  (setq treemacs-persist-file (concat user-emacs-directory "treemacs" (getenv "PWD") "/treemacs-persist"))
-  (setq treemacs-show-hidden-files t)
-  (setq treemacs-width 35)
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (treemacs-fringe-indicator-mode t)
-  (pcase (cons (not (null (executable-find "git")))
-               (not (null (executable-find "python3"))))
-    (`(t . t)
-     (treemacs-git-mode 'deferred))
-    (`(t . _)
-     (treemacs-git-mode 'simple)))
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-file-follow-delay               0.2
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+	  ;; use textual icons
+          treemacs-no-png-images                   t
+          ;; if true: keep only the current project expanded and all others closed.
+          treemacs-project-follow-cleanup nil
+          ;; path where workspace state (all added projects) is saved (a separate
+          ;; treemacs state file is kept for each location where emacs is opened --
+          ;; assumed to be project root most of the time):
+          ;; ~/.emacs.d/treemacs-persist/<working-dir>
+          treemacs-persist-file (concat user-emacs-directory "treemacs" (getenv "PWD") "/treemacs-persist")
+          treemacs-position                        'left
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+	  treemacs-show-hidden-files t)
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+    (treemacs-hide-gitignored-files-mode nil))
   :bind
   (:map global-map
         ;; hide/show treemacs file explorer
         ("<f8>" . my-toggle-treemacs)))
 
 
-;; Quickly add your projectile projects to the treemacs workspace.
-(use-package treemacs-projectile
-  :straight t
-  :after treemacs projectile)
-
 ;; A small utility package to fill the small gaps left by using filewatch-mode
 ;; and git-mode in conjunction with magit: it will inform treemacs about
 ;; (un)staging of files and commits happening in magit.
 (use-package treemacs-magit
   :straight t
-  :after treemacs magit)
+  :after (treemacs magit))
 
 ;; transparently open compressed files
 (use-package auto-compression-mode
