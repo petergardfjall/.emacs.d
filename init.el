@@ -523,7 +523,7 @@ Org-modes table editor commands available."
 (use-package postrace
   :straight (postrace :type git :host github
 		      :repo "petergardfjall/emacs-postrace"
-		      :branch "initial-version")
+		      :branch "main")
   :bind (("C-c p p" . postrace-push)
 	 ("C-c p b" . postrace-browse)))
 
