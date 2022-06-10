@@ -1224,10 +1224,6 @@ for symbol at point if there is one)."
   :init
   ;; make org-mode table editor available in text-mode (or derived modes)
   (add-hook 'text-mode-hook #'my-enable-orgtbl-mode)
-  ;; extend the org-mode markup by having text surrounded by backticks "`"
-  ;; display with verbatim face
-  (font-lock-add-keywords 'org-mode
-    '(("`[^`\n\r\t]+`" 0 'org-verbatim prepend)) 'append)
   :config
   ;; always run in org-indent-mode (level by indent rather than asterisks)
   (setq org-startup-indented t)
@@ -1241,12 +1237,22 @@ for symbol at point if there is one)."
   ;; when entering org files: start in folded `OVERVIEW` state?
   ;; can also be configured per file with `#+STARTUP`.
   (setq org-startup-folded nil)
-  (setq org-emphasis-alist '(("*" bold)
-                             ("/" italic)
-                             ("_" underline)
-                             ("=" org-verbatim verbatim)
-                             ("~" org-code verbatim)
-                             ("+" (:strike-through t))))
+
+  ;; Extend the org-mode markup to be fontified like markdown:
+  ;; - surround with "`": verbatim/code face
+  ;; - surround with "**": bold
+  ;; - surround with "*": italic
+  ;; - surround with "_": underline
+  ;; - surround with "~": strike-through
+  ;; This should work both for single-line sentences and (fill-column) folded
+  ;; sentences.
+  (font-lock-add-keywords 'org-mode
+			  '(("`[^`]+`" 0 'org-verbatim prepend)
+			    ("\\*\\*[^\\*]*\\*\\*" . 'bold)
+			    ("\\*[^\\*]*\\*" . 'italic))
+			  'append)
+  (setq org-emphasis-alist '(("_" underline)
+                             ("~" (:strike-through t))))
 
   ;; default location to look for org files.
   (setq org-directory "~/org")
