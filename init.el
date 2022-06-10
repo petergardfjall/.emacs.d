@@ -927,6 +927,8 @@ for symbol at point if there is one)."
   ;; Reuse a single *godoc* buffer to display godoc-at-point calls.
   (setq godoc-reuse-buffer t)
   (add-hook 'before-save-hook 'gofmt-before-save)
+  ;; Sets the fill column (where to break paragraphs on M-q)
+  (add-hook 'go-mode-hook (lambda () (setq fill-column 100)))
   ;; start lsp-mode
   ;; NOTE: relies on gopls lsp server being on the PATH
   (add-hook 'go-mode-hook #'lsp-deferred))
