@@ -854,17 +854,24 @@ for symbol at point if there is one)."
 
 ;; Client library for Debug Adapter Protocol (DAP). Similar to LSP, but
 ;; integrates with debug servers.
+;;
 ;; Note: enable individual language support via `dap-<language>` packages.
+;;
+;; Note: launch.json files in the project root are supported. All configurations
+;; in the launch.json will show up on `dap-debug'.
+;; - See https://code.visualstudio.com/docs/editor/debugging
+;; - See https://code.visualstudio.com/docs/editor/variables-reference
 (use-package dap-mode
   :straight t
   :commands (dap-debug dap-debug-edit-emplate)
   :hook (
 	 ;; Note: if debugging test files: use "Go Launch File Configuration"
 	 ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
-	 (go-mode . (lambda () (require 'dap-dlv-go) (dap-go-setup)))
+	 (go-mode . (lambda () (require 'dap-dlv-go)))
 	 (python-mode . (lambda () (require 'dap-python))))
   :config
   (dap-mode 1)
+
   (dap-ui-mode 1)
   ;; mouse hover support
   (dap-tooltip-mode 1)
