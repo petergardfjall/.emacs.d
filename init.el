@@ -861,7 +861,7 @@ for symbol at point if there is one)."
   :hook (
 	 ;; Note: if debugging test files: use "Go Launch File Configuration"
 	 ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
-	 (go-mode . (lambda () (require 'dap-go) (dap-go-setup)))
+	 (go-mode . (lambda () (require 'dap-dlv-go) (dap-go-setup)))
 	 (python-mode . (lambda () (require 'dap-python))))
   :config
   (dap-mode 1)
