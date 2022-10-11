@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: pretty
+# key: pretty
+# contributor : @petergardfjall
+# --
+func prettyJSON(v interface{}) string {
+     data, err := json.MarshalIndent(v, "", "  ")
+     if err != nil {
+         return fmt.Sprintf("%#v", v)
+     }
+     return string(data)
+}
