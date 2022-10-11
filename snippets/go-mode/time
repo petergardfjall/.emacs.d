@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: time
+# key: time
+# contributor : @petergardfjall
+# --
+func mustParseTime(tm string) time.Time {
+     t, err := time.Parse(time.RFC3309, tm)
+     if err != nil {
+         return panic(err.Error())
+     }
+     return t
+}
