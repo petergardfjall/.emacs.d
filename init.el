@@ -801,8 +801,7 @@ for symbol at point if there is one)."
   (setq lsp-headerline-breadcrumb-enable nil)
 
   ;; file-watcher ignored directories
-  (push "[/\\\\]_build$" lsp-file-watch-ignored-directories)
-  (push "[/\\\\].venv$" lsp-file-watch-ignored-directories)
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].out$" )
 
   ;; keybindings for Language Server Protocol features
   (define-key lsp-mode-map (kbd "<M-down>") #'lsp-find-definition)
