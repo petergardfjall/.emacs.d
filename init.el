@@ -1217,6 +1217,7 @@ for symbol at point if there is one)."
          ("C-c o l" . org-store-link)
          ("C-c o c" . org-capture)
          ("C-c o a" . org-agenda)
+	 ("C-c o b" . browse-url-xdg-open) ;; open URL at point
          ;; key-bindings for org-mode buffers
          :map org-mode-map
          ;; x as in "check as done"
