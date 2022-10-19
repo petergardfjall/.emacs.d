@@ -4,9 +4,9 @@
 # contributor : @petergardfjall
 # --
 func mustParseTime(tm string) time.Time {
-     t, err := time.Parse(time.RFC3309, tm)
+     t, err := time.Parse(time.RFC3339, tm)
      if err != nil {
-         return panic(err.Error())
+         panic(err.Error())
      }
      return t
 }
