@@ -372,7 +372,12 @@ Org-modes table editor commands available."
   (load-theme 'immaterial-dark t))
 
 ;;
-;; completing-read setup: vertico + consult + orderless + marginalia
+;; Vertico is a completing-read implementation with vertical candidate display.
+;;
+;; It can be combined with other libraries such as:
+;; - Consult: practical commands based on completing-read.
+;; - Orderless: provides a "completion style" for completing-read.
+;; - Marginalia: show candidate annotations in minibuffer.
 ;;
 (use-package vertico
   :straight t
@@ -387,18 +392,17 @@ Org-modes table editor commands available."
   (define-key vertico-map "?" #'minibuffer-completion-help)
   (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
 
-;; This package provides an orderless completion style that divides the pattern
-;; into space-separated components, and matches candidates that match all of the
-;; components in any order. Each component can match in any one of several ways:
-;; literally, as a regexp, as an initialism, in the flex style, or as multiple
-;; word prefixes. By default, regexp and literal matches are enabled. Works with
-;; the built-in icomplete package or with some third party minibuffer completion
-;; frameworks such as Vertico and Selectrum.
+;;
+;; Orderless provides a "completion style" for completing-read.
+;;
 (use-package orderless
   :straight t
   :init
   (setq
-   completion-styles '(partial-completion orderless))
+   ;; Default completion style for completing-read.
+   completion-styles '(substring orderless partial-completion)
+   ;; Completion style used for the "file" category.
+   completion-category-overrides '((file (styles basic partial-completion))))
   :config
   ;; use orderless for lsp completion. See
   ;; https://github.com/minad/corfu/issues/41#issuecomment-974724805
@@ -409,11 +413,12 @@ Org-modes table editor commands available."
 		    '(orderless)))))
 
 
+;; Consult provides practical commands based on completing-read.
 (use-package consult
   :straight t
   :bind (("C-x b"   . consult-buffer)    ;; switch-to-buffer
 	 ("M-g g"   . consult-goto-line) ;; goto-line
-	 ("C-s"     . consult-line)      ;; isearch
+	 ("C-s"     . consult-line)      ;; isearch replacement (one match/line)
 	 ;; "search git": free-text search in version-controlled files
 	 ("C-c s g" . consult-git-grep)
 	 ;; "search project": free-text search in all project files
@@ -448,6 +453,7 @@ Org-modes table editor commands available."
 ;;
 ;; Adds richer annotations for minibuffer completions for any completing-read
 ;; compatible framework (such as selectrum or vertico). Similar to ivy-rich.
+;;
 (use-package marginalia
   :straight t
   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
