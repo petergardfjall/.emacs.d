@@ -185,16 +185,17 @@ negative)."
              (list 2))))))
 
 (defun my-enable-line-numbers-mode ()
-  "Enable display-line-numbers-mode in buffer."
+  "Enable `display-line-numbers-mode' in buffer."
   (display-line-numbers-mode 1))
 
 (defun my-disable-line-numbers-mode ()
-  "Disable display-line-numbers-mode in buffer."
+  "Disable `display-line-numbers-mode' in buffer."
   (display-line-numbers-mode -1))
 
 (defun my-enable-orgtbl-mode ()
-  "Enable orgtbl-mode. orgtbl-mode is a minor mode that makes
-Org-modes table editor commands available."
+  "Enable `orgtbl-mode'.
+`orgtbl-mode' is a minor mode that makes Org-modes table editor
+commands available."
   (require 'org)
   (orgtbl-mode 1))
 
@@ -333,10 +334,7 @@ Org-modes table editor commands available."
   (global-set-key (kbd "C-x w <left>")  #'windmove-left))
 
 
-
-
 (my-general-settings)
-
 
 ;;
 ;; Start of custom package installation/configuration.
@@ -372,50 +370,58 @@ Org-modes table editor commands available."
   (load-theme 'immaterial-dark t))
 
 ;;
-;; Vertico is a completing-read implementation with vertical candidate display.
+;; icomplete is a built-in `completing-read' implementation. We configure it to
+;; use vertical candidate display.
 ;;
-;; It can be combined with other libraries such as:
-;; - Consult: practical commands based on completing-read.
-;; - Orderless: provides a "completion style" for completing-read.
-;; - Marginalia: show candidate annotations in minibuffer.
-;;
-(use-package vertico
-  :straight t
-  :init
-  (vertico-mode)
+(use-package icomplete
   :config
   ;; Ignore case on various forms of `completing-read'.
   (setq completion-ignore-case t)
   (setq read-file-name-completion-ignore-case t)
   (setq read-buffer-completion-ignore-case t)
 
-  ;; enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-  ;; use page-up/down to move one page up/down among completion candidates
-  (define-key vertico-map (kbd "<next>") #'scroll-up-command)
-  (define-key vertico-map (kbd "<prior>") #'scroll-down-command)
-  (define-key vertico-map "?" #'minibuffer-completion-help)
-  (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
+  ;; Display candidates in a vertical list.
+  (icomplete-vertical-mode 1)
+  ;; Move point through list rather than rotate first entry.
+  (setq icomplete-scroll t)
+  (setq icomplete-show-matches-on-no-input t)
+  ;; Make more responsive.
+  (setq icomplete-max-delay-chars 0)
+  (setq icomplete-compute-delay 0.0)
+;; Don't bring up help dialog on failure to complete.
+  (setq completion-auto-help nil)
+  ;; Control how matches are ordered in *Completions* buffer on calls to
+  ;; `minibuffer-completion-help'.
+  (setq completions-format 'one-column)
+  ;; Truncate long completion candidate lines in the minibuffer.
+  (add-hook 'icomplete-minibuffer-setup-hook
+	    (lambda () (setq-local truncate-lines t)))
+
+  ;;
+  ;; Key bindings.
+  ;;
+  (define-key icomplete-minibuffer-map (kbd "<return>") #'icomplete-force-complete-and-exit)
+  ;; For `find-file' this allows forcing creation of a file whose name matches
+  ;; one of the completion candidates.
+  (define-key icomplete-minibuffer-map (kbd "C-<return>") #'icomplete-ret)
+  (define-key icomplete-minibuffer-map (kbd "<SPC>") nil)
+  ;; Open *Completions* buffer. Can be useful when there are a lot of candidates
+  ;; and `icomplete' won't allow paging through results.
+  (define-key minibuffer-local-completion-map (kbd "?") #'minibuffer-completion-help)
+  ;; Bring up *Completions* buffer until icomplete can scroll pages.
+  (define-key minibuffer-local-completion-map (kbd "<prior>") #'minibuffer-completion-help)
+  (define-key minibuffer-local-completion-map (kbd "<next>") #'minibuffer-completion-help))
+
 
 ;;
-;; Orderless provides a "completion style" for completing-read.
+;; Orderless provides a "completion style" for `completing-read' where
+;; space-separated words can be input as search terms.
 ;;
 (use-package orderless
   :straight t
   :init
-  (setq
-   ;; Default completion style for completing-read.
-   completion-styles '(substring orderless partial-completion)
-   ;; Completion style used for the "file" category.
-   completion-category-overrides '((file (styles basic partial-completion))))
-  :config
-  ;; use orderless for lsp completion. See
-  ;; https://github.com/minad/corfu/issues/41#issuecomment-974724805
-  (add-hook 'lsp-completion-mode-hook
-	    (lambda ()
-	      (setf (alist-get 'styles
-			       (alist-get 'lsp-capf completion-category-defaults))
-		    '(orderless)))))
+  (setq completion-styles '(orderless basic)))
+
 
 ;; Incremental buffer search configured to support navigation with up/down key.
 (use-package isearch
@@ -445,16 +451,12 @@ performance impact should be unnoticable though."
 	(consult-async-input-throttle 0.0))
     (consult-line-multi '(:predicate (lambda (buf) (eq buf (current-buffer)))))))
 
-
-
-
 ;; Consult provides practical commands based on completing-read.
 (use-package consult
   :straight t
-  :bind (("C-x b"   . consult-buffer)    ;; switch-to-buffer
-	 ("M-g g"   . consult-goto-line) ;; goto-line
+  :bind (("M-g g"   . consult-goto-line) ;; goto-line
 	 ;; "search buffer". runs grep in current buffer. Shows all findings in
-	 ;; live preview, but will jump to first occurence.
+	 ;; live preview, will start at first occurence.
 	 ("C-c s b" . my-buffer-search)
 	 ;; "search git": free-text search in version-controlled files
 	 ("C-c s g" . consult-git-grep)
@@ -468,14 +470,7 @@ performance impact should be unnoticable though."
   ;; Needed to make consult project-aware (for example for `consult-grep').
   (setq consult-project-root-function #'my-project-root)
   ;; Delay before starting a new async search (for example for `consult-grep').
-  (setq consult-async-input-debounce 0.2)
-
-  ;; Some consult commands support live previews. Here we disable them for cases
-  ;; where we don't want automatic live preview of a selected
-  ;; candidate. Instead, make this preview manually triggered by M-.
-  (consult-customize
-   consult-buffer ;; can add more space-separated commands here
-   :preview-key (kbd "M-.")))
+  (setq consult-async-input-debounce 0.2))
 
 ;; uses consult to display/select lsp-provided symbols and diagnostics.
 (use-package consult-lsp
@@ -624,6 +619,14 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
    corfu-count 15
    ;; miniumum popup width (in characters)
    corfu-min-width 20)
+
+  ;; Required to get the flex completion-style (and match highlighting) working
+  ;; in the corfu popup with LSP. See
+  ;; https://github.com/minad/corfu/issues/41#issuecomment-974724805
+  (add-hook 'lsp-completion-mode-hook
+          (lambda ()
+            (setf (alist-get 'lsp-capf completion-category-defaults)
+		  '((styles . (flex))))))
 
   ;; trigger completion
   (define-key global-map (kbd "C-<tab>") #'completion-at-point))
