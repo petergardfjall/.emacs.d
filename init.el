@@ -325,7 +325,7 @@ commands available."
   (global-set-key (kbd "C-c f d")  #'xref-find-definitions)
   (global-set-key (kbd "C-c f r")  #'xref-find-references)
   ;; see if documentation can be found for thing at point
-  (global-set-key (kbd "C-c C-d")  #'describe-symbol)
+  (global-set-key (kbd "C-c C-d")  #'eldoc)
 
   ;; Move between windows with C-x w <up|down|left|right>
   (global-set-key (kbd "C-x w <up>")    #'windmove-up)
@@ -425,7 +425,7 @@ commands available."
 
 ;; Incremental buffer search configured to support navigation with up/down key.
 (use-package isearch
-  :bind (("C-s" . isearch-forward)
+  :bind (("C-S-s" . isearch-forward)
 	 ("C-r" . isearch-backward)
 	 :map isearch-mode-map
 	 ("<up>"     . isearch-repeat-backward)
@@ -455,6 +455,8 @@ performance impact should be unnoticable though."
 (use-package consult
   :straight t
   :bind (("M-g g"   . consult-goto-line) ;; goto-line
+	 ;; search buffer with live preview.
+	 ("C-s"     . consult-line)
 	 ;; "search buffer". runs grep in current buffer. Shows all findings in
 	 ;; live preview, will start at first occurence.
 	 ("C-c s b" . my-buffer-search)
@@ -471,18 +473,6 @@ performance impact should be unnoticable though."
   (setq consult-project-root-function #'my-project-root)
   ;; Delay before starting a new async search (for example for `consult-grep').
   (setq consult-async-input-debounce 0.2))
-
-;; uses consult to display/select lsp-provided symbols and diagnostics.
-(use-package consult-lsp
-  :straight t
-  :after lsp-mode
-  :config
-  ;; select diagnostics from the current lsp workspace
-  (define-key lsp-mode-map (kbd "C-c l d") #'consult-lsp-diagnostics)
-  ;; select symbols from the current lsp workspace
-  (define-key lsp-mode-map (kbd "C-c l w") #'consult-lsp-symbols)
-  ;; select symbols from the current lsp file
-  (define-key lsp-mode-map (kbd "C-c l s") #'consult-lsp-file-symbols))
 
 ;;
 ;; Adds richer annotations for minibuffer completions for any completing-read
@@ -620,14 +610,6 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
    ;; miniumum popup width (in characters)
    corfu-min-width 20)
 
-  ;; Required to get the flex completion-style (and match highlighting) working
-  ;; in the corfu popup with LSP. See
-  ;; https://github.com/minad/corfu/issues/41#issuecomment-974724805
-  (add-hook 'lsp-completion-mode-hook
-          (lambda ()
-            (setf (alist-get 'lsp-capf completion-category-defaults)
-		  '((styles . (flex))))))
-
   ;; trigger completion
   (define-key global-map (kbd "C-<tab>") #'completion-at-point))
 
@@ -640,20 +622,16 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   ;; complete word from current buffers
   (add-to-list 'completion-at-point-functions #'cape-dabbrev))
 
+
 ;; built-in on-the-fly syntax checking, which highlights erroneous lines.
 (use-package flymake
   :diminish ;; don't display on modeline
   :hook ((prog-mode text-mode) . flymake-mode)
   :config
   ;; "show errors in project"
-  (define-key flymake-mode-map (kbd "C-c s e p")
-	      #'flymake-show-project-diagnostics)
+  (define-key flymake-mode-map (kbd "C-c s e p") #'flymake-show-project-diagnostics)
   ;; "show show errors in file"
-  (if (fboundp #'consult-flymake)
-      (define-key flymake-mode-map (kbd "C-c s e f")
-	      #'consult-flymake)
-    (define-key flymake-mode-map (kbd "C-c s e f")
-		#'flymake-show-buffer-diagnostics)))
+  (define-key flymake-mode-map (kbd "C-c s e f") #'flymake-show-buffer-diagnostics))
 
 
 ;; built-in on-the-fly spell checking for text or code comments.
@@ -808,154 +786,60 @@ for symbol at point if there is one)."
          ("\\.env\\'" . sh-mode))
   :config
   ;; use bash-language-server (installed separately via npm)
-  ;; (lsp-deferred)
   (add-hook 'sh-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
 
-(use-package lsp-mode
+(use-package eglot
   :straight t
-  :defer t
-  :commands (lsp lsp-deferred)
+  :hook ((c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure)
+         (cmake-mode . eglot-ensure)
+         (go-mode . eglot-ensure)
+	 (python-mode . eglot-ensure)
+         (rust-mode . eglot-ensure))
+  :commands (eglot eglot-ensure)
   :config
-  (message "lsp-mode config ...")
-  ;; automatically find detect and configure lsp-ui and company-lsp
-  (setq lsp-auto-configure t)
-  ;; kill an LSP server when there are no open buffers
-  (setq lsp-keep-workspace-alive nil)
+  ;; Automatically shut down server after killing last managed buffer.
+  (setq eglot-autoshutdown t)
+  ;; Prevent long identifier documentation to be shown when cursor "hovers" over
+  ;; an identifier.
+  (setq eldoc-echo-area-use-multiline-p nil)
+  ;; Be explicit about which LSP servers to use.
+  (add-to-list 'eglot-server-programs '((c-mode) . ("clangd")))
+  (add-to-list 'eglot-server-programs '((c++-mode) . ("clangd")))
+  (add-to-list 'eglot-server-programs '((cmake-mode) . ("cmake-language-server")))
+  (add-to-list 'eglot-server-programs '((golang-mode) . ("gopls")))
+  (add-to-list 'eglot-server-programs '((python-mode) . ("pyright-langserver" "--stdio")))
+  ;; See https://rust-analyzer.github.io/manual.html#rustup.
+  (add-to-list 'eglot-server-programs '((rust-mode) . ("rustup" "run" "stable" "rust-analyzer")))
+  ;; If `xref-find-definitions' lands in a file outside the project, momentarily
+  ;; consider that file managed by the same language server. This avoids
+  ;; starting a new language server for such external files (startup cost).
+  (setq eglot-extend-to-xref t)
 
-  ;; If non-nil, print all messages to/from lang server in *lsp-log*.
-  ;; Note: comes at a high performance cost.
-  (setq lsp-log-io nil)
-  ;; Define whether all of the returned by document/onHover will be displayed.
-  ;; If set to nil eldoc will show only the symbol information.
-  (setq lsp-eldoc-render-all nil)
-  ;; package used to show diagnostics
-  (setq lsp-diagnostics-provider :flymake)
-  ;; do not autoconfigure company-mode for completions (use capf/corfu)
-  (setq lsp-completion-provider :none)
-  (setq lsp-completion-show-detail t)
-  (setq lsp-completion-use-last-result t)
-  (setq lsp-completion-no-cache nil)
-  ;; Set to t to have eldoc display hover info when present.
-  (setq lsp-eldoc-enable-hover nil)
-  ;; Seconds to wait for a response from the language server before timing out.
-  (setq lsp-response-timeout 5)
-  ;; temporary fix for https://github.com/emacs-lsp/lsp-mode/issues/1778
-  (setq lsp-gopls-codelens nil)
-  ;; do not make references in files clickable. should fix:
-  ;; https://github.com/Alexander-Miller/treemacs/issues/626
-  (setq lsp-enable-links nil)
-  ;; don't show file path breadcrumb at top of window
-  (setq lsp-headerline-breadcrumb-enable nil)
+  (defun my-eldoc-close ()
+    (interactive)
+    (let ((eldoc-buf (get-buffer "*eldoc*")))
+      (when eldoc-buf
+	(with-current-buffer (get-buffer "*eldoc*")
+	  (kill-buffer-and-window)))))
 
-  ;; file-watcher ignored directories
-  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].out$" )
+  (define-key eglot-mode-map (kbd "<M-down>") #'xref-find-definitions)
+  (define-key eglot-mode-map (kbd "<M-up>")   #'xref-go-back)
+  (define-key eglot-mode-map (kbd "C-c f d")  #'xref-find-definitions)
+  (define-key eglot-mode-map (kbd "C-c f i")  #'eglot-find-implementation)
+  (define-key eglot-mode-map (kbd "C-c f r")  #'xref-find-references)
+  (define-key eglot-mode-map (kbd "C-c C-r")  #'eglot-rename)
+  (define-key eglot-mode-map (kbd "C-c d")    #'eldoc)
+  ;; Not strictly necessary but preserves old keybinding from lsp-mode.
+  (define-key eglot-mode-map (kbd "C-c e")    #'my-eldoc-close))
 
-  ;; keybindings for Language Server Protocol features
-  (define-key lsp-mode-map (kbd "<M-down>") #'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "<M-up>")   #'xref-pop-marker-stack)
-  (define-key lsp-mode-map (kbd "C-c h")    #'lsp-document-highlight)
-  (define-key lsp-mode-map (kbd "C-c f d")  #'lsp-find-definition)
-  (define-key lsp-mode-map (kbd "C-c f i")  #'lsp-goto-implementation)
-  (define-key lsp-mode-map (kbd "C-c f r")  #'lsp-find-references)
-  (define-key lsp-mode-map (kbd "C-c C-r")  #'lsp-rename)
-  (define-key lsp-mode-map (kbd "C-c C-d")  #'lsp-describe-thing-at-point))
-
-
-(use-package lsp-ui
-  :straight t
-  ;; gets started by lsp-mode
-  :commands lsp-ui-mode
-  :config
-  ;; display information about symbols on the current line as we type?
-  (setq lsp-ui-sideline-enable nil)
-  ;; indicate if lsp-ui-doc should be rendered on hover at every symbol. if nil
-  ;; `(lsp-ui-doc-show)` can still be used to open the docs for a symbol.
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-doc-max-width 70)
-  (setq lsp-ui-doc-delay 0.0)
-  (setq lsp-ui-doc-position 'top)
-  ;; disaply doc in a WebKit widget?
-  (setq lsp-ui-doc-use-webkit nil)
-  ;; enable lsp-ui-peek feature: M-x lsp-ui-peek-find-{references,definitions}
-  (setq lsp-ui-peek-enable t)
-  ;; show peek view even if there is only one candidate
-  (setq lsp-ui-peek-always-show t)
-  ;; lsp-ui specific keybindings
-  (define-key lsp-mode-map (kbd "C-c p d") #'lsp-ui-peek-find-definitions)
-  (define-key lsp-mode-map (kbd "C-c p r") #'lsp-ui-peek-find-references)
-  (define-key lsp-mode-map (kbd "C-c d")   #'lsp-ui-doc-show)
-  (define-key lsp-mode-map (kbd "C-c e")   #'lsp-ui-doc-hide) ; "end show"
-  )
-
-;; treemacs LSP integration. provides a few functions to enable views:
-;; - (lsp-treemacs-errors-list): tree-like error list.
-;; - (lsp-treemacs-symbols): open a view that shows symbols declared in buffer
-(use-package lsp-treemacs
-  :straight t
-  ;; defer loading of module until any of these functions are called *and* set
-  ;; up key bindings to invoke them.
-  :bind (("C-c t s" . lsp-treemacs-symbols)
-         ("C-c t e" . lsp-treemacs-errors-list))
-  :config)
-
-;; Client library for Debug Adapter Protocol (DAP). Similar to LSP, but
-;; integrates with debug servers.
-;;
-;; Note: enable individual language support via `dap-<language>` packages.
-;;
-;; Note: launch.json files in the project root are supported. All configurations
-;; in the launch.json will show up on `dap-debug'.
-;; - See https://code.visualstudio.com/docs/editor/debugging
-;; - See https://code.visualstudio.com/docs/editor/variables-reference
-(use-package dap-mode
-  :straight t
-  :commands (dap-debug dap-debug-edit-emplate)
-  :hook (
-	 ;; Note: if debugging test files: use "Go Launch File Configuration"
-	 ;; otherwise: use "Go Launch Unoptimized Debug Package Configuration"
-	 (go-mode . (lambda () (require 'dap-dlv-go)))
-	 (python-mode . (lambda () (require 'dap-python))))
-  :config
-  (dap-mode 1)
-
-  (dap-ui-mode 1)
-  ;; mouse hover support
-  (dap-tooltip-mode 1)
-  ;; tooltips on mouse hover
-  ;; if it is not enabled `dap-mode` will use the minibuffer.
-  (tooltip-mode 1)
-  ;; display floating panel with debug buttons
-  (dap-ui-controls-mode 1)
-
-  ;; enable/disable output to `*Messages*` buffer
-  (setq dap-print-io t)
-  ;; trigger hydra when a debugged program hits a breakpoint
-  (add-hook 'dap-stopped-hook
-	    (lambda (arg) (call-interactively #'dap-hydra)))
-
-  ;; dap-python: seems required in order for dap-mode to find pyenv-provided
-  ;; python executable. see:
-  ;; https://github.com/emacs-lsp/dap-mode/issues/126#issuecomment-754282754
-  (defun dap-python--pyenv-executable-find (command)
-    (executable-find command)))
-
-
-;; Use microsoft's (nodejs-based) `pyright` language server for python.
-(use-package lsp-pyright
-  :straight t
-  :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-  :config
-  ;; don't watch files in .venv
-  (push "[/\\\\]\\.venv$" lsp-file-watch-ignored))
 
 (use-package python
   :mode (("\\.py\\'" . python-mode))
   ;; note: no :ensure since it is already built into emacs
   :config
-  (message "python buffer setup hook ...")
-
-  ;; no tabs for indentation
+   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'python-mode-hook 'my-untabify-on-save-hook)
@@ -971,8 +855,8 @@ for symbol at point if there is one)."
 
 (use-package go-mode
   :straight t
-  :defer t
-  :mode (("\\.go\\'" . go-mode))
+  :mode (("\\.go\\'"  . go-mode)
+	 ("go.mod\\'" . go-mode))
   :config
   (message "go-mode config ...")
   ;; run gofmt (or actually, goimports) on save
@@ -982,10 +866,8 @@ for symbol at point if there is one)."
   (setq godoc-reuse-buffer t)
   (add-hook 'before-save-hook 'gofmt-before-save)
   ;; Sets the fill column (where to break paragraphs on M-q)
-  (add-hook 'go-mode-hook (lambda () (setq fill-column 100)))
-  ;; start lsp-mode
-  ;; NOTE: relies on gopls lsp server being on the PATH
-  (add-hook 'go-mode-hook #'lsp-deferred))
+  (add-hook 'go-mode-hook (lambda () (setq fill-column 100))))
+
 
 ;; golangci-lint support via flymake
 (use-package flymake-golangci
@@ -1011,8 +893,8 @@ for symbol at point if there is one)."
 ;; Major mode for JavaScript and React/JSX (built-into Emacs).
 ;; `js-mode` comes with syntax highlighting/indent support for JSX.
 (use-package js
-  :mode (("\\.js\\'" . (lambda () (js-mode) (lsp-deferred)))
-	 ("\\.jsx\\'" . (lambda () (js-mode) (lsp-deferred))))
+  :mode (("\\.js\\'" . (lambda () (js-mode)))
+	 ("\\.jsx\\'" . (lambda () (js-mode))))
   :config
   (message "js buffer config ...")
   (setq
@@ -1117,13 +999,6 @@ for symbol at point if there is one)."
   :defer t
   :mode (("\\.tf\\'" . terraform-mode))
   :config
-  (message "terraform-mode config ...")
-  ;; terraform language server (installed separately).
-  (setq lsp-terraform-server '("terraform-ls" "serve"))
-  ;; enable terraform-lsp's own logging
-  ;; (setq lsp-terraform-enable-logging t)
-  (lsp-deferred)
-
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'terraform-mode-hook #'my-untabify-on-save-hook)
   (add-hook 'terraform-mode-hook #'my-strip-on-save-hook))
@@ -1151,9 +1026,7 @@ for symbol at point if there is one)."
   (message "rust-mode config ...")
   (setq indent-tabs-mode nil)
   ;; automatic formatting
-  (setq rust-format-on-save t)
-  ;; start rust LSP server.
-  (add-hook 'rust-mode-hook #'lsp-deferred))
+  (setq rust-format-on-save t))
 
 
 (defun my-c-mode-common ()
@@ -1167,14 +1040,6 @@ for symbol at point if there is one)."
     :config
     ;; style to use when calling `clang-format-buffer`
     (setq clang-format-style "WebKit"))
-
-  ;; clangd is the default LSP server for C/C++
-  (setq lsp-clients-clangd-executable "clangd")
-  ;; extra arguments for clangd
-  (setq lsp-clients-clangd-args '("-background-index" "-log=error"))
-  ;; Note: clangd needs to know your build flags. Generate a
-  ;; compile_commands.json for this purpose using cmake or bear.
-  (lsp-deferred)
 
   ;; add buffer-local save hooks
   (add-hook 'before-save-hook #'clang-format-buffer nil t))
@@ -1198,31 +1063,12 @@ for symbol at point if there is one)."
 
 ;; cmake setup.
 (use-package cmake-mode
-  :disabled
   :straight t
   :mode (("CMakeLists.txt\\'" . cmake-mode)
          ("\\.cmake\\'" . cmake-mode))
   :config
-  ;; run cmake language server (installed separately with pip)
-  (lsp-deferred))
+)
 
-
-;; Java setup.
-(use-package lsp-java
-  :straight t
-  :defer t
-  :hook (java-mode . (lambda () (require 'lsp-java) (lsp-deferred)))
-  :bind (:map java-mode-map
-	      ;; conflicts with hydra-windows
-              ("C-c C-w" . nil)
-	      ;; conflicts with describe-symbol/lsp-describe-thing-at-point
-	      ("C-c C-d" . nil))
-  :config
-  ;; disable completion cache
-  (setq company-lsp-cache-candidates nil)
-  ;; add buffer-local save hook only for buffers in this mode
-  (add-hook 'java-mode-hook #'my-untabify-on-save-hook)
-  (add-hook 'java-mode-hook #'my-strip-on-save-hook))
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
@@ -1358,9 +1204,7 @@ for symbol at point if there is one)."
 
 (use-package ruby-mode
   :mode (("\\.rb\\'"  . ruby-mode))
-  :config
-  ;; use ruby language server (installed as a separate gem)
-  (lsp-deferred))
+  :config)
 
 (use-package vterm
   :straight t
