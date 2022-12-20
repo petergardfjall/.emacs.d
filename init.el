@@ -384,6 +384,11 @@ Org-modes table editor commands available."
   :init
   (vertico-mode)
   :config
+  ;; Ignore case on various forms of `completing-read'.
+  (setq completion-ignore-case t)
+  (setq read-file-name-completion-ignore-case t)
+  (setq read-buffer-completion-ignore-case t)
+
   ;; enable recursive minibuffers
   (setq enable-recursive-minibuffers t)
   ;; use page-up/down to move one page up/down among completion candidates
@@ -412,13 +417,45 @@ Org-modes table editor commands available."
 			       (alist-get 'lsp-capf completion-category-defaults))
 		    '(orderless)))))
 
+;; Incremental buffer search configured to support navigation with up/down key.
+(use-package isearch
+  :bind (("C-s" . isearch-forward)
+	 ("C-r" . isearch-backward)
+	 :map isearch-mode-map
+	 ("<up>"     . isearch-repeat-backward)
+	 ("<down>"   . isearch-repeat-forward)))
+
+
+(defun my-buffer-search ()
+  "Search the current buffer for occurences of a string.
+
+It works by executing `consult-line-multi' only on the current
+buffer (controlled through a buffer predicate). `consult-line'
+offers similar functionality (`completing-read' search with live
+preview) but only highlights a single occurence of the search
+term in the buffer preview. `consult-line-multi' shows all
+occurences (like for example the regular `isearch-forward') but
+executes `grep' behind the scenes. For a single buffer the
+performance impact should be unnoticable though."
+  (interactive)
+  ;; For this call only, make the `grep' search more responsive.
+  (let ((consult-async-input-debounce 0.0)
+	(consult-async-min-input 1)
+	(consult-async-refresh-delay 0.0)
+	(consult-async-input-throttle 0.0))
+    (consult-line-multi '(:predicate (lambda (buf) (eq buf (current-buffer)))))))
+
+
+
 
 ;; Consult provides practical commands based on completing-read.
 (use-package consult
   :straight t
   :bind (("C-x b"   . consult-buffer)    ;; switch-to-buffer
 	 ("M-g g"   . consult-goto-line) ;; goto-line
-	 ("C-s"     . consult-line)      ;; isearch replacement (one match/line)
+	 ;; "search buffer". runs grep in current buffer. Shows all findings in
+	 ;; live preview, but will jump to first occurence.
+	 ("C-c s b" . my-buffer-search)
 	 ;; "search git": free-text search in version-controlled files
 	 ("C-c s g" . consult-git-grep)
 	 ;; "search project": free-text search in all project files
@@ -428,8 +465,10 @@ Org-modes table editor commands available."
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   :config
-  ;; Needed to make consult project-aware (for example for `consult-grep`).
+  ;; Needed to make consult project-aware (for example for `consult-grep').
   (setq consult-project-root-function #'my-project-root)
+  ;; Delay before starting a new async search (for example for `consult-grep').
+  (setq consult-async-input-debounce 0.2)
 
   ;; Some consult commands support live previews. Here we disable them for cases
   ;; where we don't want automatic live preview of a selected
@@ -1347,7 +1386,6 @@ for symbol at point if there is one)."
 
 
 ;;; Finalization
-
 
 ;; Output the time at which the loading of the init-file itself completed.
 (message "Loaded %s after %.3fs." load-file-name (my-elapsed-time))
