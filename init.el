@@ -1025,6 +1025,7 @@ for symbol at point if there is one)."
   :straight t
   :hook ((js-mode . prettier-mode)
 	 (yaml-mode . prettier-mode)
+	 (gfm-mode . prettier-mode)
 	 (markdown-mode . prettier-mode)))
 
 ;; Major mode for yaml file editing.
