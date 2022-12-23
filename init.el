@@ -669,9 +669,8 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; Highlight diffs (in the fringe) for version-controlled buffers.
 (use-package diff-hl
   :straight t
-  :defer 5
-  :diminish
   :hook ((prog-mode text-mode) . diff-hl-mode)
+  :diminish
   :config
   ;; refresh if magit does an update
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
