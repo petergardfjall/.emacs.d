@@ -25,9 +25,6 @@
 For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
 (defvar my-font-size 10.5 "Font size to use in points (for example, 10.5).")
 
-(defvar my-emacs-start-dir default-directory
-  "Directory from which Emacs was launched.")
-
 ;;
 ;; Tricks to reduce startup time. These need to be set at an early stage.
 ;;
