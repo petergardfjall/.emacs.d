@@ -252,7 +252,8 @@ commands available."
   (setq select-enable-clipboard t)
   ;; Middle mouse button inserts the clipboard (rather than emacs primary).
   (global-set-key (kbd "<mouse-2>") #'x-clipboard-yank)
-
+ ;; Use spaces for indentation.
+  (setq-default indent-tabs-mode nil)
   ;; No sudden jumps when cursor moves off top/bottom of screen. If the value is
   ;; greater than 100, redisplay will never recenter point, but will always
   ;; scroll just enough text to bring point into view
@@ -303,12 +304,10 @@ commands available."
   ;;
   ;; generic key bindings
   ;;
-
   ;; unbind unneeded/disturbing keybindings
   (global-set-key (kbd "C-t") nil) ;; transpose characters
   (global-set-key (kbd "M-t") nil) ;; transpose words
   (global-set-key (kbd "M-h") nil) ;; mark-paragraph
-
   ;; Comment line(s)
   (global-set-key (kbd "C-c c") #'comment-line)
   (global-set-key (kbd "C-c w") #'delete-trailing-whitespace)
