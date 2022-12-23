@@ -342,13 +342,12 @@ commands available."
 ;; make font larger/smaller globally (entire frame, not just per buffer)
 (use-package default-text-scale
   :straight t
-  :demand t
+  :bind (("C-x C-+" . default-text-scale-increase)
+	 ("C-x C--" . default-text-scale-decrease)
+	 ("C-x C-0" . my-set-default-font-height))
   :config
   ;; increment delta (in tenths of points), so needs to be divisible by 10.
-  (setq default-text-scale-amount 10)
-  (global-set-key (kbd "C-x C-+") #'default-text-scale-increase)
-  (global-set-key (kbd "C-x C--") #'default-text-scale-decrease)
-  (global-set-key (kbd "C-x C-0") #'my-set-default-font-height))
+  (setq default-text-scale-amount 10))
 
 
 (use-package immaterial-theme
