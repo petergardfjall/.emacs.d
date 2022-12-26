@@ -633,7 +633,6 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; built-in on-the-fly spell checking for text or code comments.
 (use-package flyspell
-  :disabled
   :diminish
   :hook ((prog-mode . flyspell-prog-mode)
          (text-mode . flyspell-mode)))
