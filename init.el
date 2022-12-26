@@ -234,45 +234,41 @@ commands available."
 ;;
 (defun my-general-settings ()
   "Apply appearance and general editor settings."
-
   (set-language-environment "UTF-8")
   (set-terminal-coding-system 'utf-8)
-  ;; system locale for formatting time values -- ensures that weekdays in the
+  ;; System locale for formatting time values -- ensures that weekdays in the
   ;; org-mode timestamps appear in English.
   (setq system-time-locale "C")
-
+  ;; Show column in mode-line.
   (setq column-number-mode t)
-  ;; wrap long lines
+  ;; Wrap long lines.
   (set-default 'truncate-lines nil)
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
-  ;; set the default font to use on all frames (see
+  ;; Set the default font to use on all frames (see
   ;; https://www.freedesktop.org/software/fontconfig/fontconfig-user.html)
   (add-to-list 'default-frame-alist `(font . ,(format "%s-%f" my-font my-font-size)))
-  ;; Allow copy/paste to/from system clipboard
+  ;; Allow copy/paste to/from system clipboard.
   (setq select-enable-clipboard t)
-  ;; Middle mouse button inserts the clipboard (rather than emacs primary)
+  ;; Middle mouse button inserts the clipboard (rather than emacs primary).
   (global-set-key (kbd "<mouse-2>") #'x-clipboard-yank)
 
   ;; No sudden jumps when cursor moves off top/bottom of screen. If the value is
   ;; greater than 100, redisplay will never recenter point, but will always
   ;; scroll just enough text to bring point into view
   ;; (setq scroll-conservatively 101)
-
-  ;; enable line numbers in all text-mode/prog-mode buffers
+  ;; Enable line numbers in all text-mode/prog-mode buffers.
   (add-hook 'text-mode-hook    #'my-enable-line-numbers-mode)
   (add-hook 'prog-mode-hook    #'my-enable-line-numbers-mode)
   ;; disable line numbers in special mode buffers (magit, treemacs)
   (add-hook 'special-mode-hook #'my-disable-line-numbers-mode)
-
+  ;; Highlight todo markers in code.
   (add-hook 'prog-mode-hook #'my-highlight-todos)
-
   ;; highlight the current line
   (global-hl-line-mode t)
   ;; disable current line highlighting while selecting/marking a region
   (add-hook 'activate-mark-hook (lambda () (global-hl-line-mode 0)))
   (add-hook 'deactivate-mark-hook (lambda () (global-hl-line-mode t)))
-
   ;; Make yes/no prompts shorter (y/n)
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; cursor appearance, default is 'box.
@@ -284,12 +280,10 @@ commands available."
       (setq initial-frame-alist `((width . ,my-frame-width))))
   ;; automatically revert current buffer when visited file changes on disk
   (global-auto-revert-mode)
-
   ;; Prevent emacs from writing customized settings to .emacs
   ;; By setting it as a temporary file, we effectively disable it.
   ;; Any changes become session-local.
   (setq custom-file (make-temp-file "emacs-custom"))
-
   ;; centralize emacs backups (avoid littering with files ending in `~`).
   (setq make-backup-files t    ; yes, we want backups
         backup-directory-alist '(("." . "~/.emacs.d/backup"))
@@ -298,15 +292,14 @@ commands available."
         delete-old-versions t  ; Automatically delete excess backups
         kept-new-versions 20   ; how many of the newest versions to keep
         kept-old-versions 5)   ; and how many of the old
-
   ;; don't create lockfiles for buffers being edited (`.#<file>`) as it
   ;; interferes with hot reloading in reactjs.
   (setq create-lockfiles nil)
-
   ;; Show matching paranthesis
   (setq show-paren-delay 0)
   (show-paren-mode 1)
-
+  ;; Allow minibuffer commands while in the minibuffer.
+  (setq enable-recursive-minibuffers t)
   ;;
   ;; generic key bindings
   ;;
@@ -326,7 +319,6 @@ commands available."
   (global-set-key (kbd "C-c f r")  #'xref-find-references)
   ;; see if documentation can be found for thing at point
   (global-set-key (kbd "C-c C-d")  #'eldoc)
-
   ;; Move between windows with C-x w <up|down|left|right>
   (global-set-key (kbd "C-x w <up>")    #'windmove-up)
   (global-set-key (kbd "C-x w <down>")  #'windmove-down)
@@ -350,6 +342,7 @@ commands available."
   :straight t
   :demand t)
 
+
 ;; make font larger/smaller globally (entire frame, not just per buffer)
 (use-package default-text-scale
   :straight t
@@ -361,6 +354,7 @@ commands available."
   (global-set-key (kbd "C-x C--") #'default-text-scale-decrease)
   (global-set-key (kbd "C-x C-0") #'my-set-default-font-height))
 
+
 (use-package immaterial-theme
   :straight (immaterial-theme
 	     :type git :host github
@@ -369,11 +363,13 @@ commands available."
   :config
   (load-theme 'immaterial-dark t))
 
+
 ;;
 ;; icomplete is a built-in `completing-read' implementation. We configure it to
 ;; use vertical candidate display.
 ;;
 (use-package icomplete
+  :demand t
   :config
   ;; Ignore case on various forms of `completing-read'.
   (setq completion-ignore-case t)
@@ -434,14 +430,13 @@ commands available."
 
 (defun my-buffer-search ()
   "Search the current buffer for occurences of a string.
-
 It works by executing `consult-line-multi' only on the current
-buffer (controlled through a buffer predicate). `consult-line'
+buffer (controlled through a buffer predicate).  `consult-line'
 offers similar functionality (`completing-read' search with live
 preview) but only highlights a single occurence of the search
-term in the buffer preview. `consult-line-multi' shows all
+term in the buffer preview.  `consult-line-multi' shows all
 occurences (like for example the regular `isearch-forward') but
-executes `grep' behind the scenes. For a single buffer the
+executes `grep' behind the scenes.  For a single buffer the
 performance impact should be unnoticable though."
   (interactive)
   ;; For this call only, make the `grep' search more responsive.
@@ -450,6 +445,7 @@ performance impact should be unnoticable though."
 	(consult-async-refresh-delay 0.0)
 	(consult-async-input-throttle 0.0))
     (consult-line-multi '(:predicate (lambda (buf) (eq buf (current-buffer)))))))
+
 
 ;; Consult provides practical commands based on completing-read.
 (use-package consult
@@ -473,6 +469,7 @@ performance impact should be unnoticable though."
   (setq consult-project-root-function #'my-project-root)
   ;; Delay before starting a new async search (for example for `consult-grep').
   (setq consult-async-input-debounce 0.2))
+
 
 ;;
 ;; Adds richer annotations for minibuffer completions for any completing-read
@@ -500,9 +497,7 @@ performance impact should be unnoticable though."
 
   ;; update annotator-registry to use my custom annotator for buffers
   (add-to-list 'marginalia-annotator-registry
-               '(buffer my-project-buffer-annotator none))
-  )
-
+               '(buffer my-project-buffer-annotator none)))
 
 
 ;; highlights occurences of colors (in text) with a background of that
@@ -515,6 +510,7 @@ performance impact should be unnoticable though."
   :config
   ;; don't highlight color words such as "white", "blue"
   (setq rainbow-x-colors nil))
+
 
 (use-package undo-tree
   :straight t
@@ -531,10 +527,12 @@ performance impact should be unnoticable though."
   :config
   (setq undo-tree-auto-save-history nil))
 
+
 ;; built-in project.el
 (use-package project
   :config
   (define-key global-map (kbd "C-c f f") #'project-find-file))
+
 
 (use-package wsp
   :straight (emacs-wsp :type git :host github
@@ -550,6 +548,7 @@ performance impact should be unnoticable though."
 	 ("C-x w p k" . wsp-project-close-current)
 	 ("C-x w p K" . wsp-project-close-other)))
 
+
 (use-package postrace
   :straight (postrace :type git :host github
 		      :repo "petergardfjall/emacs-postrace"
@@ -562,8 +561,7 @@ performance impact should be unnoticable though."
 (use-package hydra
   :straight t
   :config
-
-  ;; window navigation/resizing hydra
+  ;; Window navigation/resizing hydra.
   (defhydra hydra-windows (:hint nil)
     "
 windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
@@ -577,6 +575,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
     ("S-<down>"  shrink-window)
     ("q"         nil))
   (define-key global-map (kbd "C-c C-w") 'hydra-windows/body))
+
 
 ;; Transparent Remote Access, Multiple Protocols -- edit remote files
 (use-package tramp
@@ -613,7 +612,9 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   ;; trigger completion
   (define-key global-map (kbd "C-<tab>") #'completion-at-point))
 
+
 (use-package dabbrev)
+
 
 ;; adds `completion-at-point-functions', used by `completion-at-point'.
 (use-package cape
@@ -625,7 +626,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; built-in on-the-fly syntax checking, which highlights erroneous lines.
 (use-package flymake
-  :diminish ;; don't display on modeline
+  :diminish
   :hook ((prog-mode text-mode) . flymake-mode)
   :config
   ;; "show errors in project"
@@ -656,6 +657,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   ;;    see https://github.com/joaotavora/yasnippet
   (yas-global-mode 1))
 
+
 ;; A collection of snippets for many languages.
 (use-package yasnippet-snippets
   :straight t
@@ -669,6 +671,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   ;; up key bindings to invoke them.
   :bind (("C-x g" . magit-status)))
 
+
 ;; Highlight diffs (in the fringe) for version-controlled buffers.
 (use-package diff-hl
   :straight t
@@ -678,6 +681,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   :config
   ;; refresh if magit does an update
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
 
 ;; File navigator
 ;; Pressing '?' will show help hydra.
@@ -726,6 +730,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 (use-package treemacs-magit
   :straight t
   :after (treemacs magit))
+
 
 ;; transparently open compressed files
 (use-package auto-compression-mode
@@ -782,12 +787,13 @@ for symbol at point if there is one)."
 
 ;; when saving a buffer in sh-mode: untabify and delete trailing whitespace
 (use-package sh-script
-  :mode (("\\.sh\\'" . sh-mode)
-         ("\\.env\\'" . sh-mode))
+  :mode (("\\.sh$" . sh-mode)
+         ("\\.env$" . sh-mode))
   :config
   ;; use bash-language-server (installed separately via npm)
   (add-hook 'sh-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
+
 
 (use-package eglot
   :straight t
@@ -816,14 +822,12 @@ for symbol at point if there is one)."
   ;; consider that file managed by the same language server. This avoids
   ;; starting a new language server for such external files (startup cost).
   (setq eglot-extend-to-xref t)
-
   (defun my-eldoc-close ()
     (interactive)
     (let ((eldoc-buf (get-buffer "*eldoc*")))
       (when eldoc-buf
 	(with-current-buffer (get-buffer "*eldoc*")
 	  (kill-buffer-and-window)))))
-
   (define-key eglot-mode-map (kbd "<M-down>") #'xref-find-definitions)
   (define-key eglot-mode-map (kbd "<M-up>")   #'xref-go-back)
   (define-key eglot-mode-map (kbd "C-c f d")  #'xref-find-definitions)
@@ -836,7 +840,7 @@ for symbol at point if there is one)."
 
 
 (use-package python
-  :mode (("\\.py\\'" . python-mode))
+  :mode (("\\.py$" . python-mode))
   ;; note: no :ensure since it is already built into emacs
   :config
    ;; no tabs for indentation
@@ -844,6 +848,7 @@ for symbol at point if there is one)."
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'python-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'python-mode-hook 'my-strip-on-save-hook))
+
 
 ;; Use sphinx-doc when python-mode is activated. Gives a templated docstring
 ;; when pressing C-c M-d in function head.
@@ -853,10 +858,11 @@ for symbol at point if there is one)."
   :config
   (sphinx-doc-mode))
 
+
 (use-package go-mode
   :straight t
-  :mode (("\\.go\\'"  . go-mode)
-	 ("go.mod\\'" . go-mode))
+  :mode (("\\.go$"  . go-mode)
+	 ("^go.mod$" . go-mode))
   :config
   (message "go-mode config ...")
   ;; run gofmt (or actually, goimports) on save
@@ -878,10 +884,8 @@ for symbol at point if there is one)."
 ;; Major mode for json file editing.
 (use-package json-mode
   :straight t
-  :defer t
-  :mode (("\\.json\\'" . json-mode))
+  :mode (("\\.json$" . json-mode))
   :config
-  (message "json buffer config ...")
   (setq
    indent-tabs-mode nil
    js-indent-level 2) ; use 2 space indentation
@@ -890,16 +894,17 @@ for symbol at point if there is one)."
   (add-hook 'json-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'json-mode-hook 'my-strip-on-save-hook))
 
+
 ;; Major mode for JavaScript and React/JSX (built-into Emacs).
 ;; `js-mode` comes with syntax highlighting/indent support for JSX.
 (use-package js
-  :mode (("\\.js\\'" . (lambda () (js-mode)))
-	 ("\\.jsx\\'" . (lambda () (js-mode))))
+  :mode (("\\.js$" . js-mode)
+	 ("\\.jsx$" . js-mode))
   :config
-  (message "js buffer config ...")
   (setq
    indent-tabs-mode nil
    js-indent-level 2))
+
 
 ;; Enable the Prettier code-formatter's minor mode to format on save whenever we
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
@@ -910,36 +915,36 @@ for symbol at point if there is one)."
 	 (gfm-mode . prettier-mode)
 	 (markdown-mode . prettier-mode)))
 
+
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
   :straight t
-  :defer t
-  :mode (("\\.yaml\\'" . yaml-mode)
-         ("\\.yml\\'" . yaml-mode))
+  :mode (("\\.yaml$" . yaml-mode)
+         ("\\.yml$" . yaml-mode))
   :config
-  (message "yaml buffer config ...")
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook #'my-highlight-todos)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'yaml-mode-hook 'my-untabify-on-save-hook)
   (add-hook 'yaml-mode-hook 'my-strip-on-save-hook))
 
+
 ;; Major mode for markdown (.md) file editing.
 (use-package markdown-mode
   :straight t
-  :defer t
   :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . gfm-mode)
-         ("\\.markdown\\'" . gfm-mode)
+  :mode (("README\\.md$" . gfm-mode)
+         ("\\.md$" . gfm-mode)
+         ("\\.markdown$" . gfm-mode)
          ;; cheat sheets under ~/dotfiles/cheat/sheets
-         ("\\.cheat\\'" . markdown-mode))
+         ("\\.cheat$" . markdown-mode))
   :init (setq markdown-command "pandoc")
   :config
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
+
 
 (use-package markdown-preview-mode
   :straight t
@@ -962,31 +967,31 @@ for symbol at point if there is one)."
          ;; javascript that applies the highlight js lib to the doc
          "https://petergardfjall.github.io/js/emacs-markdown/github-markdown-block-highlight.js")))
 
+
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
   :straight t
-  :defer t
-  :mode (("\\.vcl\\'" . vcl-mode))
+  :mode (("\\.vcl$" . vcl-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'vcl-mode-hook #'my-untabify-on-save-hook)
   (add-hook 'vcl-mode-hook #'my-strip-on-save-hook))
 
+
 ;; Dockerfile editing
 (use-package dockerfile-mode
   :straight t
-  :defer t
-  :mode (("\\Dockerfile\\'" . dockerfile-mode))
+  :mode (("^.*Dockerfile$" . dockerfile-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'dockerfile-mode-hook #'my-untabify-on-save-hook)
   (add-hook 'dockerfile-mode-hook #'my-strip-on-save-hook))
 
+
 ;; TOML editing
 (use-package toml-mode
   :straight t
-  :defer t
-  :mode (("\\.toml\\'" . toml-mode))
+  :mode (("\\.toml$" . toml-mode))
   :config
   (add-hook 'toml-mode-hook #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
@@ -996,8 +1001,7 @@ for symbol at point if there is one)."
 
 (use-package terraform-mode
   :straight t
-  :defer t
-  :mode (("\\.tf\\'" . terraform-mode))
+  :mode (("\\.tf$" . terraform-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'terraform-mode-hook #'my-untabify-on-save-hook)
@@ -1006,10 +1010,8 @@ for symbol at point if there is one)."
 
 (use-package protobuf-mode
   :straight t
-  :defer t
-  :mode (("\\.proto\\'" . protobuf-mode))
+  :mode (("\\.proto$" . protobuf-mode))
   :config
-  (message "protobuf-mode config ...")
   (add-hook 'protobuf-mode-hook #'my-highlight-todos)
   (add-hook 'protobuf-mode-hook #'my-enable-line-numbers-mode)
   ;; add buffer-local save hook only for buffers in this mode
@@ -1020,10 +1022,8 @@ for symbol at point if there is one)."
 ;; Rust-mode
 (use-package rust-mode
   :straight t
-  :defer t
-  :mode (("\\.rs\\'" . rust-mode))
+  :mode (("\\.rs$" . rust-mode))
   :config
-  (message "rust-mode config ...")
   (setq indent-tabs-mode nil)
   ;; automatic formatting
   (setq rust-format-on-save t))
@@ -1054,6 +1054,7 @@ for symbol at point if there is one)."
   (message "c++-mode config ...")
   (my-c-mode-common))
 
+
 ;; C and C++ setup.
 (use-package cc-mode
   :hook cc-mode
@@ -1061,11 +1062,12 @@ for symbol at point if there is one)."
   (add-hook 'c-mode-hook   #'my-c-mode)
   (add-hook 'c++-mode-hook #'my-c++-mode))
 
+
 ;; cmake setup.
 (use-package cmake-mode
   :straight t
-  :mode (("CMakeLists.txt\\'" . cmake-mode)
-         ("\\.cmake\\'" . cmake-mode))
+  :mode (("CMakeLists.txt$" . cmake-mode)
+         ("\\.cmake$" . cmake-mode))
   :config
 )
 
@@ -1074,25 +1076,30 @@ for symbol at point if there is one)."
 (use-package eldoc
   :diminish eldoc-mode)
 
+
 ;; can be used for working with .groovy and Jenkinsfile
 (use-package groovy-mode
   :straight t
-  :defer t
-  :commands (groovy-mode))
+  :mode (("\\.groovy$" . groovy-mode)
+         ("\\.gvy$" . groovy-mode)
+	 ("\\.gy$" . groovy-mode)
+	 ("^Jenkinsfile$" . groovy-mode)))
+
 
 ;; emacs mode to edit GraphQL schemas and queries (automtically enabled when
 ;; opening .graphql and .gql files)
 (use-package graphql-mode
   :straight t
-  :mode (("\\.gql\\'" . graphql-mode)
-         ("\\.graphql\\'" . graphql-mode))
+  :mode (("\\.gql$" . graphql-mode)
+         ("\\.graphql$" . graphql-mode))
   :hook ((graphql-mode . prettier-mode)))
+
 
 ;; which-key is a minor mode for Emacs that displays the key bindings following
 ;; your currently entered incomplete command (a prefix) in a popup.
 (use-package which-key
   :straight t
-  :defer 5 ;; load after 5s
+  :defer 5
   :diminish
   :config
   ;; show popup at the bottom of the window
@@ -1102,6 +1109,7 @@ for symbol at point if there is one)."
   ;; delay after which which-key popup appears after starting to type a command
   (setq which-key-idle-delay 1.0)
   (which-key-mode))
+
 
 ;; org-mode
 (use-package org
@@ -1139,7 +1147,6 @@ for symbol at point if there is one)."
   ;; when entering org files: start in folded `OVERVIEW` state?
   ;; can also be configured per file with `#+STARTUP`.
   (setq org-startup-folded nil)
-
   ;; Extend the org-mode markup to be fontified like markdown:
   ;; - surround with "`": verbatim/code face
   ;; - surround with "**": bold
@@ -1155,7 +1162,6 @@ for symbol at point if there is one)."
 			  'append)
   (setq org-emphasis-alist '(("_" underline)
                              ("~" (:strike-through t))))
-
   ;; default location to look for org files.
   (setq org-directory "~/org")
   ;; files to include when compiling the agenda.
@@ -1166,13 +1172,11 @@ for symbol at point if there is one)."
   (setq org-archive-location "~/org/archive.org::* %s archive")
   ;; add archived items first under heading
   (setq org-archive-reversed-order t)
-
   ;; possible workflow states (use S-{left,right} to move throught states)
   (setq org-todo-keywords '((sequence "TODO" "STARTED" "BLOCKED"
                                       "|" "DONE")))
   ;; capture timestamp when a TODO changes state to DONE.
   (setq org-log-done 'time)
-
   ;; where to place captured notes.
   (setq org-default-notes-file (concat org-directory "/captured.org"))
   ;; templates to select from on org-capture
@@ -1185,7 +1189,6 @@ for symbol at point if there is one)."
   (setq org-capture-templates
         '(("w" "work" entry (file+headline "~/org/work.org" "Inbox")
            "* TODO %?")))
-
   (defun my-org-open ()
     "Interactively open a file in `org-directory`."
     (interactive)
@@ -1203,8 +1206,9 @@ for symbol at point if there is one)."
 
 
 (use-package ruby-mode
-  :mode (("\\.rb\\'"  . ruby-mode))
+  :mode (("\\.rb$"  . ruby-mode))
   :config)
+
 
 (use-package vterm
   :straight t
@@ -1218,6 +1222,7 @@ for symbol at point if there is one)."
   :config
   (setq vterm-kill-buffer-on-exit t))
 
+
 ;; a package for making screencasts within Emacs.
 (use-package gif-screencast
   :straight t
@@ -1226,6 +1231,7 @@ for symbol at point if there is one)."
   :config
   (setq gif-screencast-program "scrot")
   (setq gif-screencast-output-directory (expand-file-name "~/.emacs.d/screencasts")))
+
 
 ;; enable through `keycast-mode` or `keycast-log-mode`
 (use-package keycast
