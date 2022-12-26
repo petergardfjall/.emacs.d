@@ -388,21 +388,22 @@ commands available."
   ;; Truncate long completion candidate lines in the minibuffer.
   (add-hook 'icomplete-minibuffer-setup-hook
 	    (lambda () (setq-local truncate-lines t)))
-
   ;;
   ;; Key bindings.
   ;;
-  (define-key icomplete-minibuffer-map (kbd "<return>") #'icomplete-force-complete-and-exit)
-  ;; For `find-file' this allows forcing creation of a file whose name matches
-  ;; one of the completion candidates.
-  (define-key icomplete-minibuffer-map (kbd "C-<return>") #'icomplete-ret)
-  (define-key icomplete-minibuffer-map (kbd "<SPC>") nil)
-  ;; Open *Completions* buffer. Can be useful when there are a lot of candidates
-  ;; and `icomplete' won't allow paging through results.
-  (define-key minibuffer-local-completion-map (kbd "?") #'minibuffer-completion-help)
-  ;; Bring up *Completions* buffer until icomplete can scroll pages.
-  (define-key minibuffer-local-completion-map (kbd "<prior>") #'minibuffer-completion-help)
-  (define-key minibuffer-local-completion-map (kbd "<next>") #'minibuffer-completion-help))
+  (let ((m icomplete-minibuffer-map))
+    (define-key m (kbd "<return>") #'icomplete-force-complete-and-exit)
+    ;; For `find-file' this allows forcing creation of a file whose name matches
+    ;; one of the completion candidates.
+    (define-key m (kbd "C-<return>") #'icomplete-ret)
+    (define-key m (kbd "<SPC>") nil))
+  (let ((m minibuffer-local-completion-map))
+    ;; Open *Completions* buffer. Can be useful when there are a lot of
+    ;; candidates and `icomplete' won't allow paging through results.
+    (define-key m (kbd "?") #'minibuffer-completion-help)
+    ;; Bring up *Completions* buffer until icomplete can scroll pages.
+    (define-key m (kbd "<prior>") #'minibuffer-completion-help)
+    (define-key m (kbd "<next>") #'minibuffer-completion-help)))
 
 
 ;;
@@ -417,11 +418,13 @@ commands available."
 
 ;; Incremental buffer search configured to support navigation with up/down key.
 (use-package isearch
+  ;; Lazily load when called for.
   :bind (("C-S-s" . isearch-forward)
-	 ("C-r" . isearch-backward)
-	 :map isearch-mode-map
-	 ("<up>"     . isearch-repeat-backward)
-	 ("<down>"   . isearch-repeat-forward)))
+	 ("C-r"   . isearch-backward))
+  :config
+  (let ((m isearch-mode-map))
+    (define-key m (kbd "<up>") #'isearch-repeat-backward)
+    (define-key m (kbd "<up>") #'isearch-repeat-forward)))
 
 
 (defun my-buffer-search ()
@@ -473,14 +476,9 @@ performance impact should be unnoticable though."
 ;;
 (use-package marginalia
   :straight t
-  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
   ;; The :init configuration is always executed (Not lazy!)
   :init
   (marginalia-mode)
-
   (defun my-project-buffer-annotator (cand)
     (let* ((buffer (get-buffer cand)))
       (when-let (buffer-file (buffer-file-name buffer))
@@ -490,10 +488,12 @@ performance impact should be unnoticable though."
 	    (marginalia--fields
 	     (project-short :truncate 0.4 :face 'marginalia-value)
 	     (project-rel-dir :truncate 0.4 :face 'marginalia-documentation)))))))
-
   ;; update annotator-registry to use my custom annotator for buffers
   (add-to-list 'marginalia-annotator-registry
-               '(buffer my-project-buffer-annotator none)))
+               '(buffer my-project-buffer-annotator none))
+  :config
+  (let ((m minibuffer-local-map))
+    (define-key m (kbd "M-A") #'marginalia-cycle)))
 
 
 ;; highlights occurences of colors (in text) with a background of that
@@ -510,29 +510,28 @@ performance impact should be unnoticable though."
 
 (use-package undo-tree
   :straight t
-  :diminish undo-tree-mode ; don't display on modeline
+  :diminish undo-tree-mode
   :init
   (global-undo-tree-mode)
-  :bind
-  (:map undo-tree-map
-        ("C-x u" . undo)
-        ("C-z" . undo-tree-undo)
-        ("C-Z" . undo-tree-redo)
-        ;; show undo tree (can select state and press 'q')
-        ("C-c u t" . undo-tree-visualize))
   :config
-  (setq undo-tree-auto-save-history nil))
+  (setq undo-tree-auto-save-history nil)
+  (global-set-key (kbd "C-c u t") #'undo-tree-visualize)
+  (let ((m undo-tree-map))
+    (define-key m (kbd "C-x u") #'undo)
+    (define-key m (kbd "C-z")   #'undo-tree-undo)
+    (define-key m (kbd "C-Z") #'undo-tree-redo)))
 
 
 ;; built-in project.el
 (use-package project
   :config
-  (define-key global-map (kbd "C-c f f") #'project-find-file))
+  (global-set-key (kbd "C-c f f") #'project-find-file))
 
 
 (use-package wsp
   :straight (emacs-wsp :type git :host github
 		       :repo "petergardfjall/emacs-wsp")
+  ;; Lazily load when called for.
   :bind (("C-x w o"   . wsp-workspace-open)
 	 ("C-x w k"   . wsp-workspace-close)
 	 ("C-x w c"   . wsp-workspace-current)
@@ -549,6 +548,7 @@ performance impact should be unnoticable though."
   :straight (postrace :type git :host github
 		      :repo "petergardfjall/emacs-postrace"
 		      :branch "main")
+  ;; Lazily load when called for.
   :bind (("C-c p p" . postrace-push)
 	 ("C-c p b" . postrace-browse)))
 
@@ -625,10 +625,11 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   :diminish
   :hook ((prog-mode text-mode) . flymake-mode)
   :config
-  ;; "show errors in project"
-  (define-key flymake-mode-map (kbd "C-c s e p") #'flymake-show-project-diagnostics)
-  ;; "show show errors in file"
-  (define-key flymake-mode-map (kbd "C-c s e f") #'flymake-show-buffer-diagnostics))
+  (let ((m flymake-mode-map))
+    ;; "show errors in project"
+    (define-key m (kbd "C-c s e p") #'flymake-show-project-diagnostics)
+    ;; "show show errors in file"
+    (define-key m (kbd "C-c s e f") #'flymake-show-buffer-diagnostics)))
 
 
 ;; built-in on-the-fly spell checking for text or code comments.
@@ -662,8 +663,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; A Git porcelain inside Emacs.
 (use-package magit
   :straight t
-  ;; defer loading of module until any of these functions are called *and* set
-  ;; up key bindings to invoke them.
+  ;; Lazily load when called for.
   :bind (("C-x g" . magit-status)))
 
 
@@ -682,12 +682,13 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; Pressing '?' will show help hydra.
 (use-package treemacs
   :straight t
-  :defer t
-  :bind (:map treemacs-mode-map
-	      ;; disable treemacs workspace keymap (C-c C-w ..), since it
-	      ;; conflicts with hydra-windows
-	      ("C-c C-w" . nil))
+  :commands (treemacs)
+  :bind (("<f8>" . my-toggle-treemacs))
   :config
+  (let ((m treemacs-mode-map))
+    ;; Disable treemacs workspace keymap (C-c C-w ..)  conflicts with
+    ;; hydra-windows.
+    (define-key m (kbd "C-c C-w") nil))
   (setq treemacs-collapse-dirs                   3
         treemacs-deferred-git-apply-delay        0.5
 	treemacs-file-follow-delay               0.2
@@ -712,11 +713,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode 'always)
-  (treemacs-git-mode 'deferred)
-  :bind
-  (:map global-map
-        ;; hide/show treemacs file explorer
-        ("<f8>" . my-toggle-treemacs)))
+  (treemacs-git-mode 'deferred))
 
 
 ;; A small utility package to fill the small gaps left by using filewatch-mode
@@ -770,7 +767,7 @@ for symbol at point if there is one)."
   :straight t
   ;; add ggtags as a xref backend in emacs-lisp-mode (xref-find-definitions)
   :hook ((emacs-lisp-mode . ggtags-mode))
-  ;; set up keybindings to generate and search GTAGS
+  ;; Lazily load when called for.
   :bind (("C-c t c"   . my-ggtags-create)
 	 ("C-c t f d" . my-ggtags-find-definition)
 	 ("C-c t f r" . my-ggtags-find-reference))
@@ -823,15 +820,17 @@ for symbol at point if there is one)."
       (when eldoc-buf
 	(with-current-buffer (get-buffer "*eldoc*")
 	  (kill-buffer-and-window)))))
-  (define-key eglot-mode-map (kbd "<M-down>") #'xref-find-definitions)
-  (define-key eglot-mode-map (kbd "<M-up>")   #'xref-go-back)
-  (define-key eglot-mode-map (kbd "C-c f d")  #'xref-find-definitions)
-  (define-key eglot-mode-map (kbd "C-c f i")  #'eglot-find-implementation)
-  (define-key eglot-mode-map (kbd "C-c f r")  #'xref-find-references)
-  (define-key eglot-mode-map (kbd "C-c C-r")  #'eglot-rename)
-  (define-key eglot-mode-map (kbd "C-c d")    #'eldoc)
-  ;; Not strictly necessary but preserves old keybinding from lsp-mode.
-  (define-key eglot-mode-map (kbd "C-c e")    #'my-eldoc-close))
+  ;; Define key-bindings.
+  (let ((m eglot-mode-map))
+    (define-key m (kbd "<M-down>") #'xref-find-definitions)
+    (define-key m (kbd "<M-up>")   #'xref-go-back)
+    (define-key m (kbd "C-c f d")  #'xref-find-definitions)
+    (define-key m (kbd "C-c f i")  #'eglot-find-implementation)
+    (define-key m (kbd "C-c f r")  #'xref-find-references)
+    (define-key m (kbd "C-c C-r")  #'eglot-rename)
+    (define-key m (kbd "C-c d")    #'eldoc)
+    ;; Not strictly necessary but preserves old keybinding from lsp-mode.
+    (define-key m (kbd "C-c e")    #'my-eldoc-close)))
 
 
 (use-package python
@@ -943,9 +942,9 @@ for symbol at point if there is one)."
 
 (use-package markdown-preview-mode
   :straight t
-  :after markdown-mode
+  ;; Lazily load when called for.
+  :bind ("C-c p m" . markdown-preview-mode)
   :config
-  (global-set-key (kbd "C-c p m")  #'markdown-preview-mode)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-preview-stylesheets
         (list
@@ -1106,33 +1105,37 @@ for symbol at point if there is one)."
   (which-key-mode))
 
 
+;; Built-in browse-url.el package.
+(use-package browse-url
+  ;; Lazily load when called for.
+  :bind (("C-c u o" . browse-url-xdg-open))) ;; "URL open"
+
+
 ;; org-mode
 (use-package org
-  ;; lazily load when a .org file is opened
+  ;; Lazily load when a .org file is opened.
   :mode ("\\.org$" . org-mode)
-  ;; set up key-bindings and lazily load package whenever either is called
+  ;; Lazily load when called for.
   :bind (("C-c o o" . my-org-open)
          ("C-c o l" . org-store-link)
          ("C-c o c" . org-capture)
-         ("C-c o a" . org-agenda)
-	 ("C-c o b" . browse-url-xdg-open) ;; open URL at point
-         ;; key-bindings for org-mode buffers
-         :map org-mode-map
-         ;; x as in "check as done"
-         ("C-c o x" . org-archive-subtree)
-         ("C-c o >" . org-clock-in)
-         ("C-c o <" . org-clock-out)
-         ("C-c C-s" . org-schedule)
-         ("C-c C-d" . org-deadline)
-	 ;; jump to heading with live preview
-	 ("C-c o h" . consult-outline))
+         ("C-c o a" . org-agenda))
   :init
   ;; make org-mode table editor available in text-mode (or derived modes)
   (add-hook 'text-mode-hook #'my-enable-orgtbl-mode)
   :config
-  ;; always run in org-indent-mode (level by indent rather than asterisks)
+  ;; Key-bindings.
+  (let ((m org-mode-map))
+    ;; x as in "check as done".
+    (define-key m (kbd "C-c o x") #'org-archive-subtree)
+    (define-key m (kbd "C-c o >") #'org-clock-in)
+    (define-key m (kbd "C-c o <") #'org-clock-out)
+    (define-key m (kbd "C-c C-s") #'org-schedule)
+    (define-key m (kbd "C-c C-d") #'org-deadline)
+    ;; jump to heading with live preview
+    (define-key m (kbd "C-c o h") #'consult-outline))
+  ;; Always run in org-indent-mode (level by indent rather than asterisks).
   (setq org-startup-indented t)
-
   ;; agenda should start with Monday
   (setq org-agenda-start-on-weekday 1)
   ;; calendar should start with Monday
@@ -1207,20 +1210,20 @@ for symbol at point if there is one)."
 
 (use-package vterm
   :straight t
-  ;; set up key-bindings and lazily load package whenever either is called
-  :bind (("C-c v t" . vterm-other-window)
-         ;; key-bindings for vterm-mode buffers
-         :map vterm-mode-map
-         ;; toggle from term input to emacs buffer (search/copy) mode
-         ("C-c C-t" . vterm-copy-mode)
-         ("C-c C-l" . vterm-clear-scrollback))
+  ;; Lazily load when called for.
+  :bind (("C-c v t" . vterm-other-window))
   :config
-  (setq vterm-kill-buffer-on-exit t))
+  (setq vterm-kill-buffer-on-exit t)
+  (let ((m vterm-mode-map))
+    ;; Toggle from term input to emacs buffer (search/copy) mode.
+    (define-key m (kbd "C-c C-t") #'vterm-copy-mode)
+    (define-key m (kbd "C-c C-l") #'vterm-clear-scrollback)))
 
 
 ;; a package for making screencasts within Emacs.
 (use-package gif-screencast
   :straight t
+  ;; Lazily load when called for.
   :bind (("C-c C-s s" . gif-screencast-start-or-stop)
 	 ("C-c C-s p" . gif-screencast-toggle-pause))
   :config
