@@ -797,6 +797,8 @@ for symbol at point if there is one)."
   :config
   ;; Automatically shut down server after killing last managed buffer.
   (setq eglot-autoshutdown t)
+  ;; Require a manual restart (`eglot') when language servers crash.
+  (setq eglot-autoreconnect nil)
   ;; Prevent long identifier documentation to be shown when cursor "hovers" over
   ;; an identifier.
   (setq eldoc-echo-area-use-multiline-p nil)
