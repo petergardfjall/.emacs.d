@@ -798,6 +798,53 @@ for symbol at point if there is one)."
   (add-hook 'sh-mode-hook 'my-strip-on-save-hook))
 
 
+;; Integrates the tree-sitter incremental language parsing library. It supports
+;; syntax highlighting and comes with replacement major-modes for many languages
+;; `<language>-ts-mode'. In the future a lot of interesting functionality might
+;; come from it.
+(use-package treesit
+  :defer t
+  :init
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))))
+  :config
+  ;; Install language grammars if not already present.
+  (let ((languages (mapcar 'car treesit-language-source-alist)))
+    (dolist (lang languages)
+      (unless (treesit-language-available-p lang)
+        (display-warning 'init.el (format "Installing language grammar for `%s' ..." lang) :warning)
+        (sleep-for 0.5)
+        (treesit-install-language-grammar lang)
+        (message "`%s' treesit language grammar installed." lang))))
+  ;; Use the treesit-based major-modes where grammars are available.
+  (add-to-list 'major-mode-remap-alist '(bash-mode   . bash-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-mode      . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode    . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(css-mode    . css-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(go-mode     . go-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(html-mode   . html-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(json-mode   . json-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(js-mode     . js-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(ruby-mode   . ruby-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(rust-mode   . rust-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(sql-mode    . sql-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(toml-mode   . toml-ts-mode)))
+
 (use-package eglot
   :hook ((c-mode . eglot-ensure)
          (c++-mode . eglot-ensure)
