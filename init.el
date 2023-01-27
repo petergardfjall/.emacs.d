@@ -80,13 +80,22 @@ For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
     (message "loading straight.el bootstrapper ...")
     (load bootstrap-file nil 'nomessage)))
 
+(defun my-normalized-path (path)
+  "Return a normalized PATH that is expanded and trimmed of trailing slash."
+  (string-trim-right (expand-file-name path) "/"))
+
+(defun my-first-existing-ancestor-dir (path)
+  "Return the first ancestor directory of PATH that exists on the file system."
+  (if (and (file-directory-p path) (file-exists-p path))
+      (abbreviate-file-name path)
+    (my-first-existing-ancestor-dir (file-name-directory (my-normalized-path path)))))
+
 (defun my-find-project-root (path)
   "Return the project root directory for PATH.
 If PATH is not in a version-controlled directory, nil is returned."
-  (let* ((proj (project-try-vc path)))
-    (if proj
-	(project-root proj)
-      nil)))
+  (when-let* ((closest-dir (my-first-existing-ancestor-dir path))
+              (proj (project-current nil closest-dir)))
+    (project-root proj)))
 
 (defun my-project-root ()
   "Return the project root directory of the current buffer.
