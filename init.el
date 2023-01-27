@@ -127,6 +127,18 @@ buffer's directory is returned."
   (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
 
 
+(defun my-add-eglot-format-on-save-hook ()
+  "Register a buffer-local `before-save-hook' to run 'eglot-format-buffer' and `eglot-code-action-organize-imports'."
+  ;; Workaround as it seems like it is not possible to just call
+  ;; `eglot-code-action-organize-imports'.
+  (defun my--eglot-organize-imports ()
+    ;; First ensure that the buffer is managed by eglot.
+    (when (and (fboundp 'eglot-managed-p) (eglot-managed-p))
+      (eglot-code-actions nil nil "source.organizeImports" t)))
+  (add-hook 'before-save-hook #'eglot-format-buffer nil t)
+  (add-hook 'before-save-hook #'my--eglot-organize-imports nil t))
+
+
 (defun my-close-all-buffers ()
   "Kill all open buffers."
   (interactive)
@@ -850,6 +862,7 @@ for symbol at point if there is one)."
          (c++-mode . eglot-ensure)
          (cmake-mode . eglot-ensure)
          (go-mode . eglot-ensure)
+         (go-ts-mode . eglot-ensure)
 	 (python-mode . eglot-ensure)
          (rust-mode . eglot-ensure))
   :commands (eglot eglot-ensure)
@@ -912,20 +925,15 @@ for symbol at point if there is one)."
   (sphinx-doc-mode))
 
 
-(use-package go-mode
-  :straight t
-  :mode (("\\.go$"  . go-mode)
-	 ("^go.mod$" . go-mode))
+(use-package go-ts-mode
+  :mode (("\\.go$"  . go-ts-mode)
+	 ("^go.mod$" . go-ts-mode))
   :config
-  (message "go-mode config ...")
-  ;; run gofmt (or actually, goimports) on save
-  ;; note: requires ${GOROOT}/bin to be on PATH
-  (setq gofmt-command "goimports")
-  ;; Reuse a single *godoc* buffer to display godoc-at-point calls.
-  (setq godoc-reuse-buffer t)
-  (add-hook 'before-save-hook 'gofmt-before-save)
+  (message "go-ts-mode config ...")
+  ;; Set up on-save hooks to have eglot format and organize imports.
+  (add-hook 'go-ts-mode-hook 'my-add-eglot-format-on-save-hook)
   ;; Sets the fill column (where to break paragraphs on M-q)
-  (add-hook 'go-mode-hook (lambda () (setq fill-column 100))))
+  (add-hook 'go-ts-mode-hook (lambda () (setq fill-column 100))))
 
 
 ;; golangci-lint support via flymake
