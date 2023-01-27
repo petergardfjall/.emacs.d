@@ -163,6 +163,8 @@ buffer's directory is returned."
 When Treemacs is enabled in graphical mode, ensure that the frame
 width is sufficiently large."
   (interactive)
+  (unless (fboundp 'treemacs)
+    (display-warning 'init.el "Treemacs package is not loaded."))
   (treemacs)
   (when (display-graphic-p)
     (when (and (eq (treemacs-current-visibility) 'visible)
@@ -688,6 +690,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; File navigator
 ;; Pressing '?' will show help hydra.
 (use-package treemacs
+  :disabled t
   :straight t
   :commands (treemacs)
   :bind (("<f8>" . my-toggle-treemacs))
@@ -727,6 +730,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 ;; and git-mode in conjunction with magit: it will inform treemacs about
 ;; (un)staging of files and commits happening in magit.
 (use-package treemacs-magit
+  :disabled t
   :straight t
   :after (treemacs magit))
 
