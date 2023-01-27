@@ -491,13 +491,13 @@ performance impact should be unnoticable though."
   (marginalia-mode)
   (defun my-project-buffer-annotator (cand)
     (let* ((buffer (get-buffer cand)))
-      (when-let (buffer-file (buffer-file-name buffer))
-	(when-let ((project-dir (my-find-project-root buffer-file)))
-	  (let* ((project-short (file-name-base (directory-file-name project-dir)))
-		 (project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
-	    (marginalia--fields
-	     (project-short :truncate 0.4 :face 'marginalia-value)
-	     (project-rel-dir :truncate 0.4 :face 'marginalia-documentation)))))))
+      (when-let* ((buffer-file (buffer-file-name buffer))
+	          (project-dir (my-find-project-root buffer-file))
+	          (project-short (file-name-base (directory-file-name project-dir))))
+        (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
+	  (marginalia--fields
+	   (project-short :truncate 0.4 :face 'marginalia-value)
+	   (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
   ;; update annotator-registry to use my custom annotator for buffers
   (add-to-list 'marginalia-annotator-registry
                '(buffer my-project-buffer-annotator none))
