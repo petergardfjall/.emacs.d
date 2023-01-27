@@ -799,7 +799,6 @@ for symbol at point if there is one)."
 
 
 (use-package eglot
-  :straight t
   :hook ((c-mode . eglot-ensure)
          (c++-mode . eglot-ensure)
          (cmake-mode . eglot-ensure)
