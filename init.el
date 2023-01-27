@@ -397,7 +397,7 @@ commands available."
   (setq completions-format 'one-column)
   ;; Truncate long completion candidate lines in the minibuffer.
   (add-hook 'icomplete-minibuffer-setup-hook
-	    (lambda () (setq-local truncate-lines t)))
+            (lambda () (setq-local truncate-lines t)))
   ;;
   ;; Key bindings.
   ;;
