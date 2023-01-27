@@ -233,8 +233,8 @@ commands available."
 ;; `straight/versions/default.el` which can then be version controlled.
 (my-bootstrap-straight-el)
 
-;; Install and load use-package.
-(straight-use-package 'use-package)
+;; The use-package macro is included in Emacs as of version 29. No need to
+;; install.
 (setq use-package-verbose nil) ;; set to t to see when packages are loaded
 
 ;;
