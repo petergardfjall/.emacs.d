@@ -389,7 +389,6 @@ commands available."
 ;; use vertical candidate display.
 ;;
 (use-package icomplete
-  :demand t
   :config
   ;; Ignore case on various forms of `completing-read'.
   (setq completion-ignore-case t)
