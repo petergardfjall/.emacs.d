@@ -265,6 +265,8 @@ commands available."
   (set-default 'truncate-lines nil)
   ;; Sets the fill column (where to break paragraphs on M-q)
   (setq-default fill-column 80)
+  ;; Entering a character replaces the selected (active) region.
+  (delete-selection-mode 1)
   ;; Set the default font to use on all frames (see
   ;; https://www.freedesktop.org/software/fontconfig/fontconfig-user.html)
   (add-to-list 'default-frame-alist `(font . ,(format "%s-%f" my-font my-font-size)))
