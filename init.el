@@ -134,7 +134,8 @@ buffer's directory is returned."
   (defun my--eglot-organize-imports ()
     ;; First ensure that the buffer is managed by eglot.
     (when (and (fboundp 'eglot-managed-p) (eglot-managed-p))
-      (eglot-code-actions nil nil "source.organizeImports" t)))
+      (with-demoted-errors "Organize imports: %s"
+        (eglot-code-actions nil nil "source.organizeImports" t))))
   (add-hook 'before-save-hook #'eglot-format-buffer nil t)
   (add-hook 'before-save-hook #'my--eglot-organize-imports nil t))
 
