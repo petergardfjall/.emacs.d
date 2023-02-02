@@ -18,8 +18,6 @@
 
 (defvar my-frame-width 85
   "Initial width of Emacs frame.")
-(defvar my-treemacs-min-width 120
-  "Minimum frame width when treemacs is enabled (in characters).")
 (defvar my-font "Roboto Mono"
   "Text font to use.
 For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
@@ -171,20 +169,6 @@ buffer's directory is returned."
     (default-text-scale-increment delta-to-default)))
 
 
-(defun my-toggle-treemacs ()
-  "Enable or disable the treemacs project explorer.
-When Treemacs is enabled in graphical mode, ensure that the frame
-width is sufficiently large."
-  (interactive)
-  (unless (fboundp 'treemacs)
-    (display-warning 'init.el "Treemacs package is not loaded."))
-  (treemacs)
-  (when (display-graphic-p)
-    (when (and (eq (treemacs-current-visibility) 'visible)
-               (< (frame-width) my-treemacs-min-width))
-      (set-frame-width (selected-frame) my-treemacs-min-width))))
-
-
 (defun my-color-lighten (hex-color percent)
   "Determine a brighter/darker shade of a hex color.
 For a HEX-COLOR (such as `#3cb878`) return the hex color that is
@@ -284,7 +268,7 @@ commands available."
   ;; Enable line numbers in all text-mode/prog-mode buffers.
   (add-hook 'text-mode-hook    #'my-enable-line-numbers-mode)
   (add-hook 'prog-mode-hook    #'my-enable-line-numbers-mode)
-  ;; disable line numbers in special mode buffers (magit, treemacs)
+  ;; disable line numbers in special mode buffers (magit)
   (add-hook 'special-mode-hook #'my-disable-line-numbers-mode)
   ;; Highlight todo markers in code.
   (add-hook 'prog-mode-hook #'my-highlight-todos)
@@ -567,8 +551,8 @@ performance impact should be unnoticable though."
 
 
 (use-package wsp
-  :straight (emacs-wsp :type git :host github
-		       :repo "petergardfjall/emacs-wsp")
+  :straight (emacs-wsp
+             :type git :host github :repo "petergardfjall/emacs-wsp")
   ;; Lazily load when called for.
   :bind (("C-x w o"   . wsp-workspace-open)
 	 ("C-x w k"   . wsp-workspace-close)
@@ -580,6 +564,15 @@ performance impact should be unnoticable though."
 	 ("C-x w p c" . wsp-project-close)
 	 ("C-x w p k" . wsp-project-close-current)
 	 ("C-x w p K" . wsp-project-close-other)))
+
+
+(use-package projtree
+  :straight (emacs-projtree
+             :type git :host github :repo "petergardfjall/emacs-projtree")
+  :commands (projtree-mode)
+  :bind (("<f8>" . projtree-mode))
+  :config
+  (setq projtree-profiling-enabled t))
 
 
 (use-package postrace
@@ -713,54 +706,6 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   :config
   ;; refresh if magit does an update
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-
-
-;; File navigator
-;; Pressing '?' will show help hydra.
-(use-package treemacs
-  :disabled t
-  :straight t
-  :commands (treemacs)
-  :bind (("<f8>" . my-toggle-treemacs))
-  :config
-  (let ((m treemacs-mode-map))
-    ;; Disable treemacs workspace keymap (C-c C-w ..)  conflicts with
-    ;; hydra-windows.
-    (define-key m (kbd "C-c C-w") nil))
-  (setq treemacs-collapse-dirs                   3
-        treemacs-deferred-git-apply-delay        0.5
-	treemacs-file-follow-delay               0.2
-	treemacs-hide-dot-git-directory          t
-	treemacs-indentation                     2
-	treemacs-indentation-string              " "
-	treemacs-missing-project-action          'ask
-	;; Use textual icons.
-	treemacs-no-png-images                   t
-	;; If true: keep only current project expanded and all others closed.
-        treemacs-project-follow-cleanup nil
-	;; Path where workspace state (added projects) is saved. A separate
-        ;; treemacs state file is kept for each location where emacs is opened
-        ;; (assumed to be project root most of the time):
-        ;; ~/.emacs.d/treemacs-persist/<working-dir>
-        treemacs-persist-file                    (concat user-emacs-directory "treemacs" (getenv "PWD") "/treemacs-persist")
-	treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-	treemacs-show-hidden-files               t)
-  ;; Default width/height of icons is 22 pixels. If on a Hi-DPI display,
-  ;; uncomment to double the icon size.
-  ;; (treemacs-resize-icons 44)
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (treemacs-fringe-indicator-mode 'always)
-  (treemacs-git-mode 'deferred))
-
-
-;; A small utility package to fill the small gaps left by using filewatch-mode
-;; and git-mode in conjunction with magit: it will inform treemacs about
-;; (un)staging of files and commits happening in magit.
-(use-package treemacs-magit
-  :disabled t
-  :straight t
-  :after (treemacs magit))
 
 
 ;; transparently open compressed files
