@@ -845,7 +845,6 @@ for symbol at point if there is one)."
           (python . ("https://github.com/tree-sitter/tree-sitter-python"))
           (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
           (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
           (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))))
   :config
   ;; Install language grammars if not already present.
