@@ -449,7 +449,9 @@ commands available."
 (use-package orderless
   :straight t
   :init
-  (setq completion-styles '(orderless basic)))
+  (setq completion-styles '(orderless))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (orderless basic)))))
 
 
 ;; Incremental buffer search configured to support navigation with up/down key.
