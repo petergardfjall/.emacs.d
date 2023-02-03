@@ -412,6 +412,19 @@ commands available."
   ;; Truncate long completion candidate lines in the minibuffer.
   (add-hook 'icomplete-minibuffer-setup-hook
             (lambda () (setq-local truncate-lines t)))
+
+  ;; Implement page-wise scrolling since that's not yet.
+  (defun my-icomplete-page-up ()
+    (interactive)
+    (let* ((shown-candidates (- (window-total-height) 1))
+           (scroll (/ shown-candidates 2)))
+      (dotimes (_ scroll) (icomplete-backward-completions))))
+  (defun my-icomplete-page-down ()
+    (interactive)
+    (let* ((shown-candidates (- (window-total-height) 1))
+           (scroll (/ shown-candidates 2)))
+      (dotimes (_ scroll) (icomplete-forward-completions))))
+
   ;;
   ;; Key bindings.
   ;;
@@ -424,10 +437,9 @@ commands available."
   (let ((m minibuffer-local-completion-map))
     ;; Open *Completions* buffer. Can be useful when there are a lot of
     ;; candidates and `icomplete' won't allow paging through results.
-    (define-key m (kbd "?") #'minibuffer-completion-help)
-    ;; Bring up *Completions* buffer until icomplete can scroll pages.
-    (define-key m (kbd "<prior>") #'minibuffer-completion-help)
-    (define-key m (kbd "<next>") #'minibuffer-completion-help)))
+    (define-key m (kbd "?")       #'minibuffer-completion-help)
+    (define-key m (kbd "<prior>") #'my-icomplete-page-up)
+    (define-key m (kbd "<next>")  #'my-icomplete-page-down)))
 
 
 ;;
