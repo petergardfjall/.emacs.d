@@ -963,6 +963,16 @@ for symbol at point if there is one)."
   :config
   ;; no tabs for indentation
   (setq indent-tabs-mode nil)
+  (setq markdown-list-indent-width 2)
+
+  ;; Define key-bindings.
+  (let ((m markdown-mode-map))
+    ;; Subtree, list, and table editing
+    (define-key m (kbd "M-<up>")    #'markdown-move-up)
+    (define-key m (kbd "M-<down>")  #'markdown-move-down)
+    (define-key m (kbd "M-<left>")  #'markdown-promote)
+    (define-key m (kbd "M-<right>") #'markdown-demote))
+
   ;; add buffer-local save hook only for buffers in this mode
   (add-hook 'markdown-mode-hook 'my-untabify-on-save-hook))
 
