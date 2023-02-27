@@ -67,11 +67,11 @@ For example, `Source Code Pro`, `Ubuntu Mono`,`Cousine`, `JetBrains Mono`).")
   (defvar bootstrap-version)
   (let ((bootstrap-file
 	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-	(bootstrap-version 5))
+	(bootstrap-version 6))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
           (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
            'silent 'inhibit-cookies)
 	(goto-char (point-max))
 	(eval-print-last-sexp)))
@@ -228,6 +228,8 @@ commands available."
 ;; one can create a "lockfile" (pinning each package to a specific commit) with
 ;; the `M-x straight-freeze-versions` command. It generates
 ;; `straight/versions/default.el` which can then be version controlled.
+;; For a more stable alternative go with branch "master".
+(setq straight-repository-branch "develop")
 (my-bootstrap-straight-el)
 
 ;; The use-package macro is included in Emacs as of version 29. No need to
