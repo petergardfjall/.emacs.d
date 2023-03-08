@@ -927,8 +927,8 @@ for symbol at point if there is one)."
 ;; Major mode for JavaScript and React/JSX (built-into Emacs).
 ;; `js-mode` comes with syntax highlighting/indent support for JSX.
 (use-package js
-  :mode (("\\.js$" . js-mode)
-	 ("\\.jsx$" . js-mode))
+  :mode (("\\.js$" . js-ts-mode)
+	 ("\\.jsx$" . js-ts-mode))
   :config
   (setq
    indent-tabs-mode nil
@@ -939,7 +939,7 @@ for symbol at point if there is one)."
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
 (use-package prettier
   :straight t
-  :hook ((js-mode . prettier-mode)
+  :hook ((js-ts-mode . prettier-mode)
 	 (yaml-mode . prettier-mode)
 	 (gfm-mode . prettier-mode)
 	 (markdown-mode . prettier-mode)))
