@@ -845,8 +845,9 @@ for symbol at point if there is one)."
   (add-to-list 'eglot-server-programs '((c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((c++-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((cmake-mode) . ("cmake-language-server")))
-  (add-to-list 'eglot-server-programs '((golang-mode) . ("gopls")))
-  (add-to-list 'eglot-server-programs '((python-mode) . ("pyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '((js-mode js-ts-mode tsx-ts-mode typescript-ts-mode typescript-mode)
+                                        . ("typescript-language-server" "--stdio")))
   ;; See https://rust-analyzer.github.io/manual.html#rustup.
   (add-to-list 'eglot-server-programs '((rust-mode) . ("rustup" "run" "stable" "rust-analyzer")))
   ;; If `xref-find-definitions' lands in a file outside the project, momentarily
