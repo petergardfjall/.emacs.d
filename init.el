@@ -939,7 +939,7 @@ for symbol at point if there is one)."
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
 (use-package prettier
   :straight t
-  :hook ((js-ts-mode . prettier-mode)
+  :hook ((json-ts-mode . prettier-mode)
 	 (yaml-mode . prettier-mode)
 	 (gfm-mode . prettier-mode)
 	 (markdown-mode . prettier-mode)))
