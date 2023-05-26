@@ -666,11 +666,10 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
     (define-key m (kbd "C-c s e f") #'flymake-show-buffer-diagnostics)))
 
 
-;; built-in on-the-fly spell checking for text or code comments.
+;; built-in on-the-fly spell checking for text buffers.
 (use-package flyspell
   :diminish
-  :hook ((prog-mode . flyspell-prog-mode)
-         (text-mode . flyspell-mode)))
+  :hook ((text-mode . flyspell-mode)))
 
 ;; A language template system for emacs. lsp-mode auto-configures yasnippet for
 ;; use with a given language server.  Write a snippet key and press the key
