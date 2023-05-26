@@ -903,6 +903,12 @@ for symbol at point if there is one)."
   (add-hook 'go-ts-mode-hook (lambda () (setq fill-column 100))))
 
 
+;; Debug programs using `delve'. This debugger relies on Emacs' GUD framework.
+(use-package go-dlv
+  :straight t
+  :commands (dlv dlv-current-function)
+  :config)
+
 ;; golangci-lint support via flymake
 (use-package flymake-golangci
   :straight t
