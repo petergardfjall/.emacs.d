@@ -780,6 +780,21 @@ for symbol at point if there is one)."
 (use-package treesit
   :defer t
   :init
+  ;; Use treesit-based major-modes where grammars are available.
+  (add-to-list 'major-mode-remap-alist '(bash-mode   . bash-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-mode      . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode    . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(css-mode    . css-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(go-mode     . go-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(html-mode   . html-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(json-mode   . json-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(js-mode     . js-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(ruby-mode   . ruby-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(rust-mode   . rust-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(sql-mode    . sql-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(toml-mode   . toml-ts-mode))
+  ;; Specify which tree-sitter language grammar defintions to use.
   (setq treesit-language-source-alist
         '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
           (c . ("https://github.com/tree-sitter/tree-sitter-c"))
@@ -803,21 +818,7 @@ for symbol at point if there is one)."
         (display-warning 'init.el (format "Installing language grammar for `%s' ..." lang) :warning)
         (sleep-for 0.5)
         (treesit-install-language-grammar lang)
-        (message "`%s' treesit language grammar installed." lang))))
-  ;; Use the treesit-based major-modes where grammars are available.
-  (add-to-list 'major-mode-remap-alist '(bash-mode   . bash-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-mode      . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode    . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(css-mode    . css-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(go-mode     . go-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(html-mode   . html-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(json-mode   . json-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(js-mode     . js-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(ruby-mode   . ruby-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(rust-mode   . rust-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(sql-mode    . sql-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(toml-mode   . toml-ts-mode)))
+        (message "`%s' treesit language grammar installed." lang)))))
 
 (use-package eglot
   :hook ((c-mode . eglot-ensure)
