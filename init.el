@@ -917,9 +917,9 @@ for symbol at point if there is one)."
 
 
 ;; Major mode for json file editing.
-(use-package json-mode
+(use-package json-ts-mode
   :straight t
-  :mode (("\\.json$" . json-mode))
+  :mode (("\\.json$" . json-ts-mode))
   :config
   (setq
    indent-tabs-mode nil
