@@ -860,11 +860,21 @@ for symbol at point if there is one)."
       (when eldoc-buf
 	(with-current-buffer (get-buffer "*eldoc*")
 	  (kill-buffer-and-window)))))
+
+  (defun my-find-workspace-symbol ()
+    "Look up a workspace symbol by name.
+Prompts the user for input. It does the equivalent of `C-u M-.'."
+    (interactive)
+    (setq current-prefix-arg '(1)) ;; programatically calls with prefix argument "C-u".
+    (call-interactively 'xref-find-definitions))
+  
   ;; Define key-bindings.
   (let ((m eglot-mode-map))
     (define-key m (kbd "<M-down>") #'xref-find-definitions)
     (define-key m (kbd "<M-up>")   #'xref-go-back)
     (define-key m (kbd "C-c f d")  #'xref-find-definitions)
+    ;; find workspace symbol
+    (define-key m (kbd "C-c f s")  #'my-find-workspace-symbol)
     (define-key m (kbd "C-c f i")  #'eglot-find-implementation)
     (define-key m (kbd "C-c f r")  #'xref-find-references)
     (define-key m (kbd "C-c C-r")  #'eglot-rename)
