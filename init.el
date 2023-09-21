@@ -850,6 +850,16 @@ for symbol at point if there is one)."
                                         . ("typescript-language-server" "--stdio")))
   ;; See https://rust-analyzer.github.io/manual.html#rustup.
   (add-to-list 'eglot-server-programs '((rust-mode) . ("rustup" "run" "stable" "rust-analyzer")))
+
+  ;; Additional gopls settings.
+  ;; See https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+  (setq-default eglot-workspace-configuration
+                '((:gopls
+                   (:ui.completion.usePlaceholders . t)
+                   (:ui.diagnostic.staticcheck . t)
+                   ;; For proper operation in files with certain build tags.
+                   (:build.buildFlags . ["-tags=integration,db"]))))
+
   ;; If `xref-find-definitions' lands in a file outside the project, momentarily
   ;; consider that file managed by the same language server. This avoids
   ;; starting a new language server for such external files (startup cost).
