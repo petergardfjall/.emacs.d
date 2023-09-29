@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: zero
+# key: zero
+# contributor : @petergardfjall
+# --
+// isZeroValue indicates if v is a zero-valued instance of its type.
+func isZeroValue[T any](v T) bool {
+        var zeroValue T
+        return reflect.DeepEqual(v, zeroValue)
+}

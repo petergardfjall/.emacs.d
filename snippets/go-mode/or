@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: or
+# key: or
+# contributor : @petergardfjall
+# --
+// Or returns the first value in values that is not a zero-value.
+// If no non-zero value is supplied the function returns the zero value.
+func Or[T any](values ...T) T {
+	for _, v := range values {
+		if !zeroValue(v) {
+			return v
+		}
+	}
+	var zeroValue T
+	return zeroValue
+}
+
+func zeroValue[T any](v T) bool {
+	var zeroValue T
+	return reflect.DeepEqual(v, zeroValue)
+}
