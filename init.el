@@ -633,13 +633,15 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
   (setq
    ;; enable auto-completion
    corfu-auto t
-   ;; minimum prefix length before triggering auto-completion
-   corfu-auto-prefix 1
+   ;; Minimum prefix length before triggering auto-completion. Note that
+   ;; completion can be summoned at any time with C-<tab>
+   ;; (`completion-at-point').
+   corfu-auto-prefix 3
    ;; delay in seconds after typing until popup appears
-   corfu-auto-delay 0.0
-   ;; show candidate documentation in echo area
+   corfu-auto-delay 0.2
+   ;; Show candidate documentation in echo area.
    corfu-echo-documentation t
-   ;; quit when no remaining candidates
+   ;; Quit when there are no remaining candidates.
    corfu-quit-no-match t
    ;; maximum number of candidates to display
    corfu-count 15
