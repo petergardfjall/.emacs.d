@@ -1053,6 +1053,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 ;; Varnish .vcl file editing.
 (use-package vcl-mode
   :straight t
+  :disabled t
   :mode (("\\.vcl$" . vcl-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
@@ -1083,6 +1084,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 (use-package terraform-mode
   :straight t
+  :disabled t
   :mode (("\\.tf$" . terraform-mode))
   :config
   ;; add buffer-local save hook only for buffers in this mode
@@ -1157,12 +1159,14 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 ;; remove "ElDoc" from modeline
 (use-package eldoc
+  :straight (:type built-in)
   :diminish eldoc-mode)
 
 
 ;; can be used for working with .groovy and Jenkinsfile
 (use-package groovy-mode
   :straight t
+  :disabled t
   :mode (("\\.groovy$" . groovy-mode)
          ("\\.gvy$" . groovy-mode)
 	 ("\\.gy$" . groovy-mode)
