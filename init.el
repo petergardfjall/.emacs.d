@@ -379,6 +379,9 @@ commands available."
   :config
   ;; Ignore case on various forms of `completing-read'.
   (setq completion-ignore-case t)
+  ;; Determines how to match minibuffer input text against completion
+  ;; candidates.
+  (setq completion-styles '(substring basic))
   (setq read-file-name-completion-ignore-case t)
   (setq read-buffer-completion-ignore-case t)
 
@@ -427,12 +430,12 @@ commands available."
     (define-key m (kbd "<prior>") #'my-icomplete-page-up)
     (define-key m (kbd "<next>")  #'my-icomplete-page-down)))
 
-
 ;;
 ;; Orderless provides a "completion style" for `completing-read' where
 ;; space-separated words can be input as search terms.
 ;;
 (use-package orderless
+  :disabled t
   :straight t
   :init
   (setq completion-styles '(orderless))
