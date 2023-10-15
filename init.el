@@ -377,6 +377,7 @@ commands available."
 ;; use vertical candidate display.
 ;;
 (use-package icomplete
+  :straight (:type built-in)
   :config
   ;; Ignore case on various forms of `completing-read'.
   (setq completion-ignore-case t)
@@ -446,6 +447,7 @@ commands available."
 
 ;; Incremental buffer search configured to support navigation with up/down key.
 (use-package isearch
+  :straight (:type built-in)
   ;; Lazily load when called for.
   :bind (("C-S-s" . isearch-forward)
 	 ("C-r"   . isearch-backward))
@@ -552,6 +554,7 @@ performance impact should be unnoticable though."
 
 ;; built-in project.el
 (use-package project
+  :straight (:type built-in)
   :config
   (global-set-key (kbd "C-c f f") #'project-find-file))
 
@@ -660,6 +663,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; built-in on-the-fly syntax checking, which highlights erroneous lines.
 (use-package flymake
+  :straight (:type built-in)
   :diminish
   :hook ((prog-mode text-mode) . flymake-mode)
   :config
@@ -672,6 +676,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; built-in on-the-fly spell checking for text buffers.
 (use-package flyspell
+  :straight (:type built-in)
   :diminish
   :hook ((text-mode . flyspell-mode)))
 
@@ -716,6 +721,7 @@ windmove: ← → ↑ ↓      resize: shift + {↤ ⭲ ⭱ ↧}"
 
 ;; transparently open compressed files
 (use-package auto-compression-mode
+  :straight (:type built-in)
   :defer 5
   :config
   (auto-compression-mode t))
@@ -782,6 +788,7 @@ for symbol at point if there is one)."
 ;; `<language>-ts-mode'. In the future a lot of interesting functionality might
 ;; come from it.
 (use-package treesit
+  :straight (:type built-in)
   :defer t
   :init
   ;; Use treesit-based major-modes where grammars are available.
@@ -825,6 +832,7 @@ for symbol at point if there is one)."
         (message "`%s' treesit language grammar installed." lang)))))
 
 (use-package eglot
+  :straight (:type built-in)
   :hook ((c-mode . eglot-ensure)
          (c++-mode . eglot-ensure)
          (cmake-mode . eglot-ensure)
@@ -881,7 +889,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
     (interactive)
     (setq current-prefix-arg '(1)) ;; programatically calls with prefix argument "C-u".
     (call-interactively 'xref-find-definitions))
-  
+
   ;; Define key-bindings.
   (let ((m eglot-mode-map))
     (define-key m (kbd "<M-down>") #'xref-find-definitions)
@@ -898,6 +906,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 
 (use-package python
+  :straight (:type built-in)
   :mode (("\\.py$" . python-mode))
   ;; note: no :ensure since it is already built into emacs
   :config
@@ -918,6 +927,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 
 (use-package go-ts-mode
+  :straight (:type built-in)
   :mode (("\\.go$"  . go-ts-mode)
 	 ("^go.mod$" . go-ts-mode))
   :config
@@ -957,6 +967,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 ;; Major mode for JavaScript and React/JSX (built-into Emacs).
 ;; `js-mode` comes with syntax highlighting/indent support for JSX.
 (use-package js
+  :straight (:type built-in)
   :mode (("\\.js$" . js-ts-mode)
 	 ("\\.jsx$" . js-ts-mode))
   :config
@@ -1126,6 +1137,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 ;; C and C++ setup.
 (use-package cc-mode
+  :straight (:type built-in)
   :hook cc-mode
   :config
   (add-hook 'c-mode-hook   #'my-c-mode)
@@ -1182,12 +1194,14 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 ;; Built-in browse-url.el package.
 (use-package browse-url
+  :straight (:type built-in)
   ;; Lazily load when called for.
   :bind (("C-c u o" . browse-url-xdg-open))) ;; "URL open"
 
 
 ;; org-mode
 (use-package org
+  :straight (:type built-in)
   ;; Lazily load when a .org file is opened.
   :mode ("\\.org$" . org-mode)
   ;; Lazily load when called for.
@@ -1279,6 +1293,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 
 
 (use-package ruby-mode
+  :straight (:type built-in)
   :mode (("\\.rb$"  . ruby-mode))
   :config)
 
