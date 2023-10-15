@@ -363,10 +363,11 @@ commands available."
 
 
 (use-package immaterial-theme
+  ;; :load-path "~/dev/git/emacs-immaterial-theme"
   :straight (immaterial-theme
-	     :type git :host github
-	     :repo "petergardfjall/emacs-immaterial-theme"
-	     :branch "master")
+             :type git :host github
+             :repo "petergardfjall/emacs-immaterial-theme"
+             :branch "master")
   :config
   (load-theme 'immaterial-dark t))
 
