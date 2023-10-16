@@ -127,15 +127,10 @@ buffer's directory is returned."
 
 (defun my-add-eglot-format-on-save-hook ()
   "Register a buffer-local `before-save-hook' to run 'eglot-format-buffer' and `eglot-code-action-organize-imports'."
-  ;; Workaround as it seems like it is not possible to just call
-  ;; `eglot-code-action-organize-imports'.
-  (defun my--eglot-organize-imports ()
-    ;; First ensure that the buffer is managed by eglot.
-    (when (and (fboundp 'eglot-managed-p) (eglot-managed-p))
-      (with-demoted-errors "Organize imports: %s"
-        (eglot-code-actions nil nil "source.organizeImports" t))))
-  (add-hook 'before-save-hook #'eglot-format-buffer nil t)
-  (add-hook 'before-save-hook #'my--eglot-organize-imports nil t))
+  (add-hook 'before-save-hook
+            (lambda ()
+              (call-interactively #'eglot-code-action-organize-imports)) nil t)
+  (add-hook 'before-save-hook #'eglot-format-buffer nil t))
 
 
 (defun my-close-all-buffers ()
