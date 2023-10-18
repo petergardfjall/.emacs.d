@@ -432,12 +432,10 @@ commands available."
 ;; space-separated words can be input as search terms.
 ;;
 (use-package orderless
-  :disabled t
   :straight t
   :init
-  (setq completion-styles '(orderless))
-  (setq completion-category-defaults nil)
-  (setq completion-category-overrides '((file (orderless basic)))))
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
 
 ;; Incremental buffer search configured to support navigation with up/down key.
