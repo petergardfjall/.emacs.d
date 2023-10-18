@@ -126,11 +126,12 @@ buffer's directory is returned."
 
 
 (defun my-add-eglot-format-on-save-hook ()
-  "Register a buffer-local `before-save-hook' to run 'eglot-format-buffer' and `eglot-code-action-organize-imports'."
-  (add-hook 'before-save-hook
-            (lambda ()
-              (call-interactively #'eglot-code-action-organize-imports)) nil t)
-  (add-hook 'before-save-hook #'eglot-format-buffer nil t))
+  "Register a buffer-local `before-save-hook' to run `eglot-format-buffer' and `eglot-code-action-organize-imports'."
+  ;; The depth of -10 places this before eglot's willSave notification,
+  ;; so that that notification reports the actual contents that will be saved.
+  ;; See https://github.com/golang/tools/blob/master/gopls/doc/emacs.md.
+  (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+  (add-hook 'before-save-hook (lambda () (call-interactively #'eglot-code-action-organize-imports)) -9 t))
 
 
 (defun my-close-all-buffers ()
@@ -859,11 +860,12 @@ for symbol at point if there is one)."
   (add-to-list 'eglot-server-programs '((rust-mode) . ("rustup" "run" "stable" "rust-analyzer")))
 
   ;; Additional gopls settings.
-  ;; See https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+  ;; See https://github.com/golang/tools/blob/master/gopls/doc/emacs.md
+  ;;     https://github.com/golang/tools/blob/master/gopls/doc/settings.md
   (setq-default eglot-workspace-configuration
                 '((:gopls
                    (:ui.completion.usePlaceholders . t)
-                   (:ui.diagnostic.staticcheck . t)
+                   ;; (:ui.diagnostic.staticcheck . t)
                    ;; For proper operation in files with certain build tags.
                    (:build.buildFlags . ["-tags=integration,db"]))))
 
