@@ -571,8 +571,7 @@ performance impact should be unnoticable though."
 
 (use-package projtree
   :straight (emacs-projtree
-             :type git :host github :repo "petergardfjall/emacs-projtree"
-             :branch "dired-support")
+             :type git :host github :repo "petergardfjall/emacs-projtree" :branch "main")
   :commands (projtree-mode)
   :bind (("<f8>" . projtree-mode))
   :config
