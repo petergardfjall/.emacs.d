@@ -872,12 +872,6 @@ for symbol at point if there is one)."
   ;; consider that file managed by the same language server. This avoids
   ;; starting a new language server for such external files (startup cost).
   (setq eglot-extend-to-xref t)
-  (defun my-eldoc-close ()
-    (interactive)
-    (let ((eldoc-buf (get-buffer "*eldoc*")))
-      (when eldoc-buf
-	(with-current-buffer (get-buffer "*eldoc*")
-	  (kill-buffer-and-window)))))
 
   (defun my-find-workspace-symbol ()
     "Look up a workspace symbol by name.
@@ -896,9 +890,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
     (define-key m (kbd "C-c f i")  #'eglot-find-implementation)
     (define-key m (kbd "C-c f r")  #'xref-find-references)
     (define-key m (kbd "C-c C-r")  #'eglot-rename)
-    (define-key m (kbd "C-c d")    #'eldoc)
-    ;; Not strictly necessary but preserves old keybinding from lsp-mode.
-    (define-key m (kbd "C-c e")    #'my-eldoc-close)))
+    (define-key m (kbd "C-c d")    #'eldoc)))
 
 
 (use-package python
