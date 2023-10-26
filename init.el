@@ -575,7 +575,7 @@ performance impact should be unnoticable though."
   :commands (projtree-mode)
   :bind (("<f8>" . projtree-mode))
   :config
-  (setq projtree-profiling-enabled t))
+  (setq projtree-profiling-enabled nil))
 
 
 (use-package postrace
