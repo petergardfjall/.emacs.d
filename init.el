@@ -445,54 +445,35 @@ commands available."
 
 
 ;;
-;; Corfu is a UI for `completion-at-point' (a.k.a. "in-buffer completion"). It
-;; shows completion candidates in a popup frame. Completions candidates are
-;; provided by `completion-at-point' functions such as
+;; Company is a UI for `completion-at-point' (a.k.a. "in-buffer completion"). It
+;; shows completion candidates in a popup overlay. Completions candidates are
+;; provided by `completion-at-point-functions' such as
 ;; `eglot-completion-at-point'.
 ;;
-(use-package corfu
+(use-package company
   :straight t
+  :diminish
   :init
-  (global-corfu-mode)
+  (global-company-mode)
   :config
-  (setq
-   ;; enable auto-completion
-   corfu-auto t
-   ;; Minimum prefix length before triggering auto-completion. Note that
-   ;; completion can be summoned at any time with C-<tab>
-   ;; (`completion-at-point').
-   corfu-auto-prefix 3
-   ;; delay in seconds after typing until popup appears
-   corfu-auto-delay 0.2
-   ;; Show candidate documentation in echo area.
-   corfu-echo-documentation t
-   ;; Disable current candidate preview.
-   corfu-preview-current nil
-   ;; Quit when there are no remaining candidates.
-   corfu-quit-no-match t
-   ;; maximum number of candidates to display
-   corfu-count 15
-   ;; miniumum popup width (in characters)
-   corfu-min-width 20)
-
-  ;; trigger completion
-  (define-key global-map (kbd "C-<tab>") #'completion-at-point))
-
-
-;;
-;; Adds functions and utilties for `completion-at-point'.
-;;
-(use-package cape
-  :straight t
-  :after corfu
-  :init
-  ;; complete word from current buffers
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  ;; Avoid having the `corfu' `completion-at-point' ui base all completion on
-  ;; the first candidate list retrieved from the LSP server. With this "cache
-  ;; buster" we ensure that eglot's completion at point gets to re-fetch the
-  ;; candidate list from the LSP server on every keystroke.
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+  ;; Minimum prefix length before triggering auto-completion. Note that
+  ;; completion can be summoned at any time with 'C-<tab>'
+  ;; (`completion-at-point').
+  (setq company-minimum-prefix-length 3)
+  ;; Decrease delay until completion popup shows.
+  (setq company-idle-delay 0.1)
+  ;; Only use company with `complation-at-point-functions'.
+  (setq company-backends '(company-capf))
+  ;; Maximum number of candidates to display.
+  (setq company-tooltip-limit 15)
+  ;; miniumum popup width (in characters)
+  (setq company-tooltip-minimum-width 20)
+  ; Start autocompletion only after typing.
+  (setq company-begin-commands '(self-insert-command))
+  ;; Align annotations (e.g. function signatures) to the right tooltip border.
+  (setq company-tooltip-align-annotations t)
+  ;; Summon the completion popup.
+  (define-key company-mode-map (kbd "C-<tab>") #'company-complete))
 
 
 ;;
