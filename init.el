@@ -853,6 +853,7 @@ for symbol at point if there is one)."
          (typescript-mode . eglot-ensure)
          (typescript-ts-mode . eglot-ensure))
   :commands (eglot eglot-ensure)
+  :diminish (eldoc-mode)
   :config
   ;; Automatically shut down server after killing last managed buffer.
   (setq eglot-autoshutdown t)
