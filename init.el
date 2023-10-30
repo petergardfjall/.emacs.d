@@ -171,19 +171,9 @@ For a HEX-COLOR (such as `#3cb878`) return the hex color that is
 PERCENT percent brighter (or darker if percent value is
 negative)."
   (interactive "sHex color: \nnPercent brighter/darker (-): ")
-  (let ((color-transform-fn (if (> percent 0)
-                                'color-lighten-hsl
-                              'color-darken-hsl))
-        (percent-unsigned (abs percent)))
-    (message "%s"
-     (apply 'color-rgb-to-hex
-            (append
-             (apply 'color-hsl-to-rgb
-                    (apply color-transform-fn
-                           (append
-                            (apply 'color-rgb-to-hsl (color-name-to-rgb hex-color))
-                            (list percent-unsigned))))
-             (list 2))))))
+  (if (fboundp 'immaterial-color-lighten)
+      (message "%s" (immaterial-color-lighten hex-color percent))))
+
 
 (defun my-enable-line-numbers-mode ()
   "Enable `display-line-numbers-mode' in buffer."
@@ -193,6 +183,7 @@ negative)."
   "Disable `display-line-numbers-mode' in buffer."
   (display-line-numbers-mode -1))
 
+
 (defun my-enable-orgtbl-mode ()
   "Enable `orgtbl-mode'.
 `orgtbl-mode' is a minor mode that makes Org-modes table editor
@@ -200,10 +191,12 @@ commands available."
   (require 'org)
   (orgtbl-mode 1))
 
+
 (defun my-highlight-todos ()
   "Mark occurences of TODO with warning face."
   (font-lock-add-keywords nil
     '(("\\(TODO\\)" 1 'font-lock-warning-face prepend)) 'append))
+
 
 (defun my-byte-offset ()
   "Report the byte offset (0-indexed) at point (cursor position)."
