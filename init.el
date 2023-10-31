@@ -488,7 +488,11 @@ commands available."
           ;; Use orderless for `describe-function' (C-h f).
           (function (styles orderless))
           ;; Use orderless for `execute-extended-command' (M-x).
-          (command (styles orderless)))))
+          (command (styles orderless))
+          ;; Use orderless for different variants of `consult-grep'.
+          (consult-grep (styles orderless))
+          ;; Use orderless for different variants of `consult-line'.
+          (consult-location (styles orderless)))))
 
 
 ;; Incremental buffer search configured to support navigation with up/down key.
