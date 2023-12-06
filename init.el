@@ -481,7 +481,9 @@ commands available."
   ;; completion categories. In particular, we avoid `orderless' with eglot
   ;; completions, where it appears to not always play well.
   (setq completion-category-overrides
-        '(;; Use orderless for `project-find-file'.
+        '(;; Use orderless for `switch-to-buffer'.
+          (buffer (styles orderless))
+          ;; Use orderless for `project-find-file'.
           (project-file (styles orderless))
           ;; Use orderless for `describe-variable' (C-h v).
           (variable (styles orderless))
