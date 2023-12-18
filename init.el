@@ -855,6 +855,7 @@ for symbol at point if there is one)."
          (js-mode . eglot-ensure)
          (js-ts-mode . eglot-ensure)
 	 (python-mode . eglot-ensure)
+         (python-ts-mode . eglot-ensure)
          (rust-mode . eglot-ensure)
          (typescript-mode . eglot-ensure)
          (typescript-ts-mode . eglot-ensure))
@@ -872,7 +873,6 @@ for symbol at point if there is one)."
   (add-to-list 'eglot-server-programs '((c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((c++-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((cmake-mode) . ("cmake-language-server")))
-  (add-to-list 'eglot-server-programs '((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs '((js-mode js-ts-mode tsx-ts-mode typescript-ts-mode typescript-mode)
                                         . ("typescript-language-server" "--stdio")))
   ;; See https://rust-analyzer.github.io/manual.html#rustup.
