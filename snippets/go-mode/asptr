@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: asptr
+# key: asptr
+# contributor : @petergardfjall
+# --
+func asPtr[T any](v T) *T {
+     return &v
+}

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: anyctx
+# key: anyctx
+# contributor : @petergardfjall
+# --
+anyCtx = mock.MatchedBy(func(context.Context) bool { return true })
