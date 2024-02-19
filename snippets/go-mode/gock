@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: gock
+# key: gock
+# contributor : @petergardfjall
+# --
+func Test(t *testing.T) {
+	defer gock.Off()
+	interceptedClient := &http.Client{}
+	gock.InterceptClient(interceptedClient)
+
+	gock.New("http://foo.com").
+		Post("/bar").
+		// Set expectation for incoming request body.
+		JSON(map[string]string{"name": "John"}).
+		Reply(200).
+		// Set response body.
+		JSON(map[string]string{"hello": "John"})
+
+	reqBody, _ := json.Marshal(map[string]any{"name": "John"})
+	resp, err := interceptedClient.Post("http://foo.com/bar", "application/json", bytes.NewReader(reqBody))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	respBody, _ := ioutil.ReadAll(resp.Body)
+	require.Equal(t, "{\"hello\":\"John\"}\n", string(respBody))
+}

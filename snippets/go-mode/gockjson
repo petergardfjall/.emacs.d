@@ -1,0 +1,76 @@
+# -*- mode: snippet -*-
+# name: gockjson
+# key: gockjson
+# contributor : @petergardfjall
+# --
+func Test(t *testing.T) {
+	defer gock.Off()
+	interceptedClient := &http.Client{}
+	gock.InterceptClient(interceptedClient)
+
+	gock.New("http://foo.com").
+		Post("/bar").
+		SetMatcher(newJSONContainsMatcher().
+			want("name", "John")).
+		Reply(200).
+		JSON(map[string]string{"hello": "John"})
+
+	reqBody, _ := json.Marshal(map[string]any{"name": "John", "alias": "johnny"})
+	resp, err := interceptedClient.Post("http://foo.com/bar", "application/json", bytes.NewReader(reqBody))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	respBody, _ := ioutil.ReadAll(resp.Body)
+	require.Equal(t, "{\"hello\":\"John\"}\n", string(respBody))
+}
+
+// jsonContainsMatcher is a gock Matcher that verifies the presence of a specific set of key-value
+// pairs in a json request body.
+type jsonContainsMatcher struct {
+	gock.MockMatcher
+	// wantPairs holds the collection of expected key-value pairs.
+	wantPairs []keyValuePair
+}
+
+// newJSONContainsMatcher creates a gock Matcher that verifies the presence of a specific set of
+// key-value pairs in a json request body. Use the want method to add expected key-value pairs.
+func newJSONContainsMatcher() *jsonContainsMatcher {
+	m := &jsonContainsMatcher{wantPairs: []keyValuePair{}}
+
+	// Check the incoming request an verify that all expected key-value pairs are present.
+	m.Add(func(r1 *http.Request, r2 *gock.Request) (bool, error) {
+		data, err := io.ReadAll(r1.Body)
+		if err != nil {
+			return false, err
+		}
+		// Restore body for good manners.
+		r1.Body = io.NopCloser(bytes.NewReader(data))
+		var gotValues map[string]any
+		if err := json.Unmarshal(data, &gotValues); err != nil {
+			return false, err
+		}
+
+		for _, wantPair := range m.wantPairs {
+			v, ok := gotValues[wantPair.Key]
+			if !ok {
+				return false, nil
+			}
+			if v != wantPair.Value {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
+
+	return m
+}
+
+func (m *jsonContainsMatcher) want(key string, value any) *jsonContainsMatcher {
+	m.wantPairs = append(m.wantPairs, keyValuePair{Key: key, Value: value})
+	return m
+}
+
+type keyValuePair struct {
+	Key   string
+	Value any
+}
