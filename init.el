@@ -819,6 +819,7 @@ for symbol at point if there is one)."
   (add-to-list 'major-mode-remap-alist '(rust-mode   . rust-ts-mode))
   (add-to-list 'major-mode-remap-alist '(sql-mode    . sql-ts-mode))
   (add-to-list 'major-mode-remap-alist '(toml-mode   . toml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(yaml-mode   . yaml-ts-mode))
   ;; Specify which tree-sitter language grammar defintions to use.
   (setq treesit-language-source-alist
         '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
@@ -834,7 +835,8 @@ for symbol at point if there is one)."
           (python . ("https://github.com/tree-sitter/tree-sitter-python"))
           (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
           (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))))
   :config
   ;; Install language grammars if not already present.
   (let ((languages (mapcar 'car treesit-language-source-alist)))
@@ -989,7 +991,7 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 (use-package prettier
   :straight t
   :hook ((json-ts-mode . prettier-mode)
-	 (yaml-mode . prettier-mode)
+	 (yaml-ts-mode . prettier-mode)
 	 (gfm-mode . prettier-mode)
 	 (markdown-mode . prettier-mode)))
 
@@ -997,8 +999,8 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
 ;; Major mode for yaml file editing.
 (use-package yaml-mode
   :straight t
-  :mode (("\\.yaml$" . yaml-mode)
-         ("\\.yml$" . yaml-mode))
+  :mode (("\\.yaml\\(.gotmpl\\)?$" . yaml-ts-mode)
+         ("\\.yml\\(.gotmpl\\)?$" . yaml-ts-mode))
   :config
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-mode-hook #'my-highlight-todos)
