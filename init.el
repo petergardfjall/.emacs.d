@@ -590,18 +590,15 @@ performance impact should be unnoticable though."
   (setq rainbow-x-colors nil))
 
 
-(use-package undo-tree
+(use-package vundo
   :straight t
-  :diminish undo-tree-mode
-  :init
-  (global-undo-tree-mode)
   :config
-  (setq undo-tree-auto-save-history nil)
-  (global-set-key (kbd "C-c u t") #'undo-tree-visualize)
-  (let ((m undo-tree-map))
-    (define-key m (kbd "C-x u") #'undo)
-    (define-key m (kbd "C-z")   #'undo-tree-undo)
-    (define-key m (kbd "C-Z") #'undo-tree-redo)))
+  (setq vundo-glyph-alist vundo-unicode-symbols)
+  ;; Display visual undo tree.
+  (global-set-key (kbd "C-c u t") #'vundo)
+  (let ((m vundo-mode-map))
+    (define-key m (kbd "d") #'vundo-diff)
+    (define-key m (kbd "C-x u") #'undo)))
 
 
 ;; built-in project.el
@@ -628,6 +625,7 @@ performance impact should be unnoticable though."
 
 
 (use-package projtree
+  ;; :load-path "~/dev/git/emacs-projtree"
   :straight (emacs-projtree
              :type git :host github :repo "petergardfjall/emacs-projtree" :branch "main")
   :commands (projtree-mode)
@@ -637,9 +635,10 @@ performance impact should be unnoticable though."
 
 
 (use-package postrace
+  ;; :load-path "~/dev/git/emacs-postrace"
   :straight (postrace :type git :host github
-		      :repo "petergardfjall/emacs-postrace"
-		      :branch "main")
+                      :repo "petergardfjall/emacs-postrace"
+                      :branch "main")
   ;; Lazily load when called for.
   :bind (("C-c p p" . postrace-push)
 	 ("C-c p b" . postrace-browse)))
