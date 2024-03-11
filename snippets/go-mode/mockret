@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: mockret
+# key: mockret
+# contributor : @petergardfjall
+# --
+args := m.Called()
+var out ${1:*Type}
+if args.Get(0) != nil {
+	out = args.Get(0).($1)
+}
+return out, args.Error(1)
