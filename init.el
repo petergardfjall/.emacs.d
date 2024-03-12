@@ -605,6 +605,8 @@ performance impact should be unnoticable though."
 (use-package project
   :straight (:type built-in)
   :config
+  ;; Ignore .venv directory on calls to `project-find-file'.
+  (add-to-list 'vc-directory-exclusion-list ".venv" t)
   (global-set-key (kbd "C-c f f") #'project-find-file))
 
 
