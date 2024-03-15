@@ -1,0 +1,48 @@
+# -*- mode: snippet -*-
+# name: cobra
+# key: cobra
+# contributor : @petergardfjall
+# --
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+var (
+	globalOpt string = "global"
+	subCmdOpt string = "sub"
+)
+
+func init() {
+	rootCmd.PersistentFlags().StringVar(&globalOpt, "global-option", globalOpt, "Option")
+
+	rootCmd.AddCommand(subCmd)
+	subCmd.Flags().StringVar(&subCmdOpt, "sub-option", subCmdOpt, "Option")
+}
+
+var subCmd = &cobra.Command{
+	Use:   "subcommand <pos-arg>",
+	Short: "Description.",
+	Long:  "Longer description.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Printf("called with %s (global-opt: %s, sub-opt: %s)\n",
+			args[0], globalOpt, subCmdOpt)
+		return nil
+	},
+}
+
+var rootCmd = &cobra.Command{
+	Use: "command",
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v", err)
+		os.Exit(1)
+	}
+}
