@@ -213,6 +213,12 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
   (add-hook 'js-ts-mode-hook #'eglot-ensure)
   (add-hook 'js-ts-mode-hook #'prettier-mode))
 
+;; Provides a `jsdoc' command to produce a jsdoc [1] template for a function.
+;; [1] https://jsdoc.app
+(use-package jsdoc
+  :straight (:host github :repo "isamert/jsdoc.el")
+  :after js-ts-mode)
+
 
 ;; Enable the Prettier code-formatter's minor mode to format on save whenever we
 ;; edit JavaSciprt/JSX.  https://prettier.io/.
