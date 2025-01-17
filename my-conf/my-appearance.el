@@ -43,9 +43,9 @@
 
 ;; Show column in mode-line.
 (setq column-number-mode t)
-;; Enable line numbers in all text-mode/prog-mode buffers.
-(add-hook 'text-mode-hook    #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook    #'display-line-numbers-mode)
+;; Display line numbers in the buffer margin.
+(add-hook 'text-mode-hook        #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook        #'display-line-numbers-mode)
 
 (defun my-highlight-todos ()
   "Highlight TODO markers in code."
