@@ -50,5 +50,30 @@
                  :showLog "true")))
 
 
+(use-package hydra
+  :straight t
+  :commands (defhydra)
+  :config
+
+  (defhydra my-debug-hydra (:hint nil)
+    "
+  Breakpoint: _b_: toggle    _s_: save  _l_: load
+  Session:    _d_: start     _i_: info  _k_: kill
+  Step:       _c_: continue  _→_: next  _↓_: step-in  _↑_: step-out
+  "
+    ("d"       dape)              ;; Start debug session.
+    ("b"       dape-breakpoint-toggle :exit t)
+    ("s"       dape-breakpoint-save)
+    ("l"       dape-breakpoint-load)
+    ("<right>" dape-next)         ;; Step one line (skip functions).
+    ("<down>"  dape-step-in)      ;; Step into function.
+    ("<up>"    dape-step-out)     ;; Step out of function.
+    ("c"       dape-continue)
+    ("i"       dape-info)         ;; Create/display dape info buffers.
+    ("k"       dape-quit :exit t) ;; Kill debug session.
+    ("q"       nil))
+  (define-key global-map (kbd "C-x C-d") #'my-debug-hydra/body))
+
+
 (provide 'my-debug)
 ;;; my-debug.el ends here.

@@ -19,6 +19,7 @@
 ;; Supports definition of hydras - families of commands with a common prefix.
 (use-package hydra
   :straight t
+  :commands (defhydra)
   :config
   ;; Window navigation/resizing hydra.
   (defhydra hydra-windows (:hint nil)
