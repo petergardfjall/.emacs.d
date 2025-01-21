@@ -41,5 +41,16 @@
   (add-hook 'yaml-ts-mode-hook #'my-highlight-todos))
 
 
+;; The built-in `yaml-ts-mode' is currently lacking proper indentation handling.
+;; Until that changes we still need `yaml-mode'.
+(use-package yaml-mode
+  :straight t
+  :hook ((yaml-ts-mode . yaml-mode))
+  :config
+  (add-hook 'yaml-mode-hook (lambda () (setq-local indent-tabs-mode nil)))
+  (add-hook 'yaml-mode-hook #'my-untabify-on-save-hook)
+  (add-hook 'yaml-mode-hook #'my-strip-on-save-hook))
+
+
 (provide 'my-data-formats)
 ;;; my-data-formats.el ends here.
