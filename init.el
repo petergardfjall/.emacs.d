@@ -81,6 +81,9 @@ Hack Nerd Font.")
 (autoload 'my-set-default-font-height "my-display-functions.el"
   "Reset the font height for the selected frame to the default font size." t)
 
+(autoload 'my-text-to-speech "my-text-to-speech-functions.el"
+  "Translates text to speech." t)
+
 (autoload 'my-treesit-install-language "my-treesit-functions.el"
   "Install/update a treesit grammar for LANG." t)
 
