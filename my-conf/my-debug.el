@@ -10,7 +10,7 @@
 
 ;; Debug Adapter Protocol (DAP) client for Emacs.
 ;;
-;; Some quick
+;; A brief command cheat sheet:
 ;; Use `dape' to start a debugging session.
 ;; Use `dape-kill' to stop a debugging session.
 ;; Use `dape-info' to show dape windows.
@@ -35,7 +35,7 @@
   ;; Set up additional `dape-configs'.
   ;;
   ;; Add a "dlv-attach" config for attaching to a running debugger.
-  ;;   dlv exec --listen=localhost:33284 --headless <binary> [argv]
+  ;;   dlv exec --listen=localhost:33284 --headless <binary> -- [binary-argv]
   (add-to-list 'dape-configs
 	       `(dlv-attach ;; Name of configuration.
 	         modes (go-mode go-ts-mode)
