@@ -114,6 +114,7 @@ Hack Nerd Font.")
 ;;
 ;; Start of custom package installation/configuration.
 ;;
+(require 'my-ai)
 (require 'my-appearance)
 (require 'my-completion)
 (require 'my-documentation)
