@@ -148,7 +148,7 @@
 ;; `completion-at-point-functions' such as `eglot-completion-at-point'.
 (use-package company
   :straight t
-  :disabled
+  :disabled t
   :diminish
   :init
   (global-company-mode)
