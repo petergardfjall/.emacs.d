@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: slog
+# key: slog
+# contributor : @petergardfjall
+# --
+
+func init() {
+	level := slog.LevelInfo
+	if os.Getenv("LOG_LEVEL") != "" {
+		_ = level.UnmarshalText([]byte(os.Getenv("LOG_LEVEL")))
+	}
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
+}
+
