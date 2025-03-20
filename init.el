@@ -56,6 +56,8 @@ Hack Nerd Font.")
 (add-to-list 'load-path "~/.emacs.d/my-lisp")
 (autoload 'my-byte-offset "my-buffer-functions.el"
   "Report the byte offset (0-indexed) at point (cursor position)." t)
+(autoload 'my-sha256-checksum "my-buffer-functions.el"
+  "Reports the SHA256 checksum for the selected region." t)
 (autoload 'my-rename-file-and-buffer "my-buffer-functions.el"
   "Rename the current buffer and the file it is visiting." t)
 (autoload 'my-strip-on-save-hook "my-buffer-functions.el"
