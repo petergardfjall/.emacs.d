@@ -13,7 +13,7 @@
   (message "byte offset: %d" (1- (position-bytes (point)))))
 
 (defun my-sha256-checksum ()
-  "Copies the checksum for the selected region to the clipboard.
+  "Prints the SHA-256 checksum for the selected region in the echo area.
 The cursor position itself is not included in the selection."
   (interactive)
   (unless (region-active-p)
@@ -22,7 +22,6 @@ The cursor position itself is not included in the selection."
          (start-byte (1- (position-bytes (region-beginning)))) ;; 0-indexed
          (end-byte (1- (position-bytes (1- (region-end)))))    ;; 0-indexed
          (checksum (secure-hash 'sha256 text)))
-    (clipboard-kill-ring-save nil nil t) ;; copy region to clipboard.
     (message "[%d,%d] checksum: %s" start-byte end-byte checksum)))
 
 (defun my-rename-file-and-buffer ()
