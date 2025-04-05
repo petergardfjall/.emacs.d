@@ -16,9 +16,9 @@
   :commands (gptel gptel-send)
   :config
   (setq
-   ;; Gemini 1.5 Flash is free of charge with lower rate limits
+   ;; Gemini 2.0 Flash is free of charge with lower rate limits
    ;; (15 requests/min and 1500 requests/day).
-   gptel-model 'gemini-1.5-flash
+   gptel-model 'gemini-2.0-flash
    gptel-backend (gptel-make-gemini
                   "Gemini"
                   :key (getenv "GEMINI_API_KEY")
