@@ -30,7 +30,7 @@ The cursor position itself is not included in the selection."
   (let ((filename (buffer-file-name)))
     (if (not (and filename (file-exists-p filename)))
         (message "Buffer '%s' is not visiting a file!" (buffer-name))
-      (let ((new-name (read-file-name "Rename file: " filename)))
+      (let ((new-name (read-string "New name: " (file-name-nondirectory filename))))
         (cond
          ((vc-backend filename) (vc-rename-file filename new-name))
          (t
