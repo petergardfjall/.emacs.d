@@ -35,7 +35,6 @@
   :straight t
   :mode (("\\.yaml\\(.gotmpl\\)?$" . yaml-ts-mode)
          ("\\.yml\\(.gotmpl\\)?$" . yaml-ts-mode))
-  :hook ((yaml-ts-mode . prettier-mode))
   :config
   (setq indent-tabs-mode nil) ; no tabs for indentation
   (add-hook 'yaml-ts-mode-hook #'my-highlight-todos))
@@ -49,7 +48,10 @@
   :config
   (add-hook 'yaml-mode-hook (lambda () (setq-local indent-tabs-mode nil)))
   (add-hook 'yaml-mode-hook #'my-untabify-on-save-hook)
-  (add-hook 'yaml-mode-hook #'my-strip-on-save-hook))
+  (add-hook 'yaml-mode-hook #'my-strip-on-save-hook)
+  ;; Avoid prettier-mode for .gotmpl files (it messes up {{ }} templates).
+  (add-hook 'yaml-mode-hook  (lambda () (unless (string-match "\\.gotmpl$" (buffer-name))
+                                          (prettier-mode)))))
 
 
 (provide 'my-data-formats)
