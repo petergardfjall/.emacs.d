@@ -123,7 +123,7 @@
   (setq completion-category-overrides
         '(;; Use orderless for `switch-to-buffer'.
           (buffer (styles orderless))
-          ;; Use basic completion and then orderless for `open' (C-x C-f).
+          ;; Use basic completion and then orderless for `find-file' (C-x C-f).
           (file (styles basic orderless))
           ;; Use orderless for `project-find-file'.
           (project-file (styles orderless))
