@@ -198,7 +198,8 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
   :diminish
   :hook ((emacs-lisp-mode . highlight-indent-guides-mode))
   :config
-  (setq highlight-indent-guides-method 'character))
+  (setq highlight-indent-guides-method 'character)
+  (setq highlight-indent-guides-auto-character-face-perc 100))
 
 
 ;; Major mode for JavaScript and React/JSX (built-into Emacs). `js-ts-mode'
