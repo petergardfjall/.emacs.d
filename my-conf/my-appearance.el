@@ -62,8 +62,9 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Cursor appearance.
-(set-default 'cursor-type 'box)
-(blink-cursor-mode 0) ;; No blinking cursor.
+(set-default 'cursor-type '(bar . 4))
+(set-default 'cursor-in-non-selected-windows nil)
+(blink-cursor-mode 1) ;; No blinking cursor.
 
 ;; Set initial frame width (in characters).
 (if (display-graphic-p)

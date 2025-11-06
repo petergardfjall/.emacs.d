@@ -12,7 +12,9 @@
 (use-package magit
   :straight t
   ;; Lazily load when called for.
-  :bind (("C-x g" . magit-status)))
+  :bind (("C-x g" . magit-status))
+  :config
+  (setq magit-diff-refine-hunk 'all))
 
 
 ;; Highlight diffs (in the fringe) for version-controlled buffers.
@@ -26,7 +28,7 @@
 
 (use-package git-when
   ;; :load-path "~/dev/git/emacs-git-when"
-  :straight (immaterial-theme
+  :straight (git-when
              :type git :host github
              :repo "petergardfjall/emacs-git-when"
              :branch "wip"))
