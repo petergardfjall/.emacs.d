@@ -24,6 +24,14 @@
   ;; Refresh highlighting if magit does an update.
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
+(use-package git-when
+  ;; :load-path "~/dev/git/emacs-git-when"
+  :straight (immaterial-theme
+             :type git :host github
+             :repo "petergardfjall/emacs-git-when"
+             :branch "wip"))
+
+
 
 (provide 'my-version-control)
 ;;; my-version-control.el ends here.
