@@ -94,7 +94,7 @@
 	   (project-short :truncate 0.4 :face 'marginalia-value)
 	   (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
   ;; update annotator-registry to use my custom annotator for buffers
-  (add-to-list 'marginalia-annotator-registry
+  (add-to-list 'marginalia-annotators
                '(buffer my-project-buffer-annotator none))
   :config
   (let ((m minibuffer-local-map))
