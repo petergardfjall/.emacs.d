@@ -62,7 +62,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Cursor appearance.
-(set-default 'cursor-type '(bar . 4))
+(set-default 'cursor-type '(bar . 2))
 (set-default 'cursor-in-non-selected-windows nil)
 (blink-cursor-mode 1) ;; No blinking cursor.
 
