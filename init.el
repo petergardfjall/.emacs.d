@@ -27,7 +27,8 @@
   "Text font to use.
 Examples include: Source Code Pro, Ubuntu Mono, Cousine, JetBrains Mono,
 Hack Nerd Font.")
-(defvar my-font-size (if (string-match "eDP-?1" (alist-get 'name (car (display-monitor-attributes-list))))
+(defvar my-font-size (if (and (display-graphic-p)
+                              (string-match "eDP-?1" (alist-get 'name (car (display-monitor-attributes-list)))))
                          12.0 ;; Laptop display. Appears to normally be called eDP-1 or eDP1.
                        10.5)
   "Font size to use in points (for example, 10.5).")
