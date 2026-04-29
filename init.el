@@ -80,6 +80,9 @@ Hack Nerd Font.")
 (autoload 'my-ggtags-find-reference "my-ggtags-functions.el"
   "Replacement for `ggtags-find-reference' that will always prompt." t)
 
+(autoload 'my-github-browse-url-at-point "my-git-functions.el"
+  "Open a web browser that visits the GitHub file at point." t)
+
 (autoload 'my-color-lighten "my-display-functions.el"
   "Determine a brighter/darker shade of a hex color." t)
 (autoload 'my-resolution-resize "my-display-functions.el"
