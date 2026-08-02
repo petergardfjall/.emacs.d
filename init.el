@@ -30,7 +30,7 @@ Hack Nerd Font.")
 (defvar my-font-size (if (and (display-graphic-p)
                               (string-match "eDP-?1" (alist-get 'name (car (display-monitor-attributes-list)))))
                          12.0 ;; Laptop display. Appears to normally be called eDP-1 or eDP1.
-                       10.5)
+                       11.0)
   "Font size to use in points (for example, 10.5).")
 
 
