@@ -1,4 +1,4 @@
-;;; early-init.el --- Pre-init file emacs configuration.
+;;; early-init.el --- Pre-init file emacs configuration.  -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;;
 ;;; Executed during Emacs startup earlier than the normal init file is
