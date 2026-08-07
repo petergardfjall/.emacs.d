@@ -11,20 +11,84 @@
 ;; Minibuffer completion.
 ;;
 
-;; Basic settings for `completing-read' (minibuffer completion) and, to some
-;; extent, also `complete-at-point' (buffer completion).
+(defun my-completions-buffer-truncate-lines ()
+  "Don't wrap *Completions* buffer lines."
+  (with-current-buffer "*Completions*"
+    (setq truncate-lines t)))
+
+;; Sets up to use the built-in *Completions* buffer for both types of completion:
 ;;
-;; Also see:
-;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
+;; - Minibuffer completion (`completing-read') like M-x, C-x C-f, C-x b, etc.
+;; - In-buffer completion (`completion-at-point'), normally summoned by M-TAB or such.
+;;
+;; With this enabled any other minibuffer completion (`icomplete') and in-buffer
+;; completion (`corfu') can be disabled. If so, the *Completions* buffer will be
+;; used for all completion.
 (use-package minibuffer
   :straight (:type built-in)
+  :hook ((minibuffer-setup . cursor-intangible-mode)
+	 (completion-setup . my-completions-buffer-truncate-lines))
   :config
-  ;; Determine how to match minibuffer input text against completion candidates.
-  (setq completion-styles '(substring basic))
-  ;; Ignore case on various forms of `completing-read' (minibuffer completion).
-  (setq completion-ignore-case t)
-  (setq read-file-name-completion-ignore-case t)
-  (setq read-buffer-completion-ignore-case t))
+  ;; Generic minibuffer properties.
+  (setq
+   enable-recursive-minibuffers t
+   minibuffer-prompt-properties '(read-only t intangible t cursor-intangible t face minibuffer-prompt)
+   minibuffer-depth-indicate-mode t
+   minibuffer-electric-default-mode t)
+
+  ;;
+  ;; Generic config for *Completions* buffer.
+  ;;
+  (setq
+   ;; Update candidates as I type.
+   completion-eager-update t
+   ;; Bring up Completions buffer immedidately on `completing-read'.
+   completion-eager-display t
+   ;; Do not inform about default keybindings.
+   completion-show-help nil
+   ;; Do not show messages in echo area pertaining to completion.
+   ;; (setq completion-show-inline-help nil)
+   ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
+   completions-detailed t
+   completions-group nil
+   completions-format 'one-column
+   completions-max-height 10
+   ;; Surface previous inputs towards the top of the list.
+   completions-sort 'historical)
+   ;; Unbind `minibuffer-complete-word'.
+  (keymap-unset minibuffer-local-completion-map "SPC")
+
+  ;;
+  ;; In-buffer completion.
+  ;;
+
+  ;; Summon in-buffer completion at any time with "C-<tab>".
+  (define-key global-map (kbd "C-<tab>") #'completion-at-point)
+  (setq
+   ;; Hitting TAB first tries to indent the current line, and if the line was
+   ;; already indented, it tries `completion-at-point'.
+   tab-always-indent 'complete
+   ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
+   completion-auto-help t)
+
+  ;;
+  ;; Minibuffer completion.
+  ;;
+  (setq
+   ;; Determine how to match minibuffer input text against completion candidates.
+   ;; Can be extended with the `orderless' package.
+   completion-styles '(basic flex)
+
+   ;; Open *Completions* buffer on first TAB, move point to it on second TAB.
+   completion-auto-select 'second-tab
+   ;; Allow up/down navigation of Completions buffer candidates while typing in
+   ;; minibuffer.
+   minibuffer-visible-completions 'up-down
+
+   ;; Ignore case on various forms of `completing-read' (minibuffer completion).
+   completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   read-buffer-completion-ignore-case t))
 
 
 ;; A built-in UI for `completing-read' ("minibuffer completion"). We configure
@@ -32,6 +96,7 @@
 ;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
 (use-package icomplete
   :straight (:type built-in)
+  :disabled t
   :config
   ;; Display candidates in a vertical list.
   (icomplete-vertical-mode 1)
@@ -83,16 +148,17 @@
   :straight t
   :init
   (marginalia-mode)
+  (setq marginalia-field-width 40)
   (defun my-project-buffer-annotator (cand)
     (let* ((buffer (get-buffer cand)))
       (when-let* ((buffer-file (buffer-file-name buffer))
                   (buffer-proj (project-current nil buffer-file))
-	          (project-dir (project-root buffer-proj))
-	          (project-short (project-name buffer-proj)))
+                  (project-dir (project-root buffer-proj))
+                  (project-short (project-name buffer-proj)))
         (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
-	  (marginalia--fields
-	   (project-short :truncate 0.4 :face 'marginalia-value)
-	   (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
+          (marginalia--fields
+           (project-short :truncate 0.4 :face 'marginalia-value)
+           (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
   ;; update annotator-registry to use my custom annotator for buffers
   (add-to-list 'marginalia-annotators
                '(buffer my-project-buffer-annotator none))
@@ -104,6 +170,7 @@
 ;; Add nerd icons to minibuffer completion.
 (use-package nerd-icons-completion
   :straight t
+  :disabled t
   :after marginalia
   :config
   (nerd-icons-completion-mode)
@@ -111,8 +178,8 @@
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 
-;; Orderless provides another type of `completion-styles' for `completing-read'
-;; where space-separated words can be input as search terms.
+;; Orderless provides a different type of `completion-styles' for minibuffer
+;; completion, where space-separated words can be input as search terms.
 (use-package orderless
   :straight t
   :init
@@ -178,6 +245,7 @@
 ;; `completion-at-point-functions' such as `eglot-completion-at-point'.
 (use-package corfu
   :straight t
+  :disabled t
   :init
   (global-corfu-mode)
   :config
