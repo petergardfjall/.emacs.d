@@ -33,17 +33,26 @@
   (define-key global-map (kbd "C-<tab>") #'completion-at-point)
 
   (setq tab-always-indent 'complete)
+  ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
   (setq completion-auto-help t)
   (setq completion-auto-select 'second-tab)
   (setq completion-eager-update t)
   (setq completion-eager-display t)
   (setq minibuffer-visible-completions 'up-down)
+  ;; Do not inform about default keybindings.
   (setq completion-show-help nil)
+  ;; Do not show messages in echo area pertaining to completion.
+  (setq completion-show-inline-help nil)
+  ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
+  (setq completions-detailed t)
+
   ;; Determine how to match minibuffer input text against completion candidates.
   ;; (setq completion-styles '(partial-completion flex initials))
   ;; (setq completion-styles '(substring basic))
   (setq completions-format 'one-column)
   (setq completions-max-height 10)
+  ;; Rely on previous inputs to surface candidates towards the top of the list
+  ;; (enable the built-in `savehist-mode' to persist history).
   (setq completions-sort 'historical)
   (setq enable-recursive-minibuffers t)
   (setq minibuffer-prompt-properties
@@ -112,21 +121,23 @@
 ;; compatible framework (such as icomplete, selectrum and vertico).
 (use-package marginalia
   :straight t
+  :disabled t
   :init
   (marginalia-mode)
-  (defun my-project-buffer-annotator (cand)
-    (let* ((buffer (get-buffer cand)))
-      (when-let* ((buffer-file (buffer-file-name buffer))
-                  (buffer-proj (project-current nil buffer-file))
-	          (project-dir (project-root buffer-proj))
-	          (project-short (project-name buffer-proj)))
-        (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
-	  (marginalia--fields
-	   (project-short :truncate 0.4 :face 'marginalia-value)
-	   (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
+  ;; (setq marginalia-field-width 40)
+  ;; (defun my-project-buffer-annotator (cand)
+  ;;   (let* ((buffer (get-buffer cand)))
+  ;;     (when-let* ((buffer-file (buffer-file-name buffer))
+  ;;                 (buffer-proj (project-current nil buffer-file))
+  ;;                 (project-dir (project-root buffer-proj))
+  ;;                 (project-short (project-name buffer-proj)))
+  ;;       (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
+  ;;         (marginalia--fields
+  ;;          (project-short :truncate 0.4 :face 'marginalia-value)
+  ;;          (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
   ;; update annotator-registry to use my custom annotator for buffers
-  (add-to-list 'marginalia-annotators
-               '(buffer my-project-buffer-annotator none))
+  ;; (add-to-list 'marginalia-annotators
+  ;;              '(buffer my-project-buffer-annotator none))
   :config
   (let ((m minibuffer-local-map))
     (define-key m (kbd "M-A") #'marginalia-cycle)))
