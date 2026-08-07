@@ -11,6 +11,14 @@
 ;; Minibuffer completion.
 ;;
 
+;; TODO
+
+(defun my/minibuffer-truncate-lines ()
+  "Keep minibuffer lines unwrapped."
+  ;; TODO: does not seem to work..
+  (message "truncate-lines at %d" fill-column)
+  (setq-local truncate-lines t))
+
 ;; Basic settings for `completing-read' (minibuffer completion) and, to some
 ;; extent, also `complete-at-point' (buffer completion).
 ;;
@@ -18,9 +26,31 @@
 ;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
 (use-package minibuffer
   :straight (:type built-in)
+  :hook ((minibuffer-setup . cursor-intangible-mode)
+	 (minibuffer-setup . my/minibuffer-truncate-lines))
   :config
+  ;; Summon completion at any time with "C-<tab>".
+  (define-key global-map (kbd "C-<tab>") #'completion-at-point)
+
+  (setq tab-always-indent 'complete)
+  (setq completion-auto-help t)
+  (setq completion-auto-select 'second-tab)
+  (setq completion-eager-update t)
+  (setq completion-eager-display t)
+  (setq minibuffer-visible-completions 'up-down)
+  (setq completion-show-help nil)
   ;; Determine how to match minibuffer input text against completion candidates.
-  (setq completion-styles '(substring basic))
+  ;; (setq completion-styles '(partial-completion flex initials))
+  ;; (setq completion-styles '(substring basic))
+  (setq completions-format 'one-column)
+  (setq completions-max-height 10)
+  (setq completions-sort 'historical)
+  (setq enable-recursive-minibuffers t)
+  (setq minibuffer-prompt-properties
+   '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
+  (setq minibuffer-depth-indicate-mode t)
+  (setq minibuffer-electric-default-mode t)
+
   ;; Ignore case on various forms of `completing-read' (minibuffer completion).
   (setq completion-ignore-case t)
   (setq read-file-name-completion-ignore-case t)
@@ -32,6 +62,7 @@
 ;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
 (use-package icomplete
   :straight (:type built-in)
+  :disabled t
   :config
   ;; Display candidates in a vertical list.
   (icomplete-vertical-mode 1)
@@ -178,6 +209,7 @@
 ;; `completion-at-point-functions' such as `eglot-completion-at-point'.
 (use-package corfu
   :straight t
+  :disabled t
   :init
   (global-corfu-mode)
   :config
