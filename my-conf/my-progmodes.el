@@ -313,43 +313,10 @@ Prompts the user for input. It does the equivalent of `C-u M-.'."
   :straight (:type built-in)
   :defer t
   :init
-  ;; Use treesit-based major-modes where grammars are available.
-  (add-to-list 'major-mode-remap-alist '(bash-mode   . bash-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(css-mode    . css-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(html-mode   . html-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(ruby-mode   . ruby-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(sql-mode    . sql-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(toml-mode   . toml-ts-mode))
-  ;; Specify which tree-sitter language grammar defintions to use.
-  (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-          (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))
-          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (make . ("https://github.com/alemuller/tree-sitter-make"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.23.2" "tsx/src"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.23.2" "typescript/src"))
-          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))))
-  :config
-  ;; Install language grammars if not already present.
-  (let ((languages (mapcar 'car treesit-language-source-alist)))
-    (dolist (lang languages)
-      (unless (treesit-language-available-p lang)
-        (display-warning 'init.el (format "Installing language grammar for `%s' ..." lang) :warning)
-        (sleep-for 0.5)
-        (treesit-install-language-grammar lang)
-        (message "`%s' treesit language grammar installed." lang)))))
-
+  ;; Use treesitter (*-ts-mode) whenever available for a language.
+  (setq treesit-enabled-modes t)
+  ;; Ask before installing a missing treesitter mode.
+  (setq treesit-auto-install-grammar 'ask))
 
 (use-package typescript-ts-mode
   :straight (:type built-in)
