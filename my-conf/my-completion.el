@@ -11,13 +11,10 @@
 ;; Minibuffer completion.
 ;;
 
-;; TODO
-
-(defun my/minibuffer-truncate-lines ()
-  "Keep minibuffer lines unwrapped."
-  ;; TODO: does not seem to work..
-  (message "truncate-lines at %d" fill-column)
-  (setq-local truncate-lines t))
+(defun my-completions-buffer-truncate-lines ()
+  "Don't wrap *Completions* buffer lines."
+  (with-current-buffer "*Completions*"
+    (setq truncate-lines t)))
 
 ;; Basic settings for `completing-read' (minibuffer completion) and, to some
 ;; extent, also `complete-at-point' (buffer completion).
@@ -27,7 +24,7 @@
 (use-package minibuffer
   :straight (:type built-in)
   :hook ((minibuffer-setup . cursor-intangible-mode)
-	 (minibuffer-setup . my/minibuffer-truncate-lines))
+	 (completion-setup . my-completions-buffer-truncate-lines))
   :config
   ;; Summon completion at any time with "C-<tab>".
   (define-key global-map (kbd "C-<tab>") #'completion-at-point)
