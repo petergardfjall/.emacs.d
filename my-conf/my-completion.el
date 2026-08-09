@@ -17,8 +17,9 @@
     (setq truncate-lines t)))
 
 ;; Basic settings for `completing-read' (minibuffer completion) and, to some
-;; extent, also `complete-at-point' (buffer completion).
+;; extent, also `complete-at-point' (in-buffer completion).
 ;;
+;; See: https://www.alcarney.me/notes/20260422T183610/
 ;; Also see:
 ;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
 (use-package minibuffer
@@ -32,20 +33,25 @@
   (setq tab-always-indent 'complete)
   ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
   (setq completion-auto-help t)
-  (setq completion-auto-select 'second-tab)
+  ;; Open *Completions* buffer on first TAB, move point to it on second TAB.
+  (setq completion-auto-select 'second-tab
+        ;; Allow up/down navigation of Completions buffer candidates while
+        ;; typing in minibuffer.
+        minibuffer-visible-completions 'up-down)
+
   (setq completion-eager-update t)
   (setq completion-eager-display t)
-  (setq minibuffer-visible-completions 'up-down)
+
   ;; Do not inform about default keybindings.
   (setq completion-show-help nil)
   ;; Do not show messages in echo area pertaining to completion.
-  (setq completion-show-inline-help nil)
+  ;; (setq completion-show-inline-help nil)
   ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
   (setq completions-detailed t)
 
   ;; Determine how to match minibuffer input text against completion candidates.
   ;; (setq completion-styles '(partial-completion flex initials))
-  ;; (setq completion-styles '(substring basic))
+
   (setq completions-format 'one-column)
   (setq completions-max-height 10)
   ;; Rely on previous inputs to surface candidates towards the top of the list
