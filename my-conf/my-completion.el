@@ -16,57 +16,73 @@
   (with-current-buffer "*Completions*"
     (setq truncate-lines t)))
 
-;; Basic settings for `completing-read' (minibuffer completion) and, to some
-;; extent, also `complete-at-point' (in-buffer completion).
+;; Set up to use the built-in *Completions* buffer for both types of completion:
 ;;
-;; See: https://www.alcarney.me/notes/20260422T183610/
-;; Also see:
-;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
+;; - Minibuffer completion (`completing-read') like M-x, C-x C-f, C-x b, etc.
+;; - In-buffer completion (`completion-at-point'), normally summoned by M-TAB or such.
+;;
 (use-package minibuffer
   :straight (:type built-in)
   :hook ((minibuffer-setup . cursor-intangible-mode)
 	 (completion-setup . my-completions-buffer-truncate-lines))
   :config
-  ;; Summon completion at any time with "C-<tab>".
-  (define-key global-map (kbd "C-<tab>") #'completion-at-point)
+  ;; Generic minibuffer properties.
+  (setq
+   enable-recursive-minibuffers t
+   minibuffer-prompt-properties '(read-only t intangible t cursor-intangible t face minibuffer-prompt)
+   minibuffer-depth-indicate-mode t
+   minibuffer-electric-default-mode t)
 
-  (setq tab-always-indent 'complete)
-  ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
-  (setq completion-auto-help t)
-  ;; Open *Completions* buffer on first TAB, move point to it on second TAB.
-  (setq completion-auto-select 'second-tab
-        ;; Allow up/down navigation of Completions buffer candidates while
-        ;; typing in minibuffer.
-        minibuffer-visible-completions 'up-down)
-
-  (setq completion-eager-update t)
-  (setq completion-eager-display t)
-
-  ;; Do not inform about default keybindings.
-  (setq completion-show-help nil)
+  ;;
+  ;; Generic config for *Completions* buffer.
+  ;;
+  (setq
+  ;; Update candidates as I type.
+   completion-eager-update t
+  ;; Bring up Completions buffer immedidately on `completing-read'.
+   completion-eager-display t
+   ;; Do not inform about default keybindings.
+   completion-show-help nil
   ;; Do not show messages in echo area pertaining to completion.
   ;; (setq completion-show-inline-help nil)
-  ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
-  (setq completions-detailed t)
+   ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
+  completions-detailed t
+  completions-format 'one-column
+  completions-max-height 10
+  ;; Surface previous inputs towards the top of the list.
+  completions-sort 'historical)
 
-  ;; Determine how to match minibuffer input text against completion candidates.
-  ;; (setq completion-styles '(partial-completion flex initials))
+  ;;
+  ;; In-buffer completion.
+  ;;
 
-  (setq completions-format 'one-column)
-  (setq completions-max-height 10)
-  ;; Rely on previous inputs to surface candidates towards the top of the list
-  ;; (enable the built-in `savehist-mode' to persist history).
-  (setq completions-sort 'historical)
-  (setq enable-recursive-minibuffers t)
-  (setq minibuffer-prompt-properties
-   '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
-  (setq minibuffer-depth-indicate-mode t)
-  (setq minibuffer-electric-default-mode t)
+  ;; Summon in-buffer completion at any time with "C-<tab>".
+  (define-key global-map (kbd "C-<tab>") #'completion-at-point)
+  (setq
+   ;; Hitting TAB first tries to indent the current line, and if the line was
+   ;; already indented, it tries `completion-at-point'.
+   tab-always-indent 'complete
+  ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
+   completion-auto-help t)
 
-  ;; Ignore case on various forms of `completing-read' (minibuffer completion).
-  (setq completion-ignore-case t)
-  (setq read-file-name-completion-ignore-case t)
-  (setq read-buffer-completion-ignore-case t))
+  ;;
+  ;; Minibuffer completion.
+  ;;
+  (setq
+   ;; Determine how to match minibuffer input text against completion candidates.
+   ;; Can be extended with the `orderless' package.
+   completion-styles '(basic flex)
+
+   ;; Open *Completions* buffer on first TAB, move point to it on second TAB.
+   completion-auto-select 'second-tab
+   ;; Allow up/down navigation of Completions buffer candidates while typing in
+   ;; minibuffer.
+   minibuffer-visible-completions 'up-down
+
+   ;; Ignore case on various forms of `completing-read' (minibuffer completion).
+   completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   read-buffer-completion-ignore-case t))
 
 
 ;; A built-in UI for `completing-read' ("minibuffer completion"). We configure
