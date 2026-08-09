@@ -140,7 +140,6 @@
 ;; compatible framework (such as icomplete, selectrum and vertico).
 (use-package marginalia
   :straight t
-  :disabled t
   :init
   (marginalia-mode)
   ;; (setq marginalia-field-width 40)
@@ -165,6 +164,7 @@
 ;; Add nerd icons to minibuffer completion.
 (use-package nerd-icons-completion
   :straight t
+  :disabled t
   :after marginalia
   :config
   (nerd-icons-completion-mode)
@@ -172,8 +172,8 @@
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 
-;; Orderless provides another type of `completion-styles' for `completing-read'
-;; where space-separated words can be input as search terms.
+;; Orderless provides a different type of `completion-styles' for minibuffer
+;; completion, where space-separated words can be input as search terms.
 (use-package orderless
   :straight t
   :init
