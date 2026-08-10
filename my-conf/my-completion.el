@@ -37,20 +37,23 @@
   ;; Generic config for *Completions* buffer.
   ;;
   (setq
-  ;; Update candidates as I type.
+   ;; Update candidates as I type.
    completion-eager-update t
-  ;; Bring up Completions buffer immedidately on `completing-read'.
+   ;; Bring up Completions buffer immedidately on `completing-read'.
    completion-eager-display t
    ;; Do not inform about default keybindings.
    completion-show-help nil
-  ;; Do not show messages in echo area pertaining to completion.
-  ;; (setq completion-show-inline-help nil)
+   ;; Do not show messages in echo area pertaining to completion.
+   ;; (setq completion-show-inline-help nil)
    ;; Show useful annotations in minibuffer prompts. A bit like `marginalia'.
-  completions-detailed t
-  completions-format 'one-column
-  completions-max-height 10
-  ;; Surface previous inputs towards the top of the list.
-  completions-sort 'historical)
+   completions-detailed t
+   completions-group nil
+   completions-format 'one-column
+   completions-max-height 10
+   ;; Surface previous inputs towards the top of the list.
+   completions-sort 'historical)
+   ;; Unbind `minibuffer-complete-word'.
+  (keymap-unset minibuffer-local-completion-map "SPC")
 
   ;;
   ;; In-buffer completion.
@@ -62,7 +65,7 @@
    ;; Hitting TAB first tries to indent the current line, and if the line was
    ;; already indented, it tries `completion-at-point'.
    tab-always-indent 'complete
-  ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
+   ;; Show the Completions buffer if I hit TAB but there is no unique match yet.
    completion-auto-help t)
 
   ;;
