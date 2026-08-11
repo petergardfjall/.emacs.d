@@ -145,20 +145,20 @@
   :straight t
   :init
   (marginalia-mode)
-  ;; (setq marginalia-field-width 40)
-  ;; (defun my-project-buffer-annotator (cand)
-  ;;   (let* ((buffer (get-buffer cand)))
-  ;;     (when-let* ((buffer-file (buffer-file-name buffer))
-  ;;                 (buffer-proj (project-current nil buffer-file))
-  ;;                 (project-dir (project-root buffer-proj))
-  ;;                 (project-short (project-name buffer-proj)))
-  ;;       (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
-  ;;         (marginalia--fields
-  ;;          (project-short :truncate 0.4 :face 'marginalia-value)
-  ;;          (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
+  (setq marginalia-field-width 40)
+  (defun my-project-buffer-annotator (cand)
+    (let* ((buffer (get-buffer cand)))
+      (when-let* ((buffer-file (buffer-file-name buffer))
+                  (buffer-proj (project-current nil buffer-file))
+                  (project-dir (project-root buffer-proj))
+                  (project-short (project-name buffer-proj)))
+        (let ((project-rel-dir (file-name-directory (file-relative-name buffer-file project-dir))))
+          (marginalia--fields
+           (project-short :truncate 0.4 :face 'marginalia-value)
+           (project-rel-dir :truncate 0.4 :face 'marginalia-documentation))))))
   ;; update annotator-registry to use my custom annotator for buffers
-  ;; (add-to-list 'marginalia-annotators
-  ;;              '(buffer my-project-buffer-annotator none))
+  (add-to-list 'marginalia-annotators
+               '(buffer my-project-buffer-annotator none))
   :config
   (let ((m minibuffer-local-map))
     (define-key m (kbd "M-A") #'marginalia-cycle)))
