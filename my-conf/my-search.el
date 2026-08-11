@@ -37,7 +37,12 @@
         xref-show-definitions-function #'consult-xref)
   :config
   ;; Delay before starting a new async search (for example for `consult-grep').
-  (setq consult-async-input-debounce 0.2))
+  (setq consult-async-input-debounce 0.2)
+  ;; Avoid displaying search results grouped by file (separated by headers).
+  (consult-customize
+   consult-git-grep consult-ripgrep
+   :group nil)
+  )
 
 
 ;; The embark-consult provides the `embark-export' command which collects output
