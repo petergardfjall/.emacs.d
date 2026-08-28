@@ -26,6 +26,7 @@
 ;; used for all completion.
 (use-package minibuffer
   :straight (:type built-in)
+  :disabled t
   :hook ((minibuffer-setup . cursor-intangible-mode)
 	 (completion-setup . my-completions-buffer-truncate-lines))
   :config
@@ -96,10 +97,16 @@
 ;; https://www.masteringemacs.org/article/understanding-minibuffer-completion
 (use-package icomplete
   :straight (:type built-in)
-  :disabled t
   :config
   ;; Display candidates in a vertical list.
   (icomplete-vertical-mode 1)
+  ;; Determine how to match minibuffer input text against completion candidates.
+  (setq completion-styles '(substring basic))
+  ;; Ignore case on various forms of `completing-read' (minibuffer completion).
+  (setq
+   completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   read-buffer-completion-ignore-case t)
   ;; Move point through list rather than rotate first entry.
   (setq icomplete-scroll t)
   (setq icomplete-show-matches-on-no-input t)
@@ -148,7 +155,6 @@
   :straight t
   :init
   (marginalia-mode)
-  (setq marginalia-field-width 40)
   (defun my-project-buffer-annotator (cand)
     (let* ((buffer (get-buffer cand)))
       (when-let* ((buffer-file (buffer-file-name buffer))
@@ -170,7 +176,6 @@
 ;; Add nerd icons to minibuffer completion.
 (use-package nerd-icons-completion
   :straight t
-  :disabled t
   :after marginalia
   :config
   (nerd-icons-completion-mode)
@@ -245,7 +250,6 @@
 ;; `completion-at-point-functions' such as `eglot-completion-at-point'.
 (use-package corfu
   :straight t
-  :disabled t
   :init
   (global-corfu-mode)
   :config
