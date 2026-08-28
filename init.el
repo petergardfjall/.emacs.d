@@ -85,6 +85,8 @@ Hack Nerd Font.")
 
 (autoload 'my-color-lighten "my-display-functions.el"
   "Determine a brighter/darker shade of a hex color." t)
+(autoload 'my-display-width "my-display-functions.el"
+  "Return the width (in pixels) of the display showing the selected frame." t)
 (autoload 'my-resolution-resize "my-display-functions.el"
   "Resize frame to its default size and scale the font after screen resolution." t)
 (autoload 'my-scale-font "my-display-functions.el"

@@ -17,6 +17,15 @@ negative)."
   (if (fboundp 'immaterial-color-lighten)
       (message "%s" (immaterial-color-lighten hex-color percent))))
 
+(defun my-display-width ()
+  "Return the width (in pixels) of the display showing the selected frame."
+  (interactive)
+  ;; geometry -- Position and size in pixels in the form of (X Y WIDTH HEIGHT)
+  (let ((width-pixels (nth 2 (alist-get 'geometry (car (display-monitor-attributes-list))))))
+    (when (called-interactively-p 'any)
+      (message "Display width is %d pixels." width-pixels))
+    width-pixels))
+
 (defun my-reset-size ()
   "Reset the size of the selected frame to its default size."
   (interactive)
@@ -27,10 +36,14 @@ negative)."
   "Resize frame to its default size and scale the font after screen resolution."
   (interactive)
   (defun 4k-resolution-p ()
-    (and (display-graphic-p) (>= (display-pixel-width) 3840)))
+    (and (display-graphic-p)
+         (>= (my-display-width) 3840)))
   (my-reset-size)
   (if (4k-resolution-p)
-      (my-scale-font 'high-dpi)
+      (progn
+        (message "4K resolution")
+        (my-scale-font 'high-dpi))
+    (message "low resolution")
     (my-scale-font 'low-dpi)))
 
 (defun my-scale-font (resolution)

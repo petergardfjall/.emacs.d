@@ -16,7 +16,7 @@
 ;; Set default font.
 ;; See https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 (set-frame-font (format "%s-%f" my-font my-font-size))
-(when (and (display-graphic-p) (> (display-pixel-width) 3000))
+(when (and (display-graphic-p) (> (my-display-width) 3000))
   (my-scale-font 'high-dpi))
 ;; Set increment for `text-scale-adjust' ("C-x C-+", "C-x C--" "C-x C-0").
 (setq text-scale-mode-step 1.1)
