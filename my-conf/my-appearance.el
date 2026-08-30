@@ -112,8 +112,14 @@
   :diminish eldoc-mode)
 
 
+;; Only needed since `immaterial-theme' relies on it.
+;; The built-in variant can be used once it includes the `markdown-ts-mode' faces.
+(use-package modus-themes
+  :straight t)
+
 (use-package immaterial-theme
   ;; :load-path "~/dev/git/emacs-immaterial-theme"
+  :after modus-themes
   :straight (immaterial-theme
              :type git :host github
              :repo "petergardfjall/emacs-immaterial-theme"
