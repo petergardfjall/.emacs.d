@@ -85,8 +85,6 @@
   (add-to-list 'eglot-server-programs '((c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((c++-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '((cmake-mode) . ("cmake-language-server")))
-  (add-to-list 'eglot-server-programs '((js-mode js-ts-mode tsx-ts-mode typescript-ts-mode typescript-mode)
-                                        . ("typescript-language-server" "--stdio")))
   ;; See https://rust-analyzer.github.io/manual.html#emacs
   (add-to-list 'eglot-server-programs '((rust-mode rust-ts-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
 

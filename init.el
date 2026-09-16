@@ -34,7 +34,6 @@ Hack Nerd Font.")
   "Font size to use in points (for example, 10.5).")
 
 
-
 ;;
 ;; Bootstrap package management.
 ;;
